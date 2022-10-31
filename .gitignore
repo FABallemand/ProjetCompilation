@@ -1,6 +1,5 @@
 SimulateurMIPS/
 *.aux
-*.bbl
 *.blg
 *.fdb_latexmk
 *.fls
