@@ -1,124 +1,124 @@
-
 %{
-#include <stdio.h>
-#include <stdlib.h>
+#include stdio.h
+#include stdlib.h
 
 extern int yylex();
 extern void yyerror(const char *msg);
+%}
 
 %token ID MOT CHAINE
 
 %%
 
-<programme>
-: <liste_instructions> {}
+programme
+: liste_instructions {}
 ;
 
-<liste_instructions>
-: <liste_instructions> ';' <instruction> {}
-| <instruction> {}
+liste_instructions
+: liste_instructions ';' instruction {}
+| instruction {}
 ;
 
-<instruction>
-: ID '=' <concatenation> {}
-| ID[<operande_entier>] '=' <concatenation> {}
+instruction
+: ID '=' concatenation {}
+| ID[operande_entier] '=' concatenation {}
 | declare ID[entier] {}
-| if <test_bloc> then <liste_instructions> <else_part> fi {}
-| for ID do <liste_instructions> done {}
-| for ID in <liste_operandes> do <liste_instructions> done {}
-| while <test_bloc> do <liste_instructions> done {}
-| until <test_bloc> do <liste_instructions> done {}
-| case <operande> in <liste_cas> esac {}
-| echo <liste_operandes> {}
+| if test_bloc then liste_instructions else_part fi {}
+| for ID do liste_instructions done {}
+| for ID in liste_operandes do liste_instructions done {}
+| while test_bloc do liste_instructions done {}
+| until test_bloc do liste_instructions done {}
+| case operande in liste_cas esac {}
+| echo liste_operandes {}
 | read ID {}
-| read ID[<operande_entier>] {}
-| <declaration_de_fonction> {}
-| <appel_de_fonction> {}
+| read ID[operande_entier] {}
+| declaration_de_fonction {}
+| appel_de_fonction {}
 | return {}
-| return <operande_entier> {}
+| return operande_entier {}
 | exit {}
-| exit <operande_entier> {}
+| exit operande_entier {}
 ;
 
-<else_part>
-: elif <test_bloc> then <liste_instructions> <else_part> {}
-| else <liste_instructions> {}
+else_part
+: elif test_bloc then liste_instructions else_part {}
+| else liste_instructions {}
 | %empty {}
 ;
 
-<liste_cas>
-: <liste_cas> <filtre> ')' <liste_instructions> ";;" {}
-| <filtre> ')' <liste_instructions> ";;" {}
+liste_cas
+: liste_cas filtre ')' liste_instructions ";;" {}
+| filtre ')' liste_instructions ";;" {}
 ;
 
-<filtre>
+filtre
 : MOT {}
 | \" CHAINE \" {}
 | \' CHAINE \' {}
-| <filtre> '|' MOT {}
-| <filtre> '|' '"' CHAINE '"' {}
-| <filtre> '|' \' CHAINE \' {}
-| *
+| filtre '|' MOT {}
+| filtre '|' \' CHAINE \' {}
+| filtre '|' \' CHAINE \' {}
+| '*'
 ;
 
-<liste_opérandes>
-: <liste_opérandes> <opérande> {}
-| <opérande> {}
+liste_operandes
+: liste_operandes operande {}
+| operande {}
 | "${" ID "[*]}" {}
 ;
 
-<concaténation>
-: <concaténation><opérande> {}
-| <opérande> {}
+concatenation
+: concatenationoperande {}
+| operande {}
 ;
 
-<test_bloc>
-: test <test_expr> {}
+test_bloc
+: test test_expr {}
 ;
 
-<test_expr>
-: <test_expr> -o <test_expr2> {}
-| <test_expr2> {}
+test_expr
+: test_expr "-o" test_expr2 {}
+| test_expr2 {}
 ;
 
-<test_expr2>
-: <test_expr2> -a <test_expr3> {}
-| <test_expr3> {}
+test_expr2
+: test_expr2 "-a" test_expr3 {}
+| test_expr3 {}
 ;
 
-<test_expr3>
-: '(' <test_expr> ')' {}
-| "! (" <test_expr> ')' {}
-| <test_instruction> {}
-| '!' <test_instruction> {}
+test_expr3
+: '(' test_expr ')' {}
+| '!' '(' test_expr ')' {}
+| test_instruction {}
+| '!' test_instruction {}
 ;
 
-<test_instruction>
-: <concaténation> '=' <concaténation> {}
-| <concaténation> "!=" <concaténation> {}
-| <opérateur1> <concaténation> {}
-| <opérande> <opérateur2> <opérande> {}
+test_instruction
+: concatenation '=' concatenation {}
+| concatenation "!=" concatenation {}
+| operateur1 concatenation {}
+| operande operateur2 operande {}
 ;
 
-<opérande>
+operande
 : "${" ID '}' {}
-| "${" ID '[' <opérande_entier> "]}" {}
+| "${" ID '[' operande_entier "]}" {}
 | MOT {}
 | '$' entier {}
 | "$*" {}
 | "$?" {}
-| '"' CHAINE '"' {}
+| \" CHAINE \" {}
 | \' CHAINE \' {}
-| "$(" expr <somme_entière> ')' {}
-| "$(" <appel_de_fonction> ')' {}
+| "$(" expr somme_entiere ')' {}
+| "$(" appel_de_fonction ')' {}
 ;
 
-<opérateur1>
+operateur1
 : "-n" {}
 | "-z" {}
 ;
 
-<opérateur2>
+operateur2
 : "-eq" {}
 | "-ne" {}
 | "-gt" {}
@@ -127,51 +127,51 @@ extern void yyerror(const char *msg);
 | "-le" {}
 ;
 
-<somme_entière>
-: <somme_entière> <plus_ou_moins> <produit_entier> {}
-| <produit_entier> {}
+somme_entiere
+: somme_entiere plus_ou_moins produit_entier {}
+| produit_entier {}
 ;
 
-<produit_entier>
-: <produit_entier> <fois_div_mod> <opérande_entier> {}
-| <opérande_entier> {}
+produit_entier
+: produit_entier fois_div_mod operande_entier {}
+| operande_entier {}
 ;
 
-<opérande_entier>
+operande_entier
 : "${" ID '}' {}
-| "${" ID '[' <opérande_entier> "]}" {}
+| "${" ID '[' operande_entier "]}" {}
 | '$' entier {}
-| <plus_ou_moins> "${" ID '}' {}
-| <plus_ou_moins> "${" ID '[' <opérande_entier> "]}" {}
-| <plus_ou_moins> '$' entier {}
+| plus_ou_moins "${" ID '}' {}
+| plus_ou_moins "${" ID '[' operande_entier "]}" {}
+| plus_ou_moins '$' entier {}
 | entier {}
-| <plus_ou_moins> entier {}
-| '(' <somme_entière> ')' {}
+| plus_ou_moins entier {}
+| '(' somme_entiere ')' {}
 ;
 
-<plus_ou_moins>
+plus_ou_moins
 : '+' {}
 | '-' {}
 ;
 
-<fois_div_mod>
+fois_div_mod
 : '*' {}
 | '/' {}
 | '%' {}
 ;
 
-<déclaration_de_fonction>
-: ID "() {" <décl_loc> <liste_instructions> '}' {}
+declaration_de_fonction
+: ID "() {" decl_loc liste_instructions '}' {}
 ;
 
 
-<décl_loc>
-: <décl_loc> local ID '=' <concaténation> ';' {}
+decl_loc
+: decl_loc local ID '=' concatenation ';' {}
 | %empty {}
 ;
 
-<appel_de_fonction>
-: ID <liste_opérandes> {}
+appel_de_fonction
+: ID liste_operandes {}
 | ID {}
 ;
 
