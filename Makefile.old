@@ -15,22 +15,12 @@ BISONFILE = bsos
 CFILE = csos
 
 $(BINDIR)/$(TARGET): $(OBJDIR)/$(CFILE).o $(OBJDIR)/$(BISONFILE).tab.o $(OBJDIR)/$(FLEXFILE).yy.o
-	$(CC) $(CFLAGS) $(OBJDIR)/$(CFILE).o $(OBJDIR)/$(BISONFILE).tab.o $(OBJDIR)/$(FLEXFILE).yy.o -o $(BINDIR)/$(TARGET)
-
-$(OBJDIR)/$(CFILE).o:
-	$(CC) $(CFLAGS) -c -o $(OBJDIR)/$(CFILE).o $(SRCDIR)/$(CFILE).c
 
 $(SRCDIR)/$(BISONFILE).tab.c: $(SRCDIR)/$(BISONFILE).y
 	bison --report=all -d -t $<
 
-$(OBJDIR)/$(BISONFILE).tab.o: $(SRCDIR)/$(BISONFILE).tab.c
-	$(CC) $(CFLAGS) -c -o $(OBJDIR)/$(BISONFILE).tab.o $(SRCDIR)/$(BISONFILE).tab.c
-
 $(SRCDIR)/$(FLEXFILE).yy.c: $(SRCDIR)/$(FLEXFILE).lex $(SRCDIR)/$(BISONFILE).tab.c # Dépendance pour $(FILE).tab.h
 	flex -s -o $(SRCDIR)/$(FLEXFILE).yy.c $<
-
-$(OBJDIR)/$(FLEXFILE).yy.o: $(SRCDIR)/$(FLEXFILE).yy.c
-	$(CC) $(CFLAGS) -c -o $(OBJDIR)/$(FLEXFILE).yy.o $(SRCDIR)/$(FLEXFILE).yy.c
 
 graph:
 	bison --graph $(SRCDIR)/$(BISONFILE).y
@@ -42,3 +32,18 @@ clean:
 
 clean_test:
 	rm -f test/output/*
+
+
+gcc -g   -c -o ex3.o ex3.c
+bison --report=all -d -t bex3.y
+gcc -g   -c -o bex3.tab.o bex3.tab.c
+flex -s -o lex3.yy.c lex3.lex
+gcc -g   -c -o lex3.yy.o lex3.yy.c
+gcc   ex3.o bex3.tab.o lex3.yy.o   -o ex3
+
+gcc -g   -c -o obj/csos.o src/csos.c
+bison --report=all -d -t src/bsos.y
+gcc -g   -c -o obj/bsos.tab.o src/bsos.tab.c
+flex -s -o src/fsos.yy.c src/fsos.lex
+gcc -g   -c -o obj/bsos.yy.o src/bsos.yy.c
+gcc   obj/csos.o obj/bsos.tab.o obj/fsos.yy.o   -o bin/sos
