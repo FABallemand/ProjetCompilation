@@ -6,7 +6,13 @@ extern int yylex();
 extern void yyerror(const char *msg);
 %}
 
-%token ID MOT CHAINE
+%token TEST EXPR LOCAL DECLARE IF THEN ELIF ELSE FI FOR WHILE CASE ESAC IN DO DONE READ ECHO RETURN EXIT COMMENT ID MOT CHAINE ENTIER
+
+%left '+' '-'
+%left '*' '/'
+%left UMOINS
+
+%start programme
 
 %%
 
@@ -22,27 +28,27 @@ liste_instructions
 instruction
 : ID '=' concatenation {}
 | ID[operande_entier] '=' concatenation {}
-| declare ID[entier] {}
-| if test_bloc then liste_instructions else_part fi {}
-| for ID do liste_instructions done {}
-| for ID in liste_operandes do liste_instructions done {}
-| while test_bloc do liste_instructions done {}
-| until test_bloc do liste_instructions done {}
-| case operande in liste_cas esac {}
-| echo liste_operandes {}
-| read ID {}
-| read ID[operande_entier] {}
+| "declare" ID[ENTIER] {}
+| "if" test_bloc "then" liste_instructions else_part "fi" {}
+| "for" ID "do" liste_instructions "done" {}
+| "for" ID "in" liste_operandes "do" liste_instructions "done" {}
+| "while" test_bloc "do" liste_instructions "done" {}
+| "until" test_bloc "do" liste_instructions "done" {}
+| "case" operande "in" liste_cas "esac" {}
+| "echo" liste_operandes {}
+| "read" ID {}
+| "read" ID[operande_entier] {}
 | declaration_de_fonction {}
 | appel_de_fonction {}
-| return {}
-| return operande_entier {}
-| exit {}
-| exit operande_entier {}
+| "return" {}
+| "return" operande_entier {}
+| "exit" {}
+| "exit" operande_entier {}
 ;
 
 else_part
-: elif test_bloc then liste_instructions else_part {}
-| else liste_instructions {}
+: "elif" test_bloc "then" liste_instructions else_part {}
+| "else" liste_instructions {}
 | %empty {}
 ;
 
@@ -53,11 +59,9 @@ liste_cas
 
 filtre
 : MOT {}
-| \" CHAINE \" {}
-| \' CHAINE \' {}
+| CHAINE {}
 | filtre '|' MOT {}
-| filtre '|' \' CHAINE \' {}
-| filtre '|' \' CHAINE \' {}
+| filtre '|' CHAINE {}
 | '*'
 ;
 
@@ -68,12 +72,12 @@ liste_operandes
 ;
 
 concatenation
-: concatenationoperande {}
+: concatenation operande {}
 | operande {}
 ;
 
 test_bloc
-: test test_expr {}
+: "test" test_expr {}
 ;
 
 test_expr
@@ -104,12 +108,11 @@ operande
 : "${" ID '}' {}
 | "${" ID '[' operande_entier "]}" {}
 | MOT {}
-| '$' entier {}
+| '$' ENTIER {}
 | "$*" {}
 | "$?" {}
-| \" CHAINE \" {}
-| \' CHAINE \' {}
-| "$(" expr somme_entiere ')' {}
+| CHAINE {}
+| "$(" "expr" somme_entiere ')' {}
 | "$(" appel_de_fonction ')' {}
 ;
 
@@ -140,12 +143,12 @@ produit_entier
 operande_entier
 : "${" ID '}' {}
 | "${" ID '[' operande_entier "]}" {}
-| '$' entier {}
+| '$' ENTIER {}
 | plus_ou_moins "${" ID '}' {}
 | plus_ou_moins "${" ID '[' operande_entier "]}" {}
-| plus_ou_moins '$' entier {}
-| entier {}
-| plus_ou_moins entier {}
+| plus_ou_moins '$' ENTIER {}
+| ENTIER {}
+| plus_ou_moins ENTIER {}
 | '(' somme_entiere ')' {}
 ;
 
@@ -166,7 +169,7 @@ declaration_de_fonction
 
 
 decl_loc
-: decl_loc local ID '=' concatenation ';' {}
+: decl_loc "local" ID '=' concatenation ';' {}
 | %empty {}
 ;
 
