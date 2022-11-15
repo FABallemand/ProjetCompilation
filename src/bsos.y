@@ -53,8 +53,8 @@ else_part
 ;
 
 liste_cas
-: liste_cas filtre ')' liste_instructions ";;" {}
-| filtre ')' liste_instructions ";;" {}
+: liste_cas filtre ')' liste_instructions ';'';' {}
+| filtre ')' liste_instructions ';'';' {}
 ;
 
 filtre
@@ -66,9 +66,9 @@ filtre
 ;
 
 liste_operandes
-: liste_operandes operande {}operande_entier
+: liste_operandes operande {}
 | operande {}
-| "${" ID "[*]}" {}
+| '$''{' ID '[''*'']''}' {}
 ;
 
 concatenation
@@ -87,7 +87,7 @@ test_expr
 
 test_expr2
 : test_expr2 "-a" test_expr3 {}
-| test_expr3 {}operande_entier
+| test_expr3 {}
 ;
 
 test_expr3
@@ -106,7 +106,7 @@ test_instruction
 
 operande
 : '$' '{' ID '}' {}
-| '$' '{' ID '[' operande_entier ']''}' {}operande_entier
+| '$' '{' ID '[' operande_entier ']''}' {}
 | MOT {}
 | '$' ENTIER {}
 | '$''*' {}

@@ -23,11 +23,6 @@ Terminals unused in grammar
     UMOINS
 
 
-State 99 conflicts: 1 shift/reduce
-State 131 conflicts: 1 shift/reduce
-State 132 conflicts: 1 shift/reduce
-
-
 Grammar
 
     0 $accept: programme $end
@@ -60,8 +55,8 @@ Grammar
    23          | "else" liste_instructions
    24          | ε
 
-   25 liste_cas: liste_cas filtre ')' liste_instructions ";;"
-   26          | filtre ')' liste_instructions ";;"
+   25 liste_cas: liste_cas filtre ')' liste_instructions ';' ';'
+   26          | filtre ')' liste_instructions ';' ';'
 
    27 filtre: MOT
    28       | CHAINE
@@ -69,111 +64,103 @@ Grammar
    30       | filtre '|' CHAINE
    31       | '*'
 
-   32 $@1: ε
+   32 liste_operandes: liste_operandes operande
+   33                | operande
+   34                | '$' '{' ID '[' '*' ']' '}'
 
-   33 liste_operandes: liste_operandes operande $@1 operande_entier
-   34                | operande
-   35                | "${" ID "[*]}"
+   35 concatenation: concatenation operande
+   36              | operande
 
-   36 concatenation: concatenation operande
-   37              | operande
+   37 test_bloc: "test" test_expr
 
-   38 test_bloc: "test" test_expr
+   38 test_expr: test_expr "-o" test_expr2
+   39          | test_expr2
 
-   39 test_expr: test_expr "-o" test_expr2
-   40          | test_expr2
+   40 test_expr2: test_expr2 "-a" test_expr3
+   41           | test_expr3
 
-   41 test_expr2: test_expr2 "-a" test_expr3
+   42 test_expr3: '(' test_expr ')'
+   43           | '!' '(' test_expr ')'
+   44           | test_instruction
+   45           | '!' test_instruction
 
-   42 $@2: ε
+   46 test_instruction: concatenation '=' concatenation
+   47                 | concatenation "!=" concatenation
+   48                 | operateur1 concatenation
+   49                 | operande operateur2 operande
 
-   43 test_expr2: test_expr3 $@2 operande_entier
+   50 operande: '$' '{' ID '}'
+   51         | '$' '{' ID '[' operande_entier ']' '}'
+   52         | MOT
+   53         | '$' ENTIER
+   54         | '$' '*'
+   55         | '$' '?'
+   56         | CHAINE
+   57         | '$' '(' "expr" somme_entiere ')'
+   58         | '$' '(' appel_de_fonction ')'
 
-   44 test_expr3: '(' test_expr ')'
-   45           | '!' '(' test_expr ')'
-   46           | test_instruction
-   47           | '!' test_instruction
+   59 operateur1: "-n"
+   60           | "-z"
 
-   48 test_instruction: concatenation '=' concatenation
-   49                 | concatenation "!=" concatenation
-   50                 | operateur1 concatenation
-   51                 | operande operateur2 operande
+   61 operateur2: "-eq"
+   62           | "-ne"
+   63           | "-gt"
+   64           | "-ge"
+   65           | "-lt"
+   66           | "-le"
 
-   52 operande: '$' '{' ID '}'
+   67 somme_entiere: somme_entiere plus_ou_moins produit_entier
+   68              | produit_entier
 
-   53 $@3: ε
+   69 produit_entier: produit_entier fois_div_mod operande_entier
+   70               | operande_entier
 
-   54 operande: '$' '{' ID '[' operande_entier ']' '}' $@3 operande_entier
-   55         | MOT
-   56         | '$' ENTIER
-   57         | '$' '*'
-   58         | '$' '?'
-   59         | CHAINE
-   60         | '$' '(' "expr" somme_entiere ')'
-   61         | '$' '(' appel_de_fonction ')'
+   71 operande_entier: '$' '{' ID '}'
+   72                | '$' '{' ID '[' operande_entier ']' '}'
+   73                | '$' ENTIER
+   74                | plus_ou_moins '$' '{' ID '}'
+   75                | plus_ou_moins '$' '{' ID '[' operande_entier ']' '}'
+   76                | plus_ou_moins '$' ENTIER
+   77                | ENTIER
+   78                | plus_ou_moins ENTIER
+   79                | '(' somme_entiere ')'
 
-   62 operateur1: "-n"
-   63           | "-z"
+   80 plus_ou_moins: '+'
+   81              | '-'
 
-   64 operateur2: "-eq"
-   65           | "-ne"
-   66           | "-gt"
-   67           | "-ge"
-   68           | "-lt"
-   69           | "-le"
+   82 fois_div_mod: '*'
+   83             | '/'
+   84             | '%'
 
-   70 somme_entiere: somme_entiere plus_ou_moins produit_entier
-   71              | produit_entier
+   85 declaration_de_fonction: ID '(' ')' '{' decl_loc liste_instructions '}'
 
-   72 produit_entier: produit_entier fois_div_mod operande_entier
-   73               | operande_entier
+   86 decl_loc: decl_loc "local" ID '=' concatenation ';'
+   87         | ε
 
-   74 operande_entier: '$' '{' ID '}'
-   75                | '$' '{' ID '[' operande_entier ']' '}'
-   76                | '$' ENTIER
-   77                | plus_ou_moins '$' '{' ID '}'
-   78                | plus_ou_moins '$' '{' ID '[' operande_entier ']' '}'
-   79                | plus_ou_moins '$' ENTIER
-   80                | ENTIER
-   81                | plus_ou_moins ENTIER
-   82                | '(' somme_entiere ')'
-
-   83 plus_ou_moins: '+'
-   84              | '-'
-
-   85 fois_div_mod: '*'
-   86             | '/'
-   87             | '%'
-
-   88 declaration_de_fonction: ID '(' ')' '{' decl_loc liste_instructions '}'
-
-   89 decl_loc: decl_loc "local" ID '=' concatenation ';'
-   90         | ε
-
-   91 appel_de_fonction: ID liste_operandes
-   92                  | ID
+   88 appel_de_fonction: ID liste_operandes
+   89                  | ID
 
 
 Terminals, with rules where they appear
 
     $end (0) 0
-    '!' (33) 45 47
-    '$' (36) 52 54 56 57 58 60 61 74 75 76 77 78 79
-    '%' (37) 87
-    '(' (40) 44 45 60 61 82 88
-    ')' (41) 25 26 44 45 60 61 82 88
-    '*' (42) 31 57 85
-    '+' (43) 83
-    '-' (45) 84
-    '/' (47) 86
-    ';' (59) 2 89
-    '=' (61) 4 5 48 89
-    '?' (63) 58
-    '[' (91) 5 6 15 54 75 78
-    ']' (93) 5 6 15 54 75 78
-    '{' (123) 52 54 74 75 77 78 88
+    '!' (33) 43 45
+    '$' (36) 34 50 51 53 54 55 57 58 71 72 73 74 75 76
+    '%' (37) 84
+    '(' (40) 42 43 57 58 79 85
+    ')' (41) 25 26 42 43 57 58 79 85
+    '*' (42) 31 34 54 82
+    '+' (43) 80
+    '-' (45) 81
+    '/' (47) 83
+    ';' (59) 2 25 26 86
+    '=' (61) 4 5 46 86
+    '?' (63) 55
+    '[' (91) 5 6 15 34 51 72 75
+    ']' (93) 5 6 15 34 51 72 75
+    '{' (123) 34 50 51 71 72 74 75 85
     '|' (124) 29 30
-    '}' (125) 52 54 74 75 77 78 88
+    '}' (125) 34 50 51 71 72 74 75 85
     error (256)
     TEST (258)
     EXPR (259)
@@ -196,10 +183,10 @@ Terminals, with rules where they appear
     RETURN (276)
     EXIT (277)
     COMMENT (278)
-    ID (279) 4 5 6 8 9 14 15 35 52 54 74 75 77 78 88 89 91 92
-    MOT (280) 27 29 55
-    CHAINE (281) 28 30 59
-    ENTIER (282) 6 56 76 79 80 81
+    ID (279) 4 5 6 8 9 14 15 34 50 51 71 72 74 75 85 86 88 89
+    MOT (280) 27 29 52
+    CHAINE (281) 28 30 56
+    ENTIER (282) 6 53 73 76 77 78
     UMOINS (283)
     "declare" (284) 6
     "then" (285) 7 22
@@ -218,110 +205,98 @@ Terminals, with rules where they appear
     "exit" (298) 20 21
     "elif" (299) 22
     "else" (300) 23
-    ";;" (301) 25 26
-    "${" (302) 35
-    "[*]}" (303) 35
-    "test" (304) 38
-    "-o" (305) 39
-    "-a" (306) 41
-    "!=" (307) 49
-    "expr" (308) 60
-    "-n" (309) 62
-    "-z" (310) 63
-    "-eq" (311) 64
-    "-ne" (312) 65
-    "-gt" (313) 66
-    "-ge" (314) 67
-    "-lt" (315) 68
-    "-le" (316) 69
-    "local" (317) 89
+    "test" (301) 37
+    "-o" (302) 38
+    "-a" (303) 40
+    "!=" (304) 47
+    "expr" (305) 57
+    "-n" (306) 59
+    "-z" (307) 60
+    "-eq" (308) 61
+    "-ne" (309) 62
+    "-gt" (310) 63
+    "-ge" (311) 64
+    "-lt" (312) 65
+    "-le" (313) 66
+    "local" (314) 86
 
 
 Nonterminals, with rules where they appear
 
-    $accept (80)
+    $accept (77)
         on left: 0
-    programme (81)
+    programme (78)
         on left: 1
         on right: 0
-    liste_instructions (82)
+    liste_instructions (79)
         on left: 2 3
-        on right: 1 2 7 8 9 10 11 22 23 25 26 88
-    instruction (83)
+        on right: 1 2 7 8 9 10 11 22 23 25 26 85
+    instruction (80)
         on left: 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21
         on right: 2 3
-    else_part (84)
+    else_part (81)
         on left: 22 23 24
         on right: 7 22
-    liste_cas (85)
+    liste_cas (82)
         on left: 25 26
         on right: 12 25
-    filtre (86)
+    filtre (83)
         on left: 27 28 29 30 31
         on right: 25 26 29 30
-    liste_operandes (87)
-        on left: 33 34 35
-        on right: 9 13 33 91
-    $@1 (88)
-        on left: 32
-        on right: 33
-    concatenation (89)
-        on left: 36 37
-        on right: 4 5 36 48 49 50 89
-    test_bloc (90)
-        on left: 38
+    liste_operandes (84)
+        on left: 32 33 34
+        on right: 9 13 32 88
+    concatenation (85)
+        on left: 35 36
+        on right: 4 5 35 46 47 48 86
+    test_bloc (86)
+        on left: 37
         on right: 7 10 11 22
-    test_expr (91)
-        on left: 39 40
-        on right: 38 39 44 45
-    test_expr2 (92)
-        on left: 41 43
-        on right: 39 40 41
-    $@2 (93)
-        on left: 42
-        on right: 43
-    test_expr3 (94)
-        on left: 44 45 46 47
-        on right: 41 43
-    test_instruction (95)
-        on left: 48 49 50 51
-        on right: 46 47
-    operande (96)
-        on left: 52 54 55 56 57 58 59 60 61
-        on right: 12 33 34 36 37 51
-    $@3 (97)
-        on left: 53
-        on right: 54
-    operateur1 (98)
-        on left: 62 63
-        on right: 50
-    operateur2 (99)
-        on left: 64 65 66 67 68 69
-        on right: 51
-    somme_entiere (100)
-        on left: 70 71
-        on right: 60 70 82
-    produit_entier (101)
-        on left: 72 73
-        on right: 70 71 72
-    operande_entier (102)
-        on left: 74 75 76 77 78 79 80 81 82
-        on right: 5 15 19 21 33 43 54 72 73 75 78
-    plus_ou_moins (103)
-        on left: 83 84
-        on right: 70 77 78 79 81
-    fois_div_mod (104)
-        on left: 85 86 87
-        on right: 72
-    declaration_de_fonction (105)
-        on left: 88
+    test_expr (87)
+        on left: 38 39
+        on right: 37 38 42 43
+    test_expr2 (88)
+        on left: 40 41
+        on right: 38 39 40
+    test_expr3 (89)
+        on left: 42 43 44 45
+        on right: 40 41
+    test_instruction (90)
+        on left: 46 47 48 49
+        on right: 44 45
+    operande (91)
+        on left: 50 51 52 53 54 55 56 57 58
+        on right: 12 32 33 35 36 49
+    operateur1 (92)
+        on left: 59 60
+        on right: 48
+    operateur2 (93)
+        on left: 61 62 63 64 65 66
+        on right: 49
+    somme_entiere (94)
+        on left: 67 68
+        on right: 57 67 79
+    produit_entier (95)
+        on left: 69 70
+        on right: 67 68 69
+    operande_entier (96)
+        on left: 71 72 73 74 75 76 77 78 79
+        on right: 5 15 19 21 51 69 70 72 75
+    plus_ou_moins (97)
+        on left: 80 81
+        on right: 67 74 75 76 78
+    fois_div_mod (98)
+        on left: 82 83 84
+        on right: 69
+    declaration_de_fonction (99)
+        on left: 85
         on right: 16
-    decl_loc (106)
-        on left: 89 90
-        on right: 88 89
-    appel_de_fonction (107)
-        on left: 91 92
-        on right: 17 61
+    decl_loc (100)
+        on left: 86 87
+        on right: 85 86
+    appel_de_fonction (101)
+        on left: 88 89
+        on right: 17 58
 
 
 State 0
@@ -348,9 +323,9 @@ State 0
    19            | • "return" operande_entier
    20            | • "exit"
    21            | • "exit" operande_entier
-   88 declaration_de_fonction: • ID '(' ')' '{' decl_loc liste_instructions '}'
-   91 appel_de_fonction: • ID liste_operandes
-   92                  | • ID
+   85 declaration_de_fonction: • ID '(' ')' '{' decl_loc liste_instructions '}'
+   88 appel_de_fonction: • ID liste_operandes
+   89                  | • ID
 
     IF         shift, and go to state 1
     ID         shift, and go to state 2
@@ -374,7 +349,7 @@ State 0
 State 1
 
     7 instruction: IF • test_bloc "then" liste_instructions else_part "fi"
-   38 test_bloc: • "test" test_expr
+   37 test_bloc: • "test" test_expr
 
     "test"  shift, and go to state 17
 
@@ -385,41 +360,40 @@ State 2
 
     4 instruction: ID • '=' concatenation
     5            | ID • '[' operande_entier ']' '=' concatenation
-   33 liste_operandes: • liste_operandes operande $@1 operande_entier
-   34                | • operande
-   35                | • "${" ID "[*]}"
-   52 operande: • '$' '{' ID '}'
-   54         | • '$' '{' ID '[' operande_entier ']' '}' $@3 operande_entier
-   55         | • MOT
-   56         | • '$' ENTIER
-   57         | • '$' '*'
-   58         | • '$' '?'
-   59         | • CHAINE
-   60         | • '$' '(' "expr" somme_entiere ')'
-   61         | • '$' '(' appel_de_fonction ')'
-   88 declaration_de_fonction: ID • '(' ')' '{' decl_loc liste_instructions '}'
-   91 appel_de_fonction: ID • liste_operandes
-   92                  | ID •  [$end, ';', "fi", "done", "elif", "else", ";;", '}']
+   32 liste_operandes: • liste_operandes operande
+   33                | • operande
+   34                | • '$' '{' ID '[' '*' ']' '}'
+   50 operande: • '$' '{' ID '}'
+   51         | • '$' '{' ID '[' operande_entier ']' '}'
+   52         | • MOT
+   53         | • '$' ENTIER
+   54         | • '$' '*'
+   55         | • '$' '?'
+   56         | • CHAINE
+   57         | • '$' '(' "expr" somme_entiere ')'
+   58         | • '$' '(' appel_de_fonction ')'
+   85 declaration_de_fonction: ID • '(' ')' '{' decl_loc liste_instructions '}'
+   88 appel_de_fonction: ID • liste_operandes
+   89                  | ID •  [$end, ';', "fi", "done", "elif", "else", '}']
 
     MOT     shift, and go to state 19
     CHAINE  shift, and go to state 20
     '='     shift, and go to state 21
     '['     shift, and go to state 22
-    "${"    shift, and go to state 23
+    '$'     shift, and go to state 23
     '('     shift, and go to state 24
-    '$'     shift, and go to state 25
 
-    $default  reduce using rule 92 (appel_de_fonction)
+    $default  reduce using rule 89 (appel_de_fonction)
 
-    liste_operandes  go to state 26
-    operande         go to state 27
+    liste_operandes  go to state 25
+    operande         go to state 26
 
 
 State 3
 
     6 instruction: "declare" • ID '[' ENTIER ']'
 
-    ID  shift, and go to state 28
+    ID  shift, and go to state 27
 
 
 State 4
@@ -427,45 +401,45 @@ State 4
     8 instruction: "for" • ID "do" liste_instructions "done"
     9            | "for" • ID "in" liste_operandes "do" liste_instructions "done"
 
-    ID  shift, and go to state 29
+    ID  shift, and go to state 28
 
 
 State 5
 
    10 instruction: "while" • test_bloc "do" liste_instructions "done"
-   38 test_bloc: • "test" test_expr
+   37 test_bloc: • "test" test_expr
+
+    "test"  shift, and go to state 17
+
+    test_bloc  go to state 29
+
+
+State 6
+
+   11 instruction: "until" • test_bloc "do" liste_instructions "done"
+   37 test_bloc: • "test" test_expr
 
     "test"  shift, and go to state 17
 
     test_bloc  go to state 30
 
 
-State 6
-
-   11 instruction: "until" • test_bloc "do" liste_instructions "done"
-   38 test_bloc: • "test" test_expr
-
-    "test"  shift, and go to state 17
-
-    test_bloc  go to state 31
-
-
 State 7
 
    12 instruction: "case" • operande "in" liste_cas "esac"
-   52 operande: • '$' '{' ID '}'
-   54         | • '$' '{' ID '[' operande_entier ']' '}' $@3 operande_entier
-   55         | • MOT
-   56         | • '$' ENTIER
-   57         | • '$' '*'
-   58         | • '$' '?'
-   59         | • CHAINE
-   60         | • '$' '(' "expr" somme_entiere ')'
-   61         | • '$' '(' appel_de_fonction ')'
+   50 operande: • '$' '{' ID '}'
+   51         | • '$' '{' ID '[' operande_entier ']' '}'
+   52         | • MOT
+   53         | • '$' ENTIER
+   54         | • '$' '*'
+   55         | • '$' '?'
+   56         | • CHAINE
+   57         | • '$' '(' "expr" somme_entiere ')'
+   58         | • '$' '(' appel_de_fonction ')'
 
     MOT     shift, and go to state 19
     CHAINE  shift, and go to state 20
-    '$'     shift, and go to state 25
+    '$'     shift, and go to state 31
 
     operande  go to state 32
 
@@ -473,26 +447,25 @@ State 7
 State 8
 
    13 instruction: "echo" • liste_operandes
-   33 liste_operandes: • liste_operandes operande $@1 operande_entier
-   34                | • operande
-   35                | • "${" ID "[*]}"
-   52 operande: • '$' '{' ID '}'
-   54         | • '$' '{' ID '[' operande_entier ']' '}' $@3 operande_entier
-   55         | • MOT
-   56         | • '$' ENTIER
-   57         | • '$' '*'
-   58         | • '$' '?'
-   59         | • CHAINE
-   60         | • '$' '(' "expr" somme_entiere ')'
-   61         | • '$' '(' appel_de_fonction ')'
+   32 liste_operandes: • liste_operandes operande
+   33                | • operande
+   34                | • '$' '{' ID '[' '*' ']' '}'
+   50 operande: • '$' '{' ID '}'
+   51         | • '$' '{' ID '[' operande_entier ']' '}'
+   52         | • MOT
+   53         | • '$' ENTIER
+   54         | • '$' '*'
+   55         | • '$' '?'
+   56         | • CHAINE
+   57         | • '$' '(' "expr" somme_entiere ')'
+   58         | • '$' '(' appel_de_fonction ')'
 
     MOT     shift, and go to state 19
     CHAINE  shift, and go to state 20
-    "${"    shift, and go to state 23
-    '$'     shift, and go to state 25
+    '$'     shift, and go to state 23
 
     liste_operandes  go to state 33
-    operande         go to state 27
+    operande         go to state 26
 
 
 State 9
@@ -505,25 +478,25 @@ State 9
 
 State 10
 
-   18 instruction: "return" •  [$end, ';', "fi", "done", "elif", "else", ";;", '}']
+   18 instruction: "return" •  [$end, ';', "fi", "done", "elif", "else", '}']
    19            | "return" • operande_entier
-   74 operande_entier: • '$' '{' ID '}'
-   75                | • '$' '{' ID '[' operande_entier ']' '}'
-   76                | • '$' ENTIER
-   77                | • plus_ou_moins '$' '{' ID '}'
-   78                | • plus_ou_moins '$' '{' ID '[' operande_entier ']' '}'
-   79                | • plus_ou_moins '$' ENTIER
-   80                | • ENTIER
-   81                | • plus_ou_moins ENTIER
-   82                | • '(' somme_entiere ')'
-   83 plus_ou_moins: • '+'
-   84              | • '-'
+   71 operande_entier: • '$' '{' ID '}'
+   72                | • '$' '{' ID '[' operande_entier ']' '}'
+   73                | • '$' ENTIER
+   74                | • plus_ou_moins '$' '{' ID '}'
+   75                | • plus_ou_moins '$' '{' ID '[' operande_entier ']' '}'
+   76                | • plus_ou_moins '$' ENTIER
+   77                | • ENTIER
+   78                | • plus_ou_moins ENTIER
+   79                | • '(' somme_entiere ')'
+   80 plus_ou_moins: • '+'
+   81              | • '-'
 
     ENTIER  shift, and go to state 35
     '+'     shift, and go to state 36
     '-'     shift, and go to state 37
-    '('     shift, and go to state 38
-    '$'     shift, and go to state 39
+    '$'     shift, and go to state 38
+    '('     shift, and go to state 39
 
     $default  reduce using rule 18 (instruction)
 
@@ -533,25 +506,25 @@ State 10
 
 State 11
 
-   20 instruction: "exit" •  [$end, ';', "fi", "done", "elif", "else", ";;", '}']
+   20 instruction: "exit" •  [$end, ';', "fi", "done", "elif", "else", '}']
    21            | "exit" • operande_entier
-   74 operande_entier: • '$' '{' ID '}'
-   75                | • '$' '{' ID '[' operande_entier ']' '}'
-   76                | • '$' ENTIER
-   77                | • plus_ou_moins '$' '{' ID '}'
-   78                | • plus_ou_moins '$' '{' ID '[' operande_entier ']' '}'
-   79                | • plus_ou_moins '$' ENTIER
-   80                | • ENTIER
-   81                | • plus_ou_moins ENTIER
-   82                | • '(' somme_entiere ')'
-   83 plus_ou_moins: • '+'
-   84              | • '-'
+   71 operande_entier: • '$' '{' ID '}'
+   72                | • '$' '{' ID '[' operande_entier ']' '}'
+   73                | • '$' ENTIER
+   74                | • plus_ou_moins '$' '{' ID '}'
+   75                | • plus_ou_moins '$' '{' ID '[' operande_entier ']' '}'
+   76                | • plus_ou_moins '$' ENTIER
+   77                | • ENTIER
+   78                | • plus_ou_moins ENTIER
+   79                | • '(' somme_entiere ')'
+   80 plus_ou_moins: • '+'
+   81              | • '-'
 
     ENTIER  shift, and go to state 35
     '+'     shift, and go to state 36
     '-'     shift, and go to state 37
-    '('     shift, and go to state 38
-    '$'     shift, and go to state 39
+    '$'     shift, and go to state 38
+    '('     shift, and go to state 39
 
     $default  reduce using rule 20 (instruction)
 
@@ -599,38 +572,38 @@ State 16
 
 State 17
 
-   36 concatenation: • concatenation operande
-   37              | • operande
-   38 test_bloc: "test" • test_expr
-   39 test_expr: • test_expr "-o" test_expr2
-   40          | • test_expr2
-   41 test_expr2: • test_expr2 "-a" test_expr3
-   43           | • test_expr3 $@2 operande_entier
-   44 test_expr3: • '(' test_expr ')'
-   45           | • '!' '(' test_expr ')'
-   46           | • test_instruction
-   47           | • '!' test_instruction
-   48 test_instruction: • concatenation '=' concatenation
-   49                 | • concatenation "!=" concatenation
-   50                 | • operateur1 concatenation
-   51                 | • operande operateur2 operande
-   52 operande: • '$' '{' ID '}'
-   54         | • '$' '{' ID '[' operande_entier ']' '}' $@3 operande_entier
-   55         | • MOT
-   56         | • '$' ENTIER
-   57         | • '$' '*'
-   58         | • '$' '?'
-   59         | • CHAINE
-   60         | • '$' '(' "expr" somme_entiere ')'
-   61         | • '$' '(' appel_de_fonction ')'
-   62 operateur1: • "-n"
-   63           | • "-z"
+   35 concatenation: • concatenation operande
+   36              | • operande
+   37 test_bloc: "test" • test_expr
+   38 test_expr: • test_expr "-o" test_expr2
+   39          | • test_expr2
+   40 test_expr2: • test_expr2 "-a" test_expr3
+   41           | • test_expr3
+   42 test_expr3: • '(' test_expr ')'
+   43           | • '!' '(' test_expr ')'
+   44           | • test_instruction
+   45           | • '!' test_instruction
+   46 test_instruction: • concatenation '=' concatenation
+   47                 | • concatenation "!=" concatenation
+   48                 | • operateur1 concatenation
+   49                 | • operande operateur2 operande
+   50 operande: • '$' '{' ID '}'
+   51         | • '$' '{' ID '[' operande_entier ']' '}'
+   52         | • MOT
+   53         | • '$' ENTIER
+   54         | • '$' '*'
+   55         | • '$' '?'
+   56         | • CHAINE
+   57         | • '$' '(' "expr" somme_entiere ')'
+   58         | • '$' '(' appel_de_fonction ')'
+   59 operateur1: • "-n"
+   60           | • "-z"
 
     MOT     shift, and go to state 19
     CHAINE  shift, and go to state 20
+    '$'     shift, and go to state 31
     '('     shift, and go to state 45
     '!'     shift, and go to state 46
-    '$'     shift, and go to state 25
     "-n"    shift, and go to state 47
     "-z"    shift, and go to state 48
 
@@ -652,36 +625,36 @@ State 18
 
 State 19
 
-   55 operande: MOT •
+   52 operande: MOT •
 
-    $default  reduce using rule 55 (operande)
+    $default  reduce using rule 52 (operande)
 
 
 State 20
 
-   59 operande: CHAINE •
+   56 operande: CHAINE •
 
-    $default  reduce using rule 59 (operande)
+    $default  reduce using rule 56 (operande)
 
 
 State 21
 
     4 instruction: ID '=' • concatenation
-   36 concatenation: • concatenation operande
-   37              | • operande
-   52 operande: • '$' '{' ID '}'
-   54         | • '$' '{' ID '[' operande_entier ']' '}' $@3 operande_entier
-   55         | • MOT
-   56         | • '$' ENTIER
-   57         | • '$' '*'
-   58         | • '$' '?'
-   59         | • CHAINE
-   60         | • '$' '(' "expr" somme_entiere ')'
-   61         | • '$' '(' appel_de_fonction ')'
+   35 concatenation: • concatenation operande
+   36              | • operande
+   50 operande: • '$' '{' ID '}'
+   51         | • '$' '{' ID '[' operande_entier ']' '}'
+   52         | • MOT
+   53         | • '$' ENTIER
+   54         | • '$' '*'
+   55         | • '$' '?'
+   56         | • CHAINE
+   57         | • '$' '(' "expr" somme_entiere ')'
+   58         | • '$' '(' appel_de_fonction ')'
 
     MOT     shift, and go to state 19
     CHAINE  shift, and go to state 20
-    '$'     shift, and go to state 25
+    '$'     shift, and go to state 31
 
     concatenation  go to state 57
     operande       go to state 58
@@ -690,23 +663,23 @@ State 21
 State 22
 
     5 instruction: ID '[' • operande_entier ']' '=' concatenation
-   74 operande_entier: • '$' '{' ID '}'
-   75                | • '$' '{' ID '[' operande_entier ']' '}'
-   76                | • '$' ENTIER
-   77                | • plus_ou_moins '$' '{' ID '}'
-   78                | • plus_ou_moins '$' '{' ID '[' operande_entier ']' '}'
-   79                | • plus_ou_moins '$' ENTIER
-   80                | • ENTIER
-   81                | • plus_ou_moins ENTIER
-   82                | • '(' somme_entiere ')'
-   83 plus_ou_moins: • '+'
-   84              | • '-'
+   71 operande_entier: • '$' '{' ID '}'
+   72                | • '$' '{' ID '[' operande_entier ']' '}'
+   73                | • '$' ENTIER
+   74                | • plus_ou_moins '$' '{' ID '}'
+   75                | • plus_ou_moins '$' '{' ID '[' operande_entier ']' '}'
+   76                | • plus_ou_moins '$' ENTIER
+   77                | • ENTIER
+   78                | • plus_ou_moins ENTIER
+   79                | • '(' somme_entiere ')'
+   80 plus_ou_moins: • '+'
+   81              | • '-'
 
     ENTIER  shift, and go to state 35
     '+'     shift, and go to state 36
     '-'     shift, and go to state 37
-    '('     shift, and go to state 38
-    '$'     shift, and go to state 39
+    '$'     shift, and go to state 38
+    '('     shift, and go to state 39
 
     operande_entier  go to state 59
     plus_ou_moins    go to state 41
@@ -714,93 +687,104 @@ State 22
 
 State 23
 
-   35 liste_operandes: "${" • ID "[*]}"
+   34 liste_operandes: '$' • '{' ID '[' '*' ']' '}'
+   50 operande: '$' • '{' ID '}'
+   51         | '$' • '{' ID '[' operande_entier ']' '}'
+   53         | '$' • ENTIER
+   54         | '$' • '*'
+   55         | '$' • '?'
+   57         | '$' • '(' "expr" somme_entiere ')'
+   58         | '$' • '(' appel_de_fonction ')'
 
-    ID  shift, and go to state 60
+    ENTIER  shift, and go to state 60
+    '*'     shift, and go to state 61
+    '{'     shift, and go to state 62
+    '('     shift, and go to state 63
+    '?'     shift, and go to state 64
 
 
 State 24
 
-   88 declaration_de_fonction: ID '(' • ')' '{' decl_loc liste_instructions '}'
+   85 declaration_de_fonction: ID '(' • ')' '{' decl_loc liste_instructions '}'
 
-    ')'  shift, and go to state 61
+    ')'  shift, and go to state 65
 
 
 State 25
 
-   52 operande: '$' • '{' ID '}'
-   54         | '$' • '{' ID '[' operande_entier ']' '}' $@3 operande_entier
-   56         | '$' • ENTIER
-   57         | '$' • '*'
-   58         | '$' • '?'
-   60         | '$' • '(' "expr" somme_entiere ')'
-   61         | '$' • '(' appel_de_fonction ')'
+   32 liste_operandes: liste_operandes • operande
+   50 operande: • '$' '{' ID '}'
+   51         | • '$' '{' ID '[' operande_entier ']' '}'
+   52         | • MOT
+   53         | • '$' ENTIER
+   54         | • '$' '*'
+   55         | • '$' '?'
+   56         | • CHAINE
+   57         | • '$' '(' "expr" somme_entiere ')'
+   58         | • '$' '(' appel_de_fonction ')'
+   88 appel_de_fonction: ID liste_operandes •  [$end, ';', "fi", "done", "elif", "else", ')', '}']
 
-    ENTIER  shift, and go to state 62
-    '*'     shift, and go to state 63
-    '('     shift, and go to state 64
-    '{'     shift, and go to state 65
-    '?'     shift, and go to state 66
+    MOT     shift, and go to state 19
+    CHAINE  shift, and go to state 20
+    '$'     shift, and go to state 31
+
+    $default  reduce using rule 88 (appel_de_fonction)
+
+    operande  go to state 66
 
 
 State 26
 
-   33 liste_operandes: liste_operandes • operande $@1 operande_entier
-   52 operande: • '$' '{' ID '}'
-   54         | • '$' '{' ID '[' operande_entier ']' '}' $@3 operande_entier
-   55         | • MOT
-   56         | • '$' ENTIER
-   57         | • '$' '*'
-   58         | • '$' '?'
-   59         | • CHAINE
-   60         | • '$' '(' "expr" somme_entiere ')'
-   61         | • '$' '(' appel_de_fonction ')'
-   91 appel_de_fonction: ID liste_operandes •  [$end, ';', "fi", "done", "elif", "else", ')', ";;", '}']
+   33 liste_operandes: operande •
 
-    MOT     shift, and go to state 19
-    CHAINE  shift, and go to state 20
-    '$'     shift, and go to state 25
-
-    $default  reduce using rule 91 (appel_de_fonction)
-
-    operande  go to state 67
+    $default  reduce using rule 33 (liste_operandes)
 
 
 State 27
 
-   34 liste_operandes: operande •
+    6 instruction: "declare" ID • '[' ENTIER ']'
 
-    $default  reduce using rule 34 (liste_operandes)
+    '['  shift, and go to state 67
 
 
 State 28
 
-    6 instruction: "declare" ID • '[' ENTIER ']'
+    8 instruction: "for" ID • "do" liste_instructions "done"
+    9            | "for" ID • "in" liste_operandes "do" liste_instructions "done"
 
-    '['  shift, and go to state 68
+    "do"  shift, and go to state 68
+    "in"  shift, and go to state 69
 
 
 State 29
 
-    8 instruction: "for" ID • "do" liste_instructions "done"
-    9            | "for" ID • "in" liste_operandes "do" liste_instructions "done"
+   10 instruction: "while" test_bloc • "do" liste_instructions "done"
 
-    "do"  shift, and go to state 69
-    "in"  shift, and go to state 70
+    "do"  shift, and go to state 70
 
 
 State 30
 
-   10 instruction: "while" test_bloc • "do" liste_instructions "done"
+   11 instruction: "until" test_bloc • "do" liste_instructions "done"
 
     "do"  shift, and go to state 71
 
 
 State 31
 
-   11 instruction: "until" test_bloc • "do" liste_instructions "done"
+   50 operande: '$' • '{' ID '}'
+   51         | '$' • '{' ID '[' operande_entier ']' '}'
+   53         | '$' • ENTIER
+   54         | '$' • '*'
+   55         | '$' • '?'
+   57         | '$' • '(' "expr" somme_entiere ')'
+   58         | '$' • '(' appel_de_fonction ')'
 
-    "do"  shift, and go to state 72
+    ENTIER  shift, and go to state 60
+    '*'     shift, and go to state 61
+    '{'     shift, and go to state 72
+    '('     shift, and go to state 63
+    '?'     shift, and go to state 64
 
 
 State 32
@@ -812,30 +796,30 @@ State 32
 
 State 33
 
-   13 instruction: "echo" liste_operandes •  [$end, ';', "fi", "done", "elif", "else", ";;", '}']
-   33 liste_operandes: liste_operandes • operande $@1 operande_entier
-   52 operande: • '$' '{' ID '}'
-   54         | • '$' '{' ID '[' operande_entier ']' '}' $@3 operande_entier
-   55         | • MOT
-   56         | • '$' ENTIER
-   57         | • '$' '*'
-   58         | • '$' '?'
-   59         | • CHAINE
-   60         | • '$' '(' "expr" somme_entiere ')'
-   61         | • '$' '(' appel_de_fonction ')'
+   13 instruction: "echo" liste_operandes •  [$end, ';', "fi", "done", "elif", "else", '}']
+   32 liste_operandes: liste_operandes • operande
+   50 operande: • '$' '{' ID '}'
+   51         | • '$' '{' ID '[' operande_entier ']' '}'
+   52         | • MOT
+   53         | • '$' ENTIER
+   54         | • '$' '*'
+   55         | • '$' '?'
+   56         | • CHAINE
+   57         | • '$' '(' "expr" somme_entiere ')'
+   58         | • '$' '(' appel_de_fonction ')'
 
     MOT     shift, and go to state 19
     CHAINE  shift, and go to state 20
-    '$'     shift, and go to state 25
+    '$'     shift, and go to state 31
 
     $default  reduce using rule 13 (instruction)
 
-    operande  go to state 67
+    operande  go to state 66
 
 
 State 34
 
-   14 instruction: "read" ID •  [$end, ';', "fi", "done", "elif", "else", ";;", '}']
+   14 instruction: "read" ID •  [$end, ';', "fi", "done", "elif", "else", '}']
    15            | "read" ID • '[' operande_entier ']'
 
     '['  shift, and go to state 74
@@ -845,64 +829,64 @@ State 34
 
 State 35
 
-   80 operande_entier: ENTIER •
+   77 operande_entier: ENTIER •
 
-    $default  reduce using rule 80 (operande_entier)
+    $default  reduce using rule 77 (operande_entier)
 
 
 State 36
 
-   83 plus_ou_moins: '+' •
+   80 plus_ou_moins: '+' •
 
-    $default  reduce using rule 83 (plus_ou_moins)
+    $default  reduce using rule 80 (plus_ou_moins)
 
 
 State 37
 
-   84 plus_ou_moins: '-' •
+   81 plus_ou_moins: '-' •
 
-    $default  reduce using rule 84 (plus_ou_moins)
+    $default  reduce using rule 81 (plus_ou_moins)
 
 
 State 38
 
-   70 somme_entiere: • somme_entiere plus_ou_moins produit_entier
-   71              | • produit_entier
-   72 produit_entier: • produit_entier fois_div_mod operande_entier
-   73               | • operande_entier
-   74 operande_entier: • '$' '{' ID '}'
-   75                | • '$' '{' ID '[' operande_entier ']' '}'
-   76                | • '$' ENTIER
-   77                | • plus_ou_moins '$' '{' ID '}'
-   78                | • plus_ou_moins '$' '{' ID '[' operande_entier ']' '}'
-   79                | • plus_ou_moins '$' ENTIER
-   80                | • ENTIER
-   81                | • plus_ou_moins ENTIER
-   82                | • '(' somme_entiere ')'
-   82                | '(' • somme_entiere ')'
-   83 plus_ou_moins: • '+'
-   84              | • '-'
+   71 operande_entier: '$' • '{' ID '}'
+   72                | '$' • '{' ID '[' operande_entier ']' '}'
+   73                | '$' • ENTIER
 
-    ENTIER  shift, and go to state 35
-    '+'     shift, and go to state 36
-    '-'     shift, and go to state 37
-    '('     shift, and go to state 38
-    '$'     shift, and go to state 39
-
-    somme_entiere    go to state 75
-    produit_entier   go to state 76
-    operande_entier  go to state 77
-    plus_ou_moins    go to state 41
+    ENTIER  shift, and go to state 75
+    '{'     shift, and go to state 76
 
 
 State 39
 
-   74 operande_entier: '$' • '{' ID '}'
-   75                | '$' • '{' ID '[' operande_entier ']' '}'
-   76                | '$' • ENTIER
+   67 somme_entiere: • somme_entiere plus_ou_moins produit_entier
+   68              | • produit_entier
+   69 produit_entier: • produit_entier fois_div_mod operande_entier
+   70               | • operande_entier
+   71 operande_entier: • '$' '{' ID '}'
+   72                | • '$' '{' ID '[' operande_entier ']' '}'
+   73                | • '$' ENTIER
+   74                | • plus_ou_moins '$' '{' ID '}'
+   75                | • plus_ou_moins '$' '{' ID '[' operande_entier ']' '}'
+   76                | • plus_ou_moins '$' ENTIER
+   77                | • ENTIER
+   78                | • plus_ou_moins ENTIER
+   79                | • '(' somme_entiere ')'
+   79                | '(' • somme_entiere ')'
+   80 plus_ou_moins: • '+'
+   81              | • '-'
 
-    ENTIER  shift, and go to state 78
-    '{'     shift, and go to state 79
+    ENTIER  shift, and go to state 35
+    '+'     shift, and go to state 36
+    '-'     shift, and go to state 37
+    '$'     shift, and go to state 38
+    '('     shift, and go to state 39
+
+    somme_entiere    go to state 77
+    produit_entier   go to state 78
+    operande_entier  go to state 79
+    plus_ou_moins    go to state 41
 
 
 State 40
@@ -914,10 +898,10 @@ State 40
 
 State 41
 
-   77 operande_entier: plus_ou_moins • '$' '{' ID '}'
-   78                | plus_ou_moins • '$' '{' ID '[' operande_entier ']' '}'
-   79                | plus_ou_moins • '$' ENTIER
-   81                | plus_ou_moins • ENTIER
+   74 operande_entier: plus_ou_moins • '$' '{' ID '}'
+   75                | plus_ou_moins • '$' '{' ID '[' operande_entier ']' '}'
+   76                | plus_ou_moins • '$' ENTIER
+   78                | plus_ou_moins • ENTIER
 
     ENTIER  shift, and go to state 80
     '$'     shift, and go to state 81
@@ -958,9 +942,9 @@ State 44
    19            | • "return" operande_entier
    20            | • "exit"
    21            | • "exit" operande_entier
-   88 declaration_de_fonction: • ID '(' ')' '{' decl_loc liste_instructions '}'
-   91 appel_de_fonction: • ID liste_operandes
-   92                  | • ID
+   85 declaration_de_fonction: • ID '(' ')' '{' decl_loc liste_instructions '}'
+   88 appel_de_fonction: • ID liste_operandes
+   89                  | • ID
 
     IF         shift, and go to state 1
     ID         shift, and go to state 2
@@ -981,38 +965,38 @@ State 44
 
 State 45
 
-   36 concatenation: • concatenation operande
-   37              | • operande
-   39 test_expr: • test_expr "-o" test_expr2
-   40          | • test_expr2
-   41 test_expr2: • test_expr2 "-a" test_expr3
-   43           | • test_expr3 $@2 operande_entier
-   44 test_expr3: • '(' test_expr ')'
-   44           | '(' • test_expr ')'
-   45           | • '!' '(' test_expr ')'
-   46           | • test_instruction
-   47           | • '!' test_instruction
-   48 test_instruction: • concatenation '=' concatenation
-   49                 | • concatenation "!=" concatenation
-   50                 | • operateur1 concatenation
-   51                 | • operande operateur2 operande
-   52 operande: • '$' '{' ID '}'
-   54         | • '$' '{' ID '[' operande_entier ']' '}' $@3 operande_entier
-   55         | • MOT
-   56         | • '$' ENTIER
-   57         | • '$' '*'
-   58         | • '$' '?'
-   59         | • CHAINE
-   60         | • '$' '(' "expr" somme_entiere ')'
-   61         | • '$' '(' appel_de_fonction ')'
-   62 operateur1: • "-n"
-   63           | • "-z"
+   35 concatenation: • concatenation operande
+   36              | • operande
+   38 test_expr: • test_expr "-o" test_expr2
+   39          | • test_expr2
+   40 test_expr2: • test_expr2 "-a" test_expr3
+   41           | • test_expr3
+   42 test_expr3: • '(' test_expr ')'
+   42           | '(' • test_expr ')'
+   43           | • '!' '(' test_expr ')'
+   44           | • test_instruction
+   45           | • '!' test_instruction
+   46 test_instruction: • concatenation '=' concatenation
+   47                 | • concatenation "!=" concatenation
+   48                 | • operateur1 concatenation
+   49                 | • operande operateur2 operande
+   50 operande: • '$' '{' ID '}'
+   51         | • '$' '{' ID '[' operande_entier ']' '}'
+   52         | • MOT
+   53         | • '$' ENTIER
+   54         | • '$' '*'
+   55         | • '$' '?'
+   56         | • CHAINE
+   57         | • '$' '(' "expr" somme_entiere ')'
+   58         | • '$' '(' appel_de_fonction ')'
+   59 operateur1: • "-n"
+   60           | • "-z"
 
     MOT     shift, and go to state 19
     CHAINE  shift, and go to state 20
+    '$'     shift, and go to state 31
     '('     shift, and go to state 45
     '!'     shift, and go to state 46
-    '$'     shift, and go to state 25
     "-n"    shift, and go to state 47
     "-z"    shift, and go to state 48
 
@@ -1027,30 +1011,30 @@ State 45
 
 State 46
 
-   36 concatenation: • concatenation operande
-   37              | • operande
-   45 test_expr3: '!' • '(' test_expr ')'
-   47           | '!' • test_instruction
-   48 test_instruction: • concatenation '=' concatenation
-   49                 | • concatenation "!=" concatenation
-   50                 | • operateur1 concatenation
-   51                 | • operande operateur2 operande
-   52 operande: • '$' '{' ID '}'
-   54         | • '$' '{' ID '[' operande_entier ']' '}' $@3 operande_entier
-   55         | • MOT
-   56         | • '$' ENTIER
-   57         | • '$' '*'
-   58         | • '$' '?'
-   59         | • CHAINE
-   60         | • '$' '(' "expr" somme_entiere ')'
-   61         | • '$' '(' appel_de_fonction ')'
-   62 operateur1: • "-n"
-   63           | • "-z"
+   35 concatenation: • concatenation operande
+   36              | • operande
+   43 test_expr3: '!' • '(' test_expr ')'
+   45           | '!' • test_instruction
+   46 test_instruction: • concatenation '=' concatenation
+   47                 | • concatenation "!=" concatenation
+   48                 | • operateur1 concatenation
+   49                 | • operande operateur2 operande
+   50 operande: • '$' '{' ID '}'
+   51         | • '$' '{' ID '[' operande_entier ']' '}'
+   52         | • MOT
+   53         | • '$' ENTIER
+   54         | • '$' '*'
+   55         | • '$' '?'
+   56         | • CHAINE
+   57         | • '$' '(' "expr" somme_entiere ')'
+   58         | • '$' '(' appel_de_fonction ')'
+   59 operateur1: • "-n"
+   60           | • "-z"
 
     MOT     shift, and go to state 19
     CHAINE  shift, and go to state 20
+    '$'     shift, and go to state 31
     '('     shift, and go to state 84
-    '$'     shift, and go to state 25
     "-n"    shift, and go to state 47
     "-z"    shift, and go to state 48
 
@@ -1062,122 +1046,119 @@ State 46
 
 State 47
 
-   62 operateur1: "-n" •
+   59 operateur1: "-n" •
 
-    $default  reduce using rule 62 (operateur1)
+    $default  reduce using rule 59 (operateur1)
 
 
 State 48
 
-   63 operateur1: "-z" •
+   60 operateur1: "-z" •
 
-    $default  reduce using rule 63 (operateur1)
+    $default  reduce using rule 60 (operateur1)
 
 
 State 49
 
-   36 concatenation: concatenation • operande
-   48 test_instruction: concatenation • '=' concatenation
-   49                 | concatenation • "!=" concatenation
-   52 operande: • '$' '{' ID '}'
-   54         | • '$' '{' ID '[' operande_entier ']' '}' $@3 operande_entier
-   55         | • MOT
-   56         | • '$' ENTIER
-   57         | • '$' '*'
-   58         | • '$' '?'
-   59         | • CHAINE
-   60         | • '$' '(' "expr" somme_entiere ')'
-   61         | • '$' '(' appel_de_fonction ')'
+   35 concatenation: concatenation • operande
+   46 test_instruction: concatenation • '=' concatenation
+   47                 | concatenation • "!=" concatenation
+   50 operande: • '$' '{' ID '}'
+   51         | • '$' '{' ID '[' operande_entier ']' '}'
+   52         | • MOT
+   53         | • '$' ENTIER
+   54         | • '$' '*'
+   55         | • '$' '?'
+   56         | • CHAINE
+   57         | • '$' '(' "expr" somme_entiere ')'
+   58         | • '$' '(' appel_de_fonction ')'
 
     MOT     shift, and go to state 19
     CHAINE  shift, and go to state 20
     '='     shift, and go to state 86
+    '$'     shift, and go to state 31
     "!="    shift, and go to state 87
-    '$'     shift, and go to state 25
 
     operande  go to state 88
 
 
 State 50
 
-   38 test_bloc: "test" test_expr •  ["then", "do"]
-   39 test_expr: test_expr • "-o" test_expr2
+   37 test_bloc: "test" test_expr •  ["then", "do"]
+   38 test_expr: test_expr • "-o" test_expr2
 
     "-o"  shift, and go to state 89
 
-    $default  reduce using rule 38 (test_bloc)
+    $default  reduce using rule 37 (test_bloc)
 
 
 State 51
 
-   40 test_expr: test_expr2 •  ["then", "do", ')', "-o"]
-   41 test_expr2: test_expr2 • "-a" test_expr3
+   39 test_expr: test_expr2 •  ["then", "do", ')', "-o"]
+   40 test_expr2: test_expr2 • "-a" test_expr3
 
     "-a"  shift, and go to state 90
 
-    $default  reduce using rule 40 (test_expr)
+    $default  reduce using rule 39 (test_expr)
 
 
 State 52
 
-   42 $@2: ε •
-   43 test_expr2: test_expr3 • $@2 operande_entier
+   41 test_expr2: test_expr3 •
 
-    $default  reduce using rule 42 ($@2)
-
-    $@2  go to state 91
+    $default  reduce using rule 41 (test_expr2)
 
 
 State 53
 
-   46 test_expr3: test_instruction •
+   44 test_expr3: test_instruction •
 
-    $default  reduce using rule 46 (test_expr3)
+    $default  reduce using rule 44 (test_expr3)
 
 
 State 54
 
-   37 concatenation: operande •  [MOT, CHAINE, '=', "!=", '$']
-   51 test_instruction: operande • operateur2 operande
-   64 operateur2: • "-eq"
-   65           | • "-ne"
-   66           | • "-gt"
-   67           | • "-ge"
-   68           | • "-lt"
-   69           | • "-le"
+   36 concatenation: operande •  [MOT, CHAINE, '=', '$', "!="]
+   49 test_instruction: operande • operateur2 operande
+   61 operateur2: • "-eq"
+   62           | • "-ne"
+   63           | • "-gt"
+   64           | • "-ge"
+   65           | • "-lt"
+   66           | • "-le"
 
-    "-eq"  shift, and go to state 92
-    "-ne"  shift, and go to state 93
-    "-gt"  shift, and go to state 94
-    "-ge"  shift, and go to state 95
-    "-lt"  shift, and go to state 96
-    "-le"  shift, and go to state 97
+    "-eq"  shift, and go to state 91
+    "-ne"  shift, and go to state 92
+    "-gt"  shift, and go to state 93
+    "-ge"  shift, and go to state 94
+    "-lt"  shift, and go to state 95
+    "-le"  shift, and go to state 96
 
-    $default  reduce using rule 37 (concatenation)
+    $default  reduce using rule 36 (concatenation)
 
-    operateur2  go to state 98
+    operateur2  go to state 97
 
 
 State 55
 
-   36 concatenation: • concatenation operande
-   37              | • operande
-   50 test_instruction: operateur1 • concatenation
-   52 operande: • '$' '{' ID '}'
-   54         | • '$' '{' ID '[' operande_entier ']' '}' $@3 operande_entier
-   55         | • MOT
-   56         | • '$' ENTIER
-   57         | • '$' '*'
-   58         | • '$' '?'
-   59         | • CHAINE
-   60         | • '$' '(' "expr" somme_entiere ')'
-   61         | • '$' '(' appel_de_fonction ')'
+   35 concatenation: • concatenation operande
+   36              | • operande
+   48 test_instruction: operateur1 • concatenation
+   50 operande: • '$' '{' ID '}'
+   51         | • '$' '{' ID '[' operande_entier ']' '}'
+   52         | • MOT
+   53         | • '$' ENTIER
+   54         | • '$' '*'
+   55         | • '$' '?'
+   56         | • CHAINE
+   57         | • '$' '(' "expr" somme_entiere ')'
+   58         | • '$' '(' appel_de_fonction ')'
 
     MOT     shift, and go to state 19
     CHAINE  shift, and go to state 20
-    '$'     shift, and go to state 25
+    '$'     shift, and go to state 31
 
-    concatenation  go to state 99
+    concatenation  go to state 98
     operande       go to state 58
 
 
@@ -1204,9 +1185,9 @@ State 56
    19            | • "return" operande_entier
    20            | • "exit"
    21            | • "exit" operande_entier
-   88 declaration_de_fonction: • ID '(' ')' '{' decl_loc liste_instructions '}'
-   91 appel_de_fonction: • ID liste_operandes
-   92                  | • ID
+   85 declaration_de_fonction: • ID '(' ')' '{' decl_loc liste_instructions '}'
+   88 appel_de_fonction: • ID liste_operandes
+   89                  | • ID
 
     IF         shift, and go to state 1
     ID         shift, and go to state 2
@@ -1220,7 +1201,7 @@ State 56
     "return"   shift, and go to state 10
     "exit"     shift, and go to state 11
 
-    liste_instructions       go to state 100
+    liste_instructions       go to state 99
     instruction              go to state 14
     declaration_de_fonction  go to state 15
     appel_de_fonction        go to state 16
@@ -1228,21 +1209,21 @@ State 56
 
 State 57
 
-    4 instruction: ID '=' concatenation •  [$end, ';', "fi", "done", "elif", "else", ";;", '}']
-   36 concatenation: concatenation • operande
-   52 operande: • '$' '{' ID '}'
-   54         | • '$' '{' ID '[' operande_entier ']' '}' $@3 operande_entier
-   55         | • MOT
-   56         | • '$' ENTIER
-   57         | • '$' '*'
-   58         | • '$' '?'
-   59         | • CHAINE
-   60         | • '$' '(' "expr" somme_entiere ')'
-   61         | • '$' '(' appel_de_fonction ')'
+    4 instruction: ID '=' concatenation •  [$end, ';', "fi", "done", "elif", "else", '}']
+   35 concatenation: concatenation • operande
+   50 operande: • '$' '{' ID '}'
+   51         | • '$' '{' ID '[' operande_entier ']' '}'
+   52         | • MOT
+   53         | • '$' ENTIER
+   54         | • '$' '*'
+   55         | • '$' '?'
+   56         | • CHAINE
+   57         | • '$' '(' "expr" somme_entiere ')'
+   58         | • '$' '(' appel_de_fonction ')'
 
     MOT     shift, and go to state 19
     CHAINE  shift, and go to state 20
-    '$'     shift, and go to state 25
+    '$'     shift, and go to state 31
 
     $default  reduce using rule 4 (instruction)
 
@@ -1251,92 +1232,83 @@ State 57
 
 State 58
 
-   37 concatenation: operande •
+   36 concatenation: operande •
 
-    $default  reduce using rule 37 (concatenation)
+    $default  reduce using rule 36 (concatenation)
 
 
 State 59
 
     5 instruction: ID '[' operande_entier • ']' '=' concatenation
 
-    ']'  shift, and go to state 101
+    ']'  shift, and go to state 100
 
 
 State 60
 
-   35 liste_operandes: "${" ID • "[*]}"
+   53 operande: '$' ENTIER •
 
-    "[*]}"  shift, and go to state 102
+    $default  reduce using rule 53 (operande)
 
 
 State 61
 
-   88 declaration_de_fonction: ID '(' ')' • '{' decl_loc liste_instructions '}'
+   54 operande: '$' '*' •
 
-    '{'  shift, and go to state 103
+    $default  reduce using rule 54 (operande)
 
 
 State 62
 
-   56 operande: '$' ENTIER •
+   34 liste_operandes: '$' '{' • ID '[' '*' ']' '}'
+   50 operande: '$' '{' • ID '}'
+   51         | '$' '{' • ID '[' operande_entier ']' '}'
 
-    $default  reduce using rule 56 (operande)
+    ID  shift, and go to state 101
 
 
 State 63
 
-   57 operande: '$' '*' •
+   57 operande: '$' '(' • "expr" somme_entiere ')'
+   58         | '$' '(' • appel_de_fonction ')'
+   88 appel_de_fonction: • ID liste_operandes
+   89                  | • ID
 
-    $default  reduce using rule 57 (operande)
+    ID      shift, and go to state 102
+    "expr"  shift, and go to state 103
+
+    appel_de_fonction  go to state 104
 
 
 State 64
 
-   60 operande: '$' '(' • "expr" somme_entiere ')'
-   61         | '$' '(' • appel_de_fonction ')'
-   91 appel_de_fonction: • ID liste_operandes
-   92                  | • ID
+   55 operande: '$' '?' •
 
-    ID      shift, and go to state 104
-    "expr"  shift, and go to state 105
-
-    appel_de_fonction  go to state 106
+    $default  reduce using rule 55 (operande)
 
 
 State 65
 
-   52 operande: '$' '{' • ID '}'
-   54         | '$' '{' • ID '[' operande_entier ']' '}' $@3 operande_entier
+   85 declaration_de_fonction: ID '(' ')' • '{' decl_loc liste_instructions '}'
 
-    ID  shift, and go to state 107
+    '{'  shift, and go to state 105
 
 
 State 66
 
-   58 operande: '$' '?' •
+   32 liste_operandes: liste_operandes operande •
 
-    $default  reduce using rule 58 (operande)
+    $default  reduce using rule 32 (liste_operandes)
 
 
 State 67
 
-   32 $@1: ε •
-   33 liste_operandes: liste_operandes operande • $@1 operande_entier
+    6 instruction: "declare" ID '[' • ENTIER ']'
 
-    $default  reduce using rule 32 ($@1)
-
-    $@1  go to state 108
+    ENTIER  shift, and go to state 106
 
 
 State 68
-
-    6 instruction: "declare" ID '[' • ENTIER ']'
-
-    ENTIER  shift, and go to state 109
-
-
-State 69
 
     2 liste_instructions: • liste_instructions ';' instruction
     3                   | • instruction
@@ -1359,9 +1331,9 @@ State 69
    19            | • "return" operande_entier
    20            | • "exit"
    21            | • "exit" operande_entier
-   88 declaration_de_fonction: • ID '(' ')' '{' decl_loc liste_instructions '}'
-   91 appel_de_fonction: • ID liste_operandes
-   92                  | • ID
+   85 declaration_de_fonction: • ID '(' ')' '{' decl_loc liste_instructions '}'
+   88 appel_de_fonction: • ID liste_operandes
+   89                  | • ID
 
     IF         shift, and go to state 1
     ID         shift, and go to state 2
@@ -1375,38 +1347,37 @@ State 69
     "return"   shift, and go to state 10
     "exit"     shift, and go to state 11
 
-    liste_instructions       go to state 110
+    liste_instructions       go to state 107
     instruction              go to state 14
     declaration_de_fonction  go to state 15
     appel_de_fonction        go to state 16
 
 
-State 70
+State 69
 
     9 instruction: "for" ID "in" • liste_operandes "do" liste_instructions "done"
-   33 liste_operandes: • liste_operandes operande $@1 operande_entier
-   34                | • operande
-   35                | • "${" ID "[*]}"
-   52 operande: • '$' '{' ID '}'
-   54         | • '$' '{' ID '[' operande_entier ']' '}' $@3 operande_entier
-   55         | • MOT
-   56         | • '$' ENTIER
-   57         | • '$' '*'
-   58         | • '$' '?'
-   59         | • CHAINE
-   60         | • '$' '(' "expr" somme_entiere ')'
-   61         | • '$' '(' appel_de_fonction ')'
+   32 liste_operandes: • liste_operandes operande
+   33                | • operande
+   34                | • '$' '{' ID '[' '*' ']' '}'
+   50 operande: • '$' '{' ID '}'
+   51         | • '$' '{' ID '[' operande_entier ']' '}'
+   52         | • MOT
+   53         | • '$' ENTIER
+   54         | • '$' '*'
+   55         | • '$' '?'
+   56         | • CHAINE
+   57         | • '$' '(' "expr" somme_entiere ')'
+   58         | • '$' '(' appel_de_fonction ')'
 
     MOT     shift, and go to state 19
     CHAINE  shift, and go to state 20
-    "${"    shift, and go to state 23
-    '$'     shift, and go to state 25
+    '$'     shift, and go to state 23
 
-    liste_operandes  go to state 111
-    operande         go to state 27
+    liste_operandes  go to state 108
+    operande         go to state 26
 
 
-State 71
+State 70
 
     2 liste_instructions: • liste_instructions ';' instruction
     3                   | • instruction
@@ -1429,9 +1400,9 @@ State 71
    19            | • "return" operande_entier
    20            | • "exit"
    21            | • "exit" operande_entier
-   88 declaration_de_fonction: • ID '(' ')' '{' decl_loc liste_instructions '}'
-   91 appel_de_fonction: • ID liste_operandes
-   92                  | • ID
+   85 declaration_de_fonction: • ID '(' ')' '{' decl_loc liste_instructions '}'
+   88 appel_de_fonction: • ID liste_operandes
+   89                  | • ID
 
     IF         shift, and go to state 1
     ID         shift, and go to state 2
@@ -1445,13 +1416,13 @@ State 71
     "return"   shift, and go to state 10
     "exit"     shift, and go to state 11
 
-    liste_instructions       go to state 112
+    liste_instructions       go to state 109
     instruction              go to state 14
     declaration_de_fonction  go to state 15
     appel_de_fonction        go to state 16
 
 
-State 72
+State 71
 
     2 liste_instructions: • liste_instructions ';' instruction
     3                   | • instruction
@@ -1474,9 +1445,9 @@ State 72
    19            | • "return" operande_entier
    20            | • "exit"
    21            | • "exit" operande_entier
-   88 declaration_de_fonction: • ID '(' ')' '{' decl_loc liste_instructions '}'
-   91 appel_de_fonction: • ID liste_operandes
-   92                  | • ID
+   85 declaration_de_fonction: • ID '(' ')' '{' decl_loc liste_instructions '}'
+   88 appel_de_fonction: • ID liste_operandes
+   89                  | • ID
 
     IF         shift, and go to state 1
     ID         shift, and go to state 2
@@ -1490,124 +1461,132 @@ State 72
     "return"   shift, and go to state 10
     "exit"     shift, and go to state 11
 
-    liste_instructions       go to state 113
+    liste_instructions       go to state 110
     instruction              go to state 14
     declaration_de_fonction  go to state 15
     appel_de_fonction        go to state 16
 
 
+State 72
+
+   50 operande: '$' '{' • ID '}'
+   51         | '$' '{' • ID '[' operande_entier ']' '}'
+
+    ID  shift, and go to state 111
+
+
 State 73
 
    12 instruction: "case" operande "in" • liste_cas "esac"
-   25 liste_cas: • liste_cas filtre ')' liste_instructions ";;"
-   26          | • filtre ')' liste_instructions ";;"
+   25 liste_cas: • liste_cas filtre ')' liste_instructions ';' ';'
+   26          | • filtre ')' liste_instructions ';' ';'
    27 filtre: • MOT
    28       | • CHAINE
    29       | • filtre '|' MOT
    30       | • filtre '|' CHAINE
    31       | • '*'
 
-    MOT     shift, and go to state 114
-    CHAINE  shift, and go to state 115
-    '*'     shift, and go to state 116
+    MOT     shift, and go to state 112
+    CHAINE  shift, and go to state 113
+    '*'     shift, and go to state 114
 
-    liste_cas  go to state 117
-    filtre     go to state 118
+    liste_cas  go to state 115
+    filtre     go to state 116
 
 
 State 74
 
    15 instruction: "read" ID '[' • operande_entier ']'
-   74 operande_entier: • '$' '{' ID '}'
-   75                | • '$' '{' ID '[' operande_entier ']' '}'
-   76                | • '$' ENTIER
-   77                | • plus_ou_moins '$' '{' ID '}'
-   78                | • plus_ou_moins '$' '{' ID '[' operande_entier ']' '}'
-   79                | • plus_ou_moins '$' ENTIER
-   80                | • ENTIER
-   81                | • plus_ou_moins ENTIER
-   82                | • '(' somme_entiere ')'
-   83 plus_ou_moins: • '+'
-   84              | • '-'
+   71 operande_entier: • '$' '{' ID '}'
+   72                | • '$' '{' ID '[' operande_entier ']' '}'
+   73                | • '$' ENTIER
+   74                | • plus_ou_moins '$' '{' ID '}'
+   75                | • plus_ou_moins '$' '{' ID '[' operande_entier ']' '}'
+   76                | • plus_ou_moins '$' ENTIER
+   77                | • ENTIER
+   78                | • plus_ou_moins ENTIER
+   79                | • '(' somme_entiere ')'
+   80 plus_ou_moins: • '+'
+   81              | • '-'
 
     ENTIER  shift, and go to state 35
     '+'     shift, and go to state 36
     '-'     shift, and go to state 37
-    '('     shift, and go to state 38
-    '$'     shift, and go to state 39
+    '$'     shift, and go to state 38
+    '('     shift, and go to state 39
 
-    operande_entier  go to state 119
+    operande_entier  go to state 117
     plus_ou_moins    go to state 41
 
 
 State 75
 
-   70 somme_entiere: somme_entiere • plus_ou_moins produit_entier
-   82 operande_entier: '(' somme_entiere • ')'
-   83 plus_ou_moins: • '+'
-   84              | • '-'
+   73 operande_entier: '$' ENTIER •
 
-    '+'  shift, and go to state 36
-    '-'  shift, and go to state 37
-    ')'  shift, and go to state 120
-
-    plus_ou_moins  go to state 121
+    $default  reduce using rule 73 (operande_entier)
 
 
 State 76
 
-   71 somme_entiere: produit_entier •  ['+', '-', ')']
-   72 produit_entier: produit_entier • fois_div_mod operande_entier
-   85 fois_div_mod: • '*'
-   86             | • '/'
-   87             | • '%'
+   71 operande_entier: '$' '{' • ID '}'
+   72                | '$' '{' • ID '[' operande_entier ']' '}'
 
-    '*'  shift, and go to state 122
-    '/'  shift, and go to state 123
-    '%'  shift, and go to state 124
-
-    $default  reduce using rule 71 (somme_entiere)
-
-    fois_div_mod  go to state 125
+    ID  shift, and go to state 118
 
 
 State 77
 
-   73 produit_entier: operande_entier •
+   67 somme_entiere: somme_entiere • plus_ou_moins produit_entier
+   79 operande_entier: '(' somme_entiere • ')'
+   80 plus_ou_moins: • '+'
+   81              | • '-'
 
-    $default  reduce using rule 73 (produit_entier)
+    '+'  shift, and go to state 36
+    '-'  shift, and go to state 37
+    ')'  shift, and go to state 119
+
+    plus_ou_moins  go to state 120
 
 
 State 78
 
-   76 operande_entier: '$' ENTIER •
+   68 somme_entiere: produit_entier •  ['+', '-', ')']
+   69 produit_entier: produit_entier • fois_div_mod operande_entier
+   82 fois_div_mod: • '*'
+   83             | • '/'
+   84             | • '%'
 
-    $default  reduce using rule 76 (operande_entier)
+    '*'  shift, and go to state 121
+    '/'  shift, and go to state 122
+    '%'  shift, and go to state 123
+
+    $default  reduce using rule 68 (somme_entiere)
+
+    fois_div_mod  go to state 124
 
 
 State 79
 
-   74 operande_entier: '$' '{' • ID '}'
-   75                | '$' '{' • ID '[' operande_entier ']' '}'
+   70 produit_entier: operande_entier •
 
-    ID  shift, and go to state 126
+    $default  reduce using rule 70 (produit_entier)
 
 
 State 80
 
-   81 operande_entier: plus_ou_moins ENTIER •
+   78 operande_entier: plus_ou_moins ENTIER •
 
-    $default  reduce using rule 81 (operande_entier)
+    $default  reduce using rule 78 (operande_entier)
 
 
 State 81
 
-   77 operande_entier: plus_ou_moins '$' • '{' ID '}'
-   78                | plus_ou_moins '$' • '{' ID '[' operande_entier ']' '}'
-   79                | plus_ou_moins '$' • ENTIER
+   74 operande_entier: plus_ou_moins '$' • '{' ID '}'
+   75                | plus_ou_moins '$' • '{' ID '[' operande_entier ']' '}'
+   76                | plus_ou_moins '$' • ENTIER
 
-    ENTIER  shift, and go to state 127
-    '{'     shift, and go to state 128
+    ENTIER  shift, and go to state 125
+    '{'     shift, and go to state 126
 
 
 State 82
@@ -1619,52 +1598,52 @@ State 82
 
 State 83
 
-   39 test_expr: test_expr • "-o" test_expr2
-   44 test_expr3: '(' test_expr • ')'
+   38 test_expr: test_expr • "-o" test_expr2
+   42 test_expr3: '(' test_expr • ')'
 
-    ')'   shift, and go to state 129
+    ')'   shift, and go to state 127
     "-o"  shift, and go to state 89
 
 
 State 84
 
-   36 concatenation: • concatenation operande
-   37              | • operande
-   39 test_expr: • test_expr "-o" test_expr2
-   40          | • test_expr2
-   41 test_expr2: • test_expr2 "-a" test_expr3
-   43           | • test_expr3 $@2 operande_entier
-   44 test_expr3: • '(' test_expr ')'
-   45           | • '!' '(' test_expr ')'
-   45           | '!' '(' • test_expr ')'
-   46           | • test_instruction
-   47           | • '!' test_instruction
-   48 test_instruction: • concatenation '=' concatenation
-   49                 | • concatenation "!=" concatenation
-   50                 | • operateur1 concatenation
-   51                 | • operande operateur2 operande
-   52 operande: • '$' '{' ID '}'
-   54         | • '$' '{' ID '[' operande_entier ']' '}' $@3 operande_entier
-   55         | • MOT
-   56         | • '$' ENTIER
-   57         | • '$' '*'
-   58         | • '$' '?'
-   59         | • CHAINE
-   60         | • '$' '(' "expr" somme_entiere ')'
-   61         | • '$' '(' appel_de_fonction ')'
-   62 operateur1: • "-n"
-   63           | • "-z"
+   35 concatenation: • concatenation operande
+   36              | • operande
+   38 test_expr: • test_expr "-o" test_expr2
+   39          | • test_expr2
+   40 test_expr2: • test_expr2 "-a" test_expr3
+   41           | • test_expr3
+   42 test_expr3: • '(' test_expr ')'
+   43           | • '!' '(' test_expr ')'
+   43           | '!' '(' • test_expr ')'
+   44           | • test_instruction
+   45           | • '!' test_instruction
+   46 test_instruction: • concatenation '=' concatenation
+   47                 | • concatenation "!=" concatenation
+   48                 | • operateur1 concatenation
+   49                 | • operande operateur2 operande
+   50 operande: • '$' '{' ID '}'
+   51         | • '$' '{' ID '[' operande_entier ']' '}'
+   52         | • MOT
+   53         | • '$' ENTIER
+   54         | • '$' '*'
+   55         | • '$' '?'
+   56         | • CHAINE
+   57         | • '$' '(' "expr" somme_entiere ')'
+   58         | • '$' '(' appel_de_fonction ')'
+   59 operateur1: • "-n"
+   60           | • "-z"
 
     MOT     shift, and go to state 19
     CHAINE  shift, and go to state 20
+    '$'     shift, and go to state 31
     '('     shift, and go to state 45
     '!'     shift, and go to state 46
-    '$'     shift, and go to state 25
     "-n"    shift, and go to state 47
     "-z"    shift, and go to state 48
 
     concatenation     go to state 49
-    test_expr         go to state 130
+    test_expr         go to state 128
     test_expr2        go to state 51
     test_expr3        go to state 52
     test_instruction  go to state 53
@@ -1674,101 +1653,101 @@ State 84
 
 State 85
 
-   47 test_expr3: '!' test_instruction •
+   45 test_expr3: '!' test_instruction •
 
-    $default  reduce using rule 47 (test_expr3)
+    $default  reduce using rule 45 (test_expr3)
 
 
 State 86
 
-   36 concatenation: • concatenation operande
-   37              | • operande
-   48 test_instruction: concatenation '=' • concatenation
-   52 operande: • '$' '{' ID '}'
-   54         | • '$' '{' ID '[' operande_entier ']' '}' $@3 operande_entier
-   55         | • MOT
-   56         | • '$' ENTIER
-   57         | • '$' '*'
-   58         | • '$' '?'
-   59         | • CHAINE
-   60         | • '$' '(' "expr" somme_entiere ')'
-   61         | • '$' '(' appel_de_fonction ')'
+   35 concatenation: • concatenation operande
+   36              | • operande
+   46 test_instruction: concatenation '=' • concatenation
+   50 operande: • '$' '{' ID '}'
+   51         | • '$' '{' ID '[' operande_entier ']' '}'
+   52         | • MOT
+   53         | • '$' ENTIER
+   54         | • '$' '*'
+   55         | • '$' '?'
+   56         | • CHAINE
+   57         | • '$' '(' "expr" somme_entiere ')'
+   58         | • '$' '(' appel_de_fonction ')'
 
     MOT     shift, and go to state 19
     CHAINE  shift, and go to state 20
-    '$'     shift, and go to state 25
+    '$'     shift, and go to state 31
 
-    concatenation  go to state 131
+    concatenation  go to state 129
     operande       go to state 58
 
 
 State 87
 
-   36 concatenation: • concatenation operande
-   37              | • operande
-   49 test_instruction: concatenation "!=" • concatenation
-   52 operande: • '$' '{' ID '}'
-   54         | • '$' '{' ID '[' operande_entier ']' '}' $@3 operande_entier
-   55         | • MOT
-   56         | • '$' ENTIER
-   57         | • '$' '*'
-   58         | • '$' '?'
-   59         | • CHAINE
-   60         | • '$' '(' "expr" somme_entiere ')'
-   61         | • '$' '(' appel_de_fonction ')'
+   35 concatenation: • concatenation operande
+   36              | • operande
+   47 test_instruction: concatenation "!=" • concatenation
+   50 operande: • '$' '{' ID '}'
+   51         | • '$' '{' ID '[' operande_entier ']' '}'
+   52         | • MOT
+   53         | • '$' ENTIER
+   54         | • '$' '*'
+   55         | • '$' '?'
+   56         | • CHAINE
+   57         | • '$' '(' "expr" somme_entiere ')'
+   58         | • '$' '(' appel_de_fonction ')'
 
     MOT     shift, and go to state 19
     CHAINE  shift, and go to state 20
-    '$'     shift, and go to state 25
+    '$'     shift, and go to state 31
 
-    concatenation  go to state 132
+    concatenation  go to state 130
     operande       go to state 58
 
 
 State 88
 
-   36 concatenation: concatenation operande •
+   35 concatenation: concatenation operande •
 
-    $default  reduce using rule 36 (concatenation)
+    $default  reduce using rule 35 (concatenation)
 
 
 State 89
 
-   36 concatenation: • concatenation operande
-   37              | • operande
-   39 test_expr: test_expr "-o" • test_expr2
-   41 test_expr2: • test_expr2 "-a" test_expr3
-   43           | • test_expr3 $@2 operande_entier
-   44 test_expr3: • '(' test_expr ')'
-   45           | • '!' '(' test_expr ')'
-   46           | • test_instruction
-   47           | • '!' test_instruction
-   48 test_instruction: • concatenation '=' concatenation
-   49                 | • concatenation "!=" concatenation
-   50                 | • operateur1 concatenation
-   51                 | • operande operateur2 operande
-   52 operande: • '$' '{' ID '}'
-   54         | • '$' '{' ID '[' operande_entier ']' '}' $@3 operande_entier
-   55         | • MOT
-   56         | • '$' ENTIER
-   57         | • '$' '*'
-   58         | • '$' '?'
-   59         | • CHAINE
-   60         | • '$' '(' "expr" somme_entiere ')'
-   61         | • '$' '(' appel_de_fonction ')'
-   62 operateur1: • "-n"
-   63           | • "-z"
+   35 concatenation: • concatenation operande
+   36              | • operande
+   38 test_expr: test_expr "-o" • test_expr2
+   40 test_expr2: • test_expr2 "-a" test_expr3
+   41           | • test_expr3
+   42 test_expr3: • '(' test_expr ')'
+   43           | • '!' '(' test_expr ')'
+   44           | • test_instruction
+   45           | • '!' test_instruction
+   46 test_instruction: • concatenation '=' concatenation
+   47                 | • concatenation "!=" concatenation
+   48                 | • operateur1 concatenation
+   49                 | • operande operateur2 operande
+   50 operande: • '$' '{' ID '}'
+   51         | • '$' '{' ID '[' operande_entier ']' '}'
+   52         | • MOT
+   53         | • '$' ENTIER
+   54         | • '$' '*'
+   55         | • '$' '?'
+   56         | • CHAINE
+   57         | • '$' '(' "expr" somme_entiere ')'
+   58         | • '$' '(' appel_de_fonction ')'
+   59 operateur1: • "-n"
+   60           | • "-z"
 
     MOT     shift, and go to state 19
     CHAINE  shift, and go to state 20
+    '$'     shift, and go to state 31
     '('     shift, and go to state 45
     '!'     shift, and go to state 46
-    '$'     shift, and go to state 25
     "-n"    shift, and go to state 47
     "-z"    shift, and go to state 48
 
     concatenation     go to state 49
-    test_expr2        go to state 133
+    test_expr2        go to state 131
     test_expr3        go to state 52
     test_instruction  go to state 53
     operande          go to state 54
@@ -1777,39 +1756,39 @@ State 89
 
 State 90
 
-   36 concatenation: • concatenation operande
-   37              | • operande
-   41 test_expr2: test_expr2 "-a" • test_expr3
-   44 test_expr3: • '(' test_expr ')'
-   45           | • '!' '(' test_expr ')'
-   46           | • test_instruction
-   47           | • '!' test_instruction
-   48 test_instruction: • concatenation '=' concatenation
-   49                 | • concatenation "!=" concatenation
-   50                 | • operateur1 concatenation
-   51                 | • operande operateur2 operande
-   52 operande: • '$' '{' ID '}'
-   54         | • '$' '{' ID '[' operande_entier ']' '}' $@3 operande_entier
-   55         | • MOT
-   56         | • '$' ENTIER
-   57         | • '$' '*'
-   58         | • '$' '?'
-   59         | • CHAINE
-   60         | • '$' '(' "expr" somme_entiere ')'
-   61         | • '$' '(' appel_de_fonction ')'
-   62 operateur1: • "-n"
-   63           | • "-z"
+   35 concatenation: • concatenation operande
+   36              | • operande
+   40 test_expr2: test_expr2 "-a" • test_expr3
+   42 test_expr3: • '(' test_expr ')'
+   43           | • '!' '(' test_expr ')'
+   44           | • test_instruction
+   45           | • '!' test_instruction
+   46 test_instruction: • concatenation '=' concatenation
+   47                 | • concatenation "!=" concatenation
+   48                 | • operateur1 concatenation
+   49                 | • operande operateur2 operande
+   50 operande: • '$' '{' ID '}'
+   51         | • '$' '{' ID '[' operande_entier ']' '}'
+   52         | • MOT
+   53         | • '$' ENTIER
+   54         | • '$' '*'
+   55         | • '$' '?'
+   56         | • CHAINE
+   57         | • '$' '(' "expr" somme_entiere ')'
+   58         | • '$' '(' appel_de_fonction ')'
+   59 operateur1: • "-n"
+   60           | • "-z"
 
     MOT     shift, and go to state 19
     CHAINE  shift, and go to state 20
+    '$'     shift, and go to state 31
     '('     shift, and go to state 45
     '!'     shift, and go to state 46
-    '$'     shift, and go to state 25
     "-n"    shift, and go to state 47
     "-z"    shift, and go to state 48
 
     concatenation     go to state 49
-    test_expr3        go to state 134
+    test_expr3        go to state 132
     test_instruction  go to state 53
     operande          go to state 54
     operateur1        go to state 55
@@ -1817,308 +1796,90 @@ State 90
 
 State 91
 
-   43 test_expr2: test_expr3 $@2 • operande_entier
-   74 operande_entier: • '$' '{' ID '}'
-   75                | • '$' '{' ID '[' operande_entier ']' '}'
-   76                | • '$' ENTIER
-   77                | • plus_ou_moins '$' '{' ID '}'
-   78                | • plus_ou_moins '$' '{' ID '[' operande_entier ']' '}'
-   79                | • plus_ou_moins '$' ENTIER
-   80                | • ENTIER
-   81                | • plus_ou_moins ENTIER
-   82                | • '(' somme_entiere ')'
-   83 plus_ou_moins: • '+'
-   84              | • '-'
+   61 operateur2: "-eq" •
 
-    ENTIER  shift, and go to state 35
-    '+'     shift, and go to state 36
-    '-'     shift, and go to state 37
-    '('     shift, and go to state 38
-    '$'     shift, and go to state 39
-
-    operande_entier  go to state 135
-    plus_ou_moins    go to state 41
+    $default  reduce using rule 61 (operateur2)
 
 
 State 92
 
-   64 operateur2: "-eq" •
+   62 operateur2: "-ne" •
 
-    $default  reduce using rule 64 (operateur2)
+    $default  reduce using rule 62 (operateur2)
 
 
 State 93
 
-   65 operateur2: "-ne" •
+   63 operateur2: "-gt" •
 
-    $default  reduce using rule 65 (operateur2)
+    $default  reduce using rule 63 (operateur2)
 
 
 State 94
 
-   66 operateur2: "-gt" •
+   64 operateur2: "-ge" •
 
-    $default  reduce using rule 66 (operateur2)
+    $default  reduce using rule 64 (operateur2)
 
 
 State 95
 
-   67 operateur2: "-ge" •
+   65 operateur2: "-lt" •
 
-    $default  reduce using rule 67 (operateur2)
+    $default  reduce using rule 65 (operateur2)
 
 
 State 96
 
-   68 operateur2: "-lt" •
+   66 operateur2: "-le" •
 
-    $default  reduce using rule 68 (operateur2)
+    $default  reduce using rule 66 (operateur2)
 
 
 State 97
 
-   69 operateur2: "-le" •
+   49 test_instruction: operande operateur2 • operande
+   50 operande: • '$' '{' ID '}'
+   51         | • '$' '{' ID '[' operande_entier ']' '}'
+   52         | • MOT
+   53         | • '$' ENTIER
+   54         | • '$' '*'
+   55         | • '$' '?'
+   56         | • CHAINE
+   57         | • '$' '(' "expr" somme_entiere ')'
+   58         | • '$' '(' appel_de_fonction ')'
 
-    $default  reduce using rule 69 (operateur2)
+    MOT     shift, and go to state 19
+    CHAINE  shift, and go to state 20
+    '$'     shift, and go to state 31
+
+    operande  go to state 133
 
 
 State 98
 
-   51 test_instruction: operande operateur2 • operande
-   52 operande: • '$' '{' ID '}'
-   54         | • '$' '{' ID '[' operande_entier ']' '}' $@3 operande_entier
-   55         | • MOT
-   56         | • '$' ENTIER
-   57         | • '$' '*'
-   58         | • '$' '?'
-   59         | • CHAINE
-   60         | • '$' '(' "expr" somme_entiere ')'
-   61         | • '$' '(' appel_de_fonction ')'
+   35 concatenation: concatenation • operande
+   48 test_instruction: operateur1 concatenation •  ["then", "do", ')', "-o", "-a"]
+   50 operande: • '$' '{' ID '}'
+   51         | • '$' '{' ID '[' operande_entier ']' '}'
+   52         | • MOT
+   53         | • '$' ENTIER
+   54         | • '$' '*'
+   55         | • '$' '?'
+   56         | • CHAINE
+   57         | • '$' '(' "expr" somme_entiere ')'
+   58         | • '$' '(' appel_de_fonction ')'
 
     MOT     shift, and go to state 19
     CHAINE  shift, and go to state 20
-    '$'     shift, and go to state 25
+    '$'     shift, and go to state 31
 
-    operande  go to state 136
-
-
-State 99
-
-   36 concatenation: concatenation • operande
-   50 test_instruction: operateur1 concatenation •  [ENTIER, '+', '-', "then", "do", ')', "-o", "-a", '(', '$']
-   52 operande: • '$' '{' ID '}'
-   54         | • '$' '{' ID '[' operande_entier ']' '}' $@3 operande_entier
-   55         | • MOT
-   56         | • '$' ENTIER
-   57         | • '$' '*'
-   58         | • '$' '?'
-   59         | • CHAINE
-   60         | • '$' '(' "expr" somme_entiere ')'
-   61         | • '$' '(' appel_de_fonction ')'
-
-    MOT     shift, and go to state 19
-    CHAINE  shift, and go to state 20
-    '$'     shift, and go to state 25
-
-    '$'       [reduce using rule 50 (test_instruction)]
-    $default  reduce using rule 50 (test_instruction)
+    $default  reduce using rule 48 (test_instruction)
 
     operande  go to state 88
 
-    shift/reduce conflict on token '$':
-       50 test_instruction: operateur1 concatenation •
-       52 operande: • '$' '{' ID '}'
-      Example: operateur1 concatenation • '$' '{' ID '}'
-      Shift derivation
-        test_expr3
-        ↳ 46: test_instruction
-              ↳ 50: operateur1 concatenation
-                               ↳ 36: concatenation operande
-                                                   ↳ 52: • '$' '{' ID '}'
-      Reduce derivation
-        test_expr
-        ↳ 40: test_expr2
-              ↳ 43: test_expr3                             $@2     operande_entier
-                    ↳ 46: test_instruction                 ↳ 43: ε ↳ 74: '$' '{' ID '}'
-                          ↳ 50: operateur1 concatenation •
 
-    shift/reduce conflict on token '$':
-       50 test_instruction: operateur1 concatenation •
-       54 operande: • '$' '{' ID '[' operande_entier ']' '}' $@3 operande_entier
-      First example: IF "test" operateur1 concatenation • '$' '{' ID '[' operande_entier ']' '}' $@3 operande_entier $@2 operande_entier "then" liste_instructions else_part "fi" $end
-      Shift derivation
-        $accept
-        ↳ 0: programme                                                                                                                                                                                                       $end
-             ↳ 1: liste_instructions
-                  ↳ 3: instruction
-                       ↳ 7: IF test_bloc                                                                                                                                            "then" liste_instructions else_part "fi"
-                               ↳ 38: "test" test_expr
-                                            ↳ 40: test_expr2
-                                                  ↳ 43: test_instruction                                                                                        $@2 operande_entier
-                                                        ↳ 50: operateur1 concatenation
-                                                                         ↳ 36: concatenation operande
-                                                                                             ↳ 54: • '$' '{' ID '[' operande_entier ']' '}' $@3 operande_entier
-      Second example: IF "test" operateur1 concatenation • $@2 '$' '{' ID '}' "then" liste_instructions else_part "fi" $end
-      Reduce derivation
-        $accept
-        ↳ 0: programme                                                                                                                                           $end
-             ↳ 1: liste_instructions
-                  ↳ 3: instruction
-                       ↳ 7: IF test_bloc                                                                                "then" liste_instructions else_part "fi"
-                               ↳ 38: "test" test_expr
-                                            ↳ 40: test_expr2
-                                                  ↳ 43: test_expr3                             $@2 operande_entier
-                                                        ↳ 46: test_instruction                     ↳ 74: '$' '{' ID '}'
-                                                              ↳ 50: operateur1 concatenation •
-
-    shift/reduce conflict on token '$':
-       50 test_instruction: operateur1 concatenation •
-       56 operande: • '$' ENTIER
-      First example: IF "test" operateur1 concatenation • '$' ENTIER $@2 operande_entier "then" liste_instructions else_part "fi" $end
-      Shift derivation
-        $accept
-        ↳ 0: programme                                                                                                                                                       $end
-             ↳ 1: liste_instructions
-                  ↳ 3: instruction
-                       ↳ 7: IF test_bloc                                                                                            "then" liste_instructions else_part "fi"
-                               ↳ 38: "test" test_expr
-                                            ↳ 40: test_expr2
-                                                  ↳ 43: test_instruction                                        $@2 operande_entier
-                                                        ↳ 50: operateur1 concatenation
-                                                                         ↳ 36: concatenation operande
-                                                                                             ↳ 56: • '$' ENTIER
-      Second example: IF "test" operateur1 concatenation • $@2 '$' '{' ID '}' "then" liste_instructions else_part "fi" $end
-      Reduce derivation
-        $accept
-        ↳ 0: programme                                                                                                                                           $end
-             ↳ 1: liste_instructions
-                  ↳ 3: instruction
-                       ↳ 7: IF test_bloc                                                                                "then" liste_instructions else_part "fi"
-                               ↳ 38: "test" test_expr
-                                            ↳ 40: test_expr2
-                                                  ↳ 43: test_expr3                             $@2 operande_entier
-                                                        ↳ 46: test_instruction                     ↳ 74: '$' '{' ID '}'
-                                                              ↳ 50: operateur1 concatenation •
-
-    shift/reduce conflict on token '$':
-       50 test_instruction: operateur1 concatenation •
-       57 operande: • '$' '*'
-      First example: IF "test" operateur1 concatenation • '$' '*' $@2 operande_entier "then" liste_instructions else_part "fi" $end
-      Shift derivation
-        $accept
-        ↳ 0: programme                                                                                                                                                    $end
-             ↳ 1: liste_instructions
-                  ↳ 3: instruction
-                       ↳ 7: IF test_bloc                                                                                         "then" liste_instructions else_part "fi"
-                               ↳ 38: "test" test_expr
-                                            ↳ 40: test_expr2
-                                                  ↳ 43: test_instruction                                     $@2 operande_entier
-                                                        ↳ 50: operateur1 concatenation
-                                                                         ↳ 36: concatenation operande
-                                                                                             ↳ 57: • '$' '*'
-      Second example: IF "test" operateur1 concatenation • $@2 '$' '{' ID '}' "then" liste_instructions else_part "fi" $end
-      Reduce derivation
-        $accept
-        ↳ 0: programme                                                                                                                                           $end
-             ↳ 1: liste_instructions
-                  ↳ 3: instruction
-                       ↳ 7: IF test_bloc                                                                                "then" liste_instructions else_part "fi"
-                               ↳ 38: "test" test_expr
-                                            ↳ 40: test_expr2
-                                                  ↳ 43: test_expr3                             $@2 operande_entier
-                                                        ↳ 46: test_instruction                     ↳ 74: '$' '{' ID '}'
-                                                              ↳ 50: operateur1 concatenation •
-
-    shift/reduce conflict on token '$':
-       50 test_instruction: operateur1 concatenation •
-       58 operande: • '$' '?'
-      First example: IF "test" operateur1 concatenation • '$' '?' $@2 operande_entier "then" liste_instructions else_part "fi" $end
-      Shift derivation
-        $accept
-        ↳ 0: programme                                                                                                                                                    $end
-             ↳ 1: liste_instructions
-                  ↳ 3: instruction
-                       ↳ 7: IF test_bloc                                                                                         "then" liste_instructions else_part "fi"
-                               ↳ 38: "test" test_expr
-                                            ↳ 40: test_expr2
-                                                  ↳ 43: test_instruction                                     $@2 operande_entier
-                                                        ↳ 50: operateur1 concatenation
-                                                                         ↳ 36: concatenation operande
-                                                                                             ↳ 58: • '$' '?'
-      Second example: IF "test" operateur1 concatenation • $@2 '$' '{' ID '}' "then" liste_instructions else_part "fi" $end
-      Reduce derivation
-        $accept
-        ↳ 0: programme                                                                                                                                           $end
-             ↳ 1: liste_instructions
-                  ↳ 3: instruction
-                       ↳ 7: IF test_bloc                                                                                "then" liste_instructions else_part "fi"
-                               ↳ 38: "test" test_expr
-                                            ↳ 40: test_expr2
-                                                  ↳ 43: test_expr3                             $@2 operande_entier
-                                                        ↳ 46: test_instruction                     ↳ 74: '$' '{' ID '}'
-                                                              ↳ 50: operateur1 concatenation •
-
-    shift/reduce conflict on token '$':
-       50 test_instruction: operateur1 concatenation •
-       60 operande: • '$' '(' "expr" somme_entiere ')'
-      First example: IF "test" operateur1 concatenation • '$' '(' "expr" somme_entiere ')' $@2 operande_entier "then" liste_instructions else_part "fi" $end
-      Shift derivation
-        $accept
-        ↳ 0: programme                                                                                                                                                                             $end
-             ↳ 1: liste_instructions
-                  ↳ 3: instruction
-                       ↳ 7: IF test_bloc                                                                                                                  "then" liste_instructions else_part "fi"
-                               ↳ 38: "test" test_expr
-                                            ↳ 40: test_expr2
-                                                  ↳ 43: test_instruction                                                              $@2 operande_entier
-                                                        ↳ 50: operateur1 concatenation
-                                                                         ↳ 36: concatenation operande
-                                                                                             ↳ 60: • '$' '(' "expr" somme_entiere ')'
-      Second example: IF "test" operateur1 concatenation • $@2 '$' '{' ID '}' "then" liste_instructions else_part "fi" $end
-      Reduce derivation
-        $accept
-        ↳ 0: programme                                                                                                                                           $end
-             ↳ 1: liste_instructions
-                  ↳ 3: instruction
-                       ↳ 7: IF test_bloc                                                                                "then" liste_instructions else_part "fi"
-                               ↳ 38: "test" test_expr
-                                            ↳ 40: test_expr2
-                                                  ↳ 43: test_expr3                             $@2 operande_entier
-                                                        ↳ 46: test_instruction                     ↳ 74: '$' '{' ID '}'
-                                                              ↳ 50: operateur1 concatenation •
-
-    shift/reduce conflict on token '$':
-       50 test_instruction: operateur1 concatenation •
-       61 operande: • '$' '(' appel_de_fonction ')'
-      First example: IF "test" operateur1 concatenation • '$' '(' appel_de_fonction ')' $@2 operande_entier "then" liste_instructions else_part "fi" $end
-      Shift derivation
-        $accept
-        ↳ 0: programme                                                                                                                                                                          $end
-             ↳ 1: liste_instructions
-                  ↳ 3: instruction
-                       ↳ 7: IF test_bloc                                                                                                               "then" liste_instructions else_part "fi"
-                               ↳ 38: "test" test_expr
-                                            ↳ 40: test_expr2
-                                                  ↳ 43: test_instruction                                                           $@2 operande_entier
-                                                        ↳ 50: operateur1 concatenation
-                                                                         ↳ 36: concatenation operande
-                                                                                             ↳ 61: • '$' '(' appel_de_fonction ')'
-      Second example: IF "test" operateur1 concatenation • $@2 '$' '{' ID '}' "then" liste_instructions else_part "fi" $end
-      Reduce derivation
-        $accept
-        ↳ 0: programme                                                                                                                                           $end
-             ↳ 1: liste_instructions
-                  ↳ 3: instruction
-                       ↳ 7: IF test_bloc                                                                                "then" liste_instructions else_part "fi"
-                               ↳ 38: "test" test_expr
-                                            ↳ 40: test_expr2
-                                                  ↳ 43: test_expr3                             $@2 operande_entier
-                                                        ↳ 46: test_instruction                     ↳ 74: '$' '{' ID '}'
-                                                              ↳ 50: operateur1 concatenation •
-
-
-
-State 100
+State 99
 
     2 liste_instructions: liste_instructions • ';' instruction
     7 instruction: IF test_bloc "then" liste_instructions • else_part "fi"
@@ -2127,870 +1888,430 @@ State 100
    24          | ε •  ["fi"]
 
     ';'     shift, and go to state 44
-    "elif"  shift, and go to state 137
-    "else"  shift, and go to state 138
+    "elif"  shift, and go to state 134
+    "else"  shift, and go to state 135
 
     $default  reduce using rule 24 (else_part)
 
-    else_part  go to state 139
+    else_part  go to state 136
+
+
+State 100
+
+    5 instruction: ID '[' operande_entier ']' • '=' concatenation
+
+    '='  shift, and go to state 137
 
 
 State 101
 
-    5 instruction: ID '[' operande_entier ']' • '=' concatenation
+   34 liste_operandes: '$' '{' ID • '[' '*' ']' '}'
+   50 operande: '$' '{' ID • '}'
+   51         | '$' '{' ID • '[' operande_entier ']' '}'
 
-    '='  shift, and go to state 140
+    '['  shift, and go to state 138
+    '}'  shift, and go to state 139
 
 
 State 102
 
-   35 liste_operandes: "${" ID "[*]}" •
+   32 liste_operandes: • liste_operandes operande
+   33                | • operande
+   34                | • '$' '{' ID '[' '*' ']' '}'
+   50 operande: • '$' '{' ID '}'
+   51         | • '$' '{' ID '[' operande_entier ']' '}'
+   52         | • MOT
+   53         | • '$' ENTIER
+   54         | • '$' '*'
+   55         | • '$' '?'
+   56         | • CHAINE
+   57         | • '$' '(' "expr" somme_entiere ')'
+   58         | • '$' '(' appel_de_fonction ')'
+   88 appel_de_fonction: ID • liste_operandes
+   89                  | ID •  [')']
 
-    $default  reduce using rule 35 (liste_operandes)
+    MOT     shift, and go to state 19
+    CHAINE  shift, and go to state 20
+    '$'     shift, and go to state 23
+
+    $default  reduce using rule 89 (appel_de_fonction)
+
+    liste_operandes  go to state 25
+    operande         go to state 26
 
 
 State 103
 
-   88 declaration_de_fonction: ID '(' ')' '{' • decl_loc liste_instructions '}'
-   89 decl_loc: • decl_loc "local" ID '=' concatenation ';'
-   90         | ε •
+   57 operande: '$' '(' "expr" • somme_entiere ')'
+   67 somme_entiere: • somme_entiere plus_ou_moins produit_entier
+   68              | • produit_entier
+   69 produit_entier: • produit_entier fois_div_mod operande_entier
+   70               | • operande_entier
+   71 operande_entier: • '$' '{' ID '}'
+   72                | • '$' '{' ID '[' operande_entier ']' '}'
+   73                | • '$' ENTIER
+   74                | • plus_ou_moins '$' '{' ID '}'
+   75                | • plus_ou_moins '$' '{' ID '[' operande_entier ']' '}'
+   76                | • plus_ou_moins '$' ENTIER
+   77                | • ENTIER
+   78                | • plus_ou_moins ENTIER
+   79                | • '(' somme_entiere ')'
+   80 plus_ou_moins: • '+'
+   81              | • '-'
 
-    $default  reduce using rule 90 (decl_loc)
+    ENTIER  shift, and go to state 35
+    '+'     shift, and go to state 36
+    '-'     shift, and go to state 37
+    '$'     shift, and go to state 38
+    '('     shift, and go to state 39
 
-    decl_loc  go to state 141
+    somme_entiere    go to state 140
+    produit_entier   go to state 78
+    operande_entier  go to state 79
+    plus_ou_moins    go to state 41
 
 
 State 104
 
-   33 liste_operandes: • liste_operandes operande $@1 operande_entier
-   34                | • operande
-   35                | • "${" ID "[*]}"
-   52 operande: • '$' '{' ID '}'
-   54         | • '$' '{' ID '[' operande_entier ']' '}' $@3 operande_entier
-   55         | • MOT
-   56         | • '$' ENTIER
-   57         | • '$' '*'
-   58         | • '$' '?'
-   59         | • CHAINE
-   60         | • '$' '(' "expr" somme_entiere ')'
-   61         | • '$' '(' appel_de_fonction ')'
-   91 appel_de_fonction: ID • liste_operandes
-   92                  | ID •  [')']
+   58 operande: '$' '(' appel_de_fonction • ')'
 
-    MOT     shift, and go to state 19
-    CHAINE  shift, and go to state 20
-    "${"    shift, and go to state 23
-    '$'     shift, and go to state 25
-
-    $default  reduce using rule 92 (appel_de_fonction)
-
-    liste_operandes  go to state 26
-    operande         go to state 27
+    ')'  shift, and go to state 141
 
 
 State 105
 
-   60 operande: '$' '(' "expr" • somme_entiere ')'
-   70 somme_entiere: • somme_entiere plus_ou_moins produit_entier
-   71              | • produit_entier
-   72 produit_entier: • produit_entier fois_div_mod operande_entier
-   73               | • operande_entier
-   74 operande_entier: • '$' '{' ID '}'
-   75                | • '$' '{' ID '[' operande_entier ']' '}'
-   76                | • '$' ENTIER
-   77                | • plus_ou_moins '$' '{' ID '}'
-   78                | • plus_ou_moins '$' '{' ID '[' operande_entier ']' '}'
-   79                | • plus_ou_moins '$' ENTIER
-   80                | • ENTIER
-   81                | • plus_ou_moins ENTIER
-   82                | • '(' somme_entiere ')'
-   83 plus_ou_moins: • '+'
-   84              | • '-'
+   85 declaration_de_fonction: ID '(' ')' '{' • decl_loc liste_instructions '}'
+   86 decl_loc: • decl_loc "local" ID '=' concatenation ';'
+   87         | ε •
 
-    ENTIER  shift, and go to state 35
-    '+'     shift, and go to state 36
-    '-'     shift, and go to state 37
-    '('     shift, and go to state 38
-    '$'     shift, and go to state 39
+    $default  reduce using rule 87 (decl_loc)
 
-    somme_entiere    go to state 142
-    produit_entier   go to state 76
-    operande_entier  go to state 77
-    plus_ou_moins    go to state 41
+    decl_loc  go to state 142
 
 
 State 106
 
-   61 operande: '$' '(' appel_de_fonction • ')'
+    6 instruction: "declare" ID '[' ENTIER • ']'
 
-    ')'  shift, and go to state 143
+    ']'  shift, and go to state 143
 
 
 State 107
-
-   52 operande: '$' '{' ID • '}'
-   54         | '$' '{' ID • '[' operande_entier ']' '}' $@3 operande_entier
-
-    '['  shift, and go to state 144
-    '}'  shift, and go to state 145
-
-
-State 108
-
-   33 liste_operandes: liste_operandes operande $@1 • operande_entier
-   74 operande_entier: • '$' '{' ID '}'
-   75                | • '$' '{' ID '[' operande_entier ']' '}'
-   76                | • '$' ENTIER
-   77                | • plus_ou_moins '$' '{' ID '}'
-   78                | • plus_ou_moins '$' '{' ID '[' operande_entier ']' '}'
-   79                | • plus_ou_moins '$' ENTIER
-   80                | • ENTIER
-   81                | • plus_ou_moins ENTIER
-   82                | • '(' somme_entiere ')'
-   83 plus_ou_moins: • '+'
-   84              | • '-'
-
-    ENTIER  shift, and go to state 35
-    '+'     shift, and go to state 36
-    '-'     shift, and go to state 37
-    '('     shift, and go to state 38
-    '$'     shift, and go to state 39
-
-    operande_entier  go to state 146
-    plus_ou_moins    go to state 41
-
-
-State 109
-
-    6 instruction: "declare" ID '[' ENTIER • ']'
-
-    ']'  shift, and go to state 147
-
-
-State 110
 
     2 liste_instructions: liste_instructions • ';' instruction
     8 instruction: "for" ID "do" liste_instructions • "done"
 
     ';'     shift, and go to state 44
-    "done"  shift, and go to state 148
+    "done"  shift, and go to state 144
 
 
-State 111
+State 108
 
     9 instruction: "for" ID "in" liste_operandes • "do" liste_instructions "done"
-   33 liste_operandes: liste_operandes • operande $@1 operande_entier
-   52 operande: • '$' '{' ID '}'
-   54         | • '$' '{' ID '[' operande_entier ']' '}' $@3 operande_entier
-   55         | • MOT
-   56         | • '$' ENTIER
-   57         | • '$' '*'
-   58         | • '$' '?'
-   59         | • CHAINE
-   60         | • '$' '(' "expr" somme_entiere ')'
-   61         | • '$' '(' appel_de_fonction ')'
+   32 liste_operandes: liste_operandes • operande
+   50 operande: • '$' '{' ID '}'
+   51         | • '$' '{' ID '[' operande_entier ']' '}'
+   52         | • MOT
+   53         | • '$' ENTIER
+   54         | • '$' '*'
+   55         | • '$' '?'
+   56         | • CHAINE
+   57         | • '$' '(' "expr" somme_entiere ')'
+   58         | • '$' '(' appel_de_fonction ')'
 
     MOT     shift, and go to state 19
     CHAINE  shift, and go to state 20
-    "do"    shift, and go to state 149
-    '$'     shift, and go to state 25
+    "do"    shift, and go to state 145
+    '$'     shift, and go to state 31
 
-    operande  go to state 67
+    operande  go to state 66
 
 
-State 112
+State 109
 
     2 liste_instructions: liste_instructions • ';' instruction
    10 instruction: "while" test_bloc "do" liste_instructions • "done"
 
     ';'     shift, and go to state 44
-    "done"  shift, and go to state 150
+    "done"  shift, and go to state 146
 
 
-State 113
+State 110
 
     2 liste_instructions: liste_instructions • ';' instruction
    11 instruction: "until" test_bloc "do" liste_instructions • "done"
 
     ';'     shift, and go to state 44
-    "done"  shift, and go to state 151
+    "done"  shift, and go to state 147
 
 
-State 114
+State 111
+
+   50 operande: '$' '{' ID • '}'
+   51         | '$' '{' ID • '[' operande_entier ']' '}'
+
+    '['  shift, and go to state 148
+    '}'  shift, and go to state 139
+
+
+State 112
 
    27 filtre: MOT •
 
     $default  reduce using rule 27 (filtre)
 
 
-State 115
+State 113
 
    28 filtre: CHAINE •
 
     $default  reduce using rule 28 (filtre)
 
 
-State 116
+State 114
 
    31 filtre: '*' •
 
     $default  reduce using rule 31 (filtre)
 
 
-State 117
+State 115
 
    12 instruction: "case" operande "in" liste_cas • "esac"
-   25 liste_cas: liste_cas • filtre ')' liste_instructions ";;"
+   25 liste_cas: liste_cas • filtre ')' liste_instructions ';' ';'
    27 filtre: • MOT
    28       | • CHAINE
    29       | • filtre '|' MOT
    30       | • filtre '|' CHAINE
    31       | • '*'
 
-    MOT     shift, and go to state 114
-    CHAINE  shift, and go to state 115
-    '*'     shift, and go to state 116
-    "esac"  shift, and go to state 152
+    MOT     shift, and go to state 112
+    CHAINE  shift, and go to state 113
+    '*'     shift, and go to state 114
+    "esac"  shift, and go to state 149
 
-    filtre  go to state 153
+    filtre  go to state 150
+
+
+State 116
+
+   26 liste_cas: filtre • ')' liste_instructions ';' ';'
+   29 filtre: filtre • '|' MOT
+   30       | filtre • '|' CHAINE
+
+    ')'  shift, and go to state 151
+    '|'  shift, and go to state 152
+
+
+State 117
+
+   15 instruction: "read" ID '[' operande_entier • ']'
+
+    ']'  shift, and go to state 153
 
 
 State 118
 
-   26 liste_cas: filtre • ')' liste_instructions ";;"
-   29 filtre: filtre • '|' MOT
-   30       | filtre • '|' CHAINE
+   71 operande_entier: '$' '{' ID • '}'
+   72                | '$' '{' ID • '[' operande_entier ']' '}'
 
-    ')'  shift, and go to state 154
-    '|'  shift, and go to state 155
+    '['  shift, and go to state 154
+    '}'  shift, and go to state 155
 
 
 State 119
 
-   15 instruction: "read" ID '[' operande_entier • ']'
-
-    ']'  shift, and go to state 156
-
-
-State 120
-
-   82 operande_entier: '(' somme_entiere ')' •
-
-    $default  reduce using rule 82 (operande_entier)
-
-
-State 121
-
-   70 somme_entiere: somme_entiere plus_ou_moins • produit_entier
-   72 produit_entier: • produit_entier fois_div_mod operande_entier
-   73               | • operande_entier
-   74 operande_entier: • '$' '{' ID '}'
-   75                | • '$' '{' ID '[' operande_entier ']' '}'
-   76                | • '$' ENTIER
-   77                | • plus_ou_moins '$' '{' ID '}'
-   78                | • plus_ou_moins '$' '{' ID '[' operande_entier ']' '}'
-   79                | • plus_ou_moins '$' ENTIER
-   80                | • ENTIER
-   81                | • plus_ou_moins ENTIER
-   82                | • '(' somme_entiere ')'
-   83 plus_ou_moins: • '+'
-   84              | • '-'
-
-    ENTIER  shift, and go to state 35
-    '+'     shift, and go to state 36
-    '-'     shift, and go to state 37
-    '('     shift, and go to state 38
-    '$'     shift, and go to state 39
-
-    produit_entier   go to state 157
-    operande_entier  go to state 77
-    plus_ou_moins    go to state 41
-
-
-State 122
-
-   85 fois_div_mod: '*' •
-
-    $default  reduce using rule 85 (fois_div_mod)
-
-
-State 123
-
-   86 fois_div_mod: '/' •
-
-    $default  reduce using rule 86 (fois_div_mod)
-
-
-State 124
-
-   87 fois_div_mod: '%' •
-
-    $default  reduce using rule 87 (fois_div_mod)
-
-
-State 125
-
-   72 produit_entier: produit_entier fois_div_mod • operande_entier
-   74 operande_entier: • '$' '{' ID '}'
-   75                | • '$' '{' ID '[' operande_entier ']' '}'
-   76                | • '$' ENTIER
-   77                | • plus_ou_moins '$' '{' ID '}'
-   78                | • plus_ou_moins '$' '{' ID '[' operande_entier ']' '}'
-   79                | • plus_ou_moins '$' ENTIER
-   80                | • ENTIER
-   81                | • plus_ou_moins ENTIER
-   82                | • '(' somme_entiere ')'
-   83 plus_ou_moins: • '+'
-   84              | • '-'
-
-    ENTIER  shift, and go to state 35
-    '+'     shift, and go to state 36
-    '-'     shift, and go to state 37
-    '('     shift, and go to state 38
-    '$'     shift, and go to state 39
-
-    operande_entier  go to state 158
-    plus_ou_moins    go to state 41
-
-
-State 126
-
-   74 operande_entier: '$' '{' ID • '}'
-   75                | '$' '{' ID • '[' operande_entier ']' '}'
-
-    '['  shift, and go to state 159
-    '}'  shift, and go to state 160
-
-
-State 127
-
-   79 operande_entier: plus_ou_moins '$' ENTIER •
+   79 operande_entier: '(' somme_entiere ')' •
 
     $default  reduce using rule 79 (operande_entier)
 
 
+State 120
+
+   67 somme_entiere: somme_entiere plus_ou_moins • produit_entier
+   69 produit_entier: • produit_entier fois_div_mod operande_entier
+   70               | • operande_entier
+   71 operande_entier: • '$' '{' ID '}'
+   72                | • '$' '{' ID '[' operande_entier ']' '}'
+   73                | • '$' ENTIER
+   74                | • plus_ou_moins '$' '{' ID '}'
+   75                | • plus_ou_moins '$' '{' ID '[' operande_entier ']' '}'
+   76                | • plus_ou_moins '$' ENTIER
+   77                | • ENTIER
+   78                | • plus_ou_moins ENTIER
+   79                | • '(' somme_entiere ')'
+   80 plus_ou_moins: • '+'
+   81              | • '-'
+
+    ENTIER  shift, and go to state 35
+    '+'     shift, and go to state 36
+    '-'     shift, and go to state 37
+    '$'     shift, and go to state 38
+    '('     shift, and go to state 39
+
+    produit_entier   go to state 156
+    operande_entier  go to state 79
+    plus_ou_moins    go to state 41
+
+
+State 121
+
+   82 fois_div_mod: '*' •
+
+    $default  reduce using rule 82 (fois_div_mod)
+
+
+State 122
+
+   83 fois_div_mod: '/' •
+
+    $default  reduce using rule 83 (fois_div_mod)
+
+
+State 123
+
+   84 fois_div_mod: '%' •
+
+    $default  reduce using rule 84 (fois_div_mod)
+
+
+State 124
+
+   69 produit_entier: produit_entier fois_div_mod • operande_entier
+   71 operande_entier: • '$' '{' ID '}'
+   72                | • '$' '{' ID '[' operande_entier ']' '}'
+   73                | • '$' ENTIER
+   74                | • plus_ou_moins '$' '{' ID '}'
+   75                | • plus_ou_moins '$' '{' ID '[' operande_entier ']' '}'
+   76                | • plus_ou_moins '$' ENTIER
+   77                | • ENTIER
+   78                | • plus_ou_moins ENTIER
+   79                | • '(' somme_entiere ')'
+   80 plus_ou_moins: • '+'
+   81              | • '-'
+
+    ENTIER  shift, and go to state 35
+    '+'     shift, and go to state 36
+    '-'     shift, and go to state 37
+    '$'     shift, and go to state 38
+    '('     shift, and go to state 39
+
+    operande_entier  go to state 157
+    plus_ou_moins    go to state 41
+
+
+State 125
+
+   76 operande_entier: plus_ou_moins '$' ENTIER •
+
+    $default  reduce using rule 76 (operande_entier)
+
+
+State 126
+
+   74 operande_entier: plus_ou_moins '$' '{' • ID '}'
+   75                | plus_ou_moins '$' '{' • ID '[' operande_entier ']' '}'
+
+    ID  shift, and go to state 158
+
+
+State 127
+
+   42 test_expr3: '(' test_expr ')' •
+
+    $default  reduce using rule 42 (test_expr3)
+
+
 State 128
 
-   77 operande_entier: plus_ou_moins '$' '{' • ID '}'
-   78                | plus_ou_moins '$' '{' • ID '[' operande_entier ']' '}'
+   38 test_expr: test_expr • "-o" test_expr2
+   43 test_expr3: '!' '(' test_expr • ')'
 
-    ID  shift, and go to state 161
+    ')'   shift, and go to state 159
+    "-o"  shift, and go to state 89
 
 
 State 129
 
-   44 test_expr3: '(' test_expr ')' •
+   35 concatenation: concatenation • operande
+   46 test_instruction: concatenation '=' concatenation •  ["then", "do", ')', "-o", "-a"]
+   50 operande: • '$' '{' ID '}'
+   51         | • '$' '{' ID '[' operande_entier ']' '}'
+   52         | • MOT
+   53         | • '$' ENTIER
+   54         | • '$' '*'
+   55         | • '$' '?'
+   56         | • CHAINE
+   57         | • '$' '(' "expr" somme_entiere ')'
+   58         | • '$' '(' appel_de_fonction ')'
 
-    $default  reduce using rule 44 (test_expr3)
+    MOT     shift, and go to state 19
+    CHAINE  shift, and go to state 20
+    '$'     shift, and go to state 31
+
+    $default  reduce using rule 46 (test_instruction)
+
+    operande  go to state 88
 
 
 State 130
 
-   39 test_expr: test_expr • "-o" test_expr2
-   45 test_expr3: '!' '(' test_expr • ')'
+   35 concatenation: concatenation • operande
+   47 test_instruction: concatenation "!=" concatenation •  ["then", "do", ')', "-o", "-a"]
+   50 operande: • '$' '{' ID '}'
+   51         | • '$' '{' ID '[' operande_entier ']' '}'
+   52         | • MOT
+   53         | • '$' ENTIER
+   54         | • '$' '*'
+   55         | • '$' '?'
+   56         | • CHAINE
+   57         | • '$' '(' "expr" somme_entiere ')'
+   58         | • '$' '(' appel_de_fonction ')'
 
-    ')'   shift, and go to state 162
-    "-o"  shift, and go to state 89
+    MOT     shift, and go to state 19
+    CHAINE  shift, and go to state 20
+    '$'     shift, and go to state 31
+
+    $default  reduce using rule 47 (test_instruction)
+
+    operande  go to state 88
 
 
 State 131
 
-   36 concatenation: concatenation • operande
-   48 test_instruction: concatenation '=' concatenation •  [ENTIER, '+', '-', "then", "do", ')', "-o", "-a", '(', '$']
-   52 operande: • '$' '{' ID '}'
-   54         | • '$' '{' ID '[' operande_entier ']' '}' $@3 operande_entier
-   55         | • MOT
-   56         | • '$' ENTIER
-   57         | • '$' '*'
-   58         | • '$' '?'
-   59         | • CHAINE
-   60         | • '$' '(' "expr" somme_entiere ')'
-   61         | • '$' '(' appel_de_fonction ')'
+   38 test_expr: test_expr "-o" test_expr2 •  ["then", "do", ')', "-o"]
+   40 test_expr2: test_expr2 • "-a" test_expr3
 
-    MOT     shift, and go to state 19
-    CHAINE  shift, and go to state 20
-    '$'     shift, and go to state 25
+    "-a"  shift, and go to state 90
 
-    '$'       [reduce using rule 48 (test_instruction)]
-    $default  reduce using rule 48 (test_instruction)
-
-    operande  go to state 88
-
-    shift/reduce conflict on token '$':
-       48 test_instruction: concatenation '=' concatenation •
-       52 operande: • '$' '{' ID '}'
-      First example: IF "test" concatenation '=' concatenation • '$' '{' ID '}' $@2 operande_entier "then" liste_instructions else_part "fi" $end
-      Shift derivation
-        $accept
-        ↳ 0: programme                                                                                                                                                                  $end
-             ↳ 1: liste_instructions
-                  ↳ 3: instruction
-                       ↳ 7: IF test_bloc                                                                                                       "then" liste_instructions else_part "fi"
-                               ↳ 38: "test" test_expr
-                                            ↳ 40: test_expr2
-                                                  ↳ 43: test_instruction                                                   $@2 operande_entier
-                                                        ↳ 48: concatenation '=' concatenation
-                                                                                ↳ 36: concatenation operande
-                                                                                                    ↳ 52: • '$' '{' ID '}'
-      Second example: IF "test" concatenation '=' concatenation • $@2 '$' '{' ID '}' "then" liste_instructions else_part "fi" $end
-      Reduce derivation
-        $accept
-        ↳ 0: programme                                                                                                                                                  $end
-             ↳ 1: liste_instructions
-                  ↳ 3: instruction
-                       ↳ 7: IF test_bloc                                                                                       "then" liste_instructions else_part "fi"
-                               ↳ 38: "test" test_expr
-                                            ↳ 40: test_expr2
-                                                  ↳ 43: test_expr3                                    $@2 operande_entier
-                                                        ↳ 46: test_instruction                            ↳ 74: '$' '{' ID '}'
-                                                              ↳ 48: concatenation '=' concatenation •
-
-    shift/reduce conflict on token '$':
-       48 test_instruction: concatenation '=' concatenation •
-       54 operande: • '$' '{' ID '[' operande_entier ']' '}' $@3 operande_entier
-      First example: IF "test" concatenation '=' concatenation • '$' '{' ID '[' operande_entier ']' '}' $@3 operande_entier $@2 operande_entier "then" liste_instructions else_part "fi" $end
-      Shift derivation
-        $accept
-        ↳ 0: programme                                                                                                                                                                                                              $end
-             ↳ 1: liste_instructions
-                  ↳ 3: instruction
-                       ↳ 7: IF test_bloc                                                                                                                                                   "then" liste_instructions else_part "fi"
-                               ↳ 38: "test" test_expr
-                                            ↳ 40: test_expr2
-                                                  ↳ 43: test_instruction                                                                                               $@2 operande_entier
-                                                        ↳ 48: concatenation '=' concatenation
-                                                                                ↳ 36: concatenation operande
-                                                                                                    ↳ 54: • '$' '{' ID '[' operande_entier ']' '}' $@3 operande_entier
-      Second example: IF "test" concatenation '=' concatenation • $@2 '$' '{' ID '}' "then" liste_instructions else_part "fi" $end
-      Reduce derivation
-        $accept
-        ↳ 0: programme                                                                                                                                                  $end
-             ↳ 1: liste_instructions
-                  ↳ 3: instruction
-                       ↳ 7: IF test_bloc                                                                                       "then" liste_instructions else_part "fi"
-                               ↳ 38: "test" test_expr
-                                            ↳ 40: test_expr2
-                                                  ↳ 43: test_expr3                                    $@2 operande_entier
-                                                        ↳ 46: test_instruction                            ↳ 74: '$' '{' ID '}'
-                                                              ↳ 48: concatenation '=' concatenation •
-
-    shift/reduce conflict on token '$':
-       48 test_instruction: concatenation '=' concatenation •
-       56 operande: • '$' ENTIER
-      First example: IF "test" concatenation '=' concatenation • '$' ENTIER $@2 operande_entier "then" liste_instructions else_part "fi" $end
-      Shift derivation
-        $accept
-        ↳ 0: programme                                                                                                                                                              $end
-             ↳ 1: liste_instructions
-                  ↳ 3: instruction
-                       ↳ 7: IF test_bloc                                                                                                   "then" liste_instructions else_part "fi"
-                               ↳ 38: "test" test_expr
-                                            ↳ 40: test_expr2
-                                                  ↳ 43: test_instruction                                               $@2 operande_entier
-                                                        ↳ 48: concatenation '=' concatenation
-                                                                                ↳ 36: concatenation operande
-                                                                                                    ↳ 56: • '$' ENTIER
-      Second example: IF "test" concatenation '=' concatenation • $@2 '$' '{' ID '}' "then" liste_instructions else_part "fi" $end
-      Reduce derivation
-        $accept
-        ↳ 0: programme                                                                                                                                                  $end
-             ↳ 1: liste_instructions
-                  ↳ 3: instruction
-                       ↳ 7: IF test_bloc                                                                                       "then" liste_instructions else_part "fi"
-                               ↳ 38: "test" test_expr
-                                            ↳ 40: test_expr2
-                                                  ↳ 43: test_expr3                                    $@2 operande_entier
-                                                        ↳ 46: test_instruction                            ↳ 74: '$' '{' ID '}'
-                                                              ↳ 48: concatenation '=' concatenation •
-
-    shift/reduce conflict on token '$':
-       48 test_instruction: concatenation '=' concatenation •
-       57 operande: • '$' '*'
-      First example: IF "test" concatenation '=' concatenation • '$' '*' $@2 operande_entier "then" liste_instructions else_part "fi" $end
-      Shift derivation
-        $accept
-        ↳ 0: programme                                                                                                                                                           $end
-             ↳ 1: liste_instructions
-                  ↳ 3: instruction
-                       ↳ 7: IF test_bloc                                                                                                "then" liste_instructions else_part "fi"
-                               ↳ 38: "test" test_expr
-                                            ↳ 40: test_expr2
-                                                  ↳ 43: test_instruction                                            $@2 operande_entier
-                                                        ↳ 48: concatenation '=' concatenation
-                                                                                ↳ 36: concatenation operande
-                                                                                                    ↳ 57: • '$' '*'
-      Second example: IF "test" concatenation '=' concatenation • $@2 '$' '{' ID '}' "then" liste_instructions else_part "fi" $end
-      Reduce derivation
-        $accept
-        ↳ 0: programme                                                                                                                                                  $end
-             ↳ 1: liste_instructions
-                  ↳ 3: instruction
-                       ↳ 7: IF test_bloc                                                                                       "then" liste_instructions else_part "fi"
-                               ↳ 38: "test" test_expr
-                                            ↳ 40: test_expr2
-                                                  ↳ 43: test_expr3                                    $@2 operande_entier
-                                                        ↳ 46: test_instruction                            ↳ 74: '$' '{' ID '}'
-                                                              ↳ 48: concatenation '=' concatenation •
-
-    shift/reduce conflict on token '$':
-       48 test_instruction: concatenation '=' concatenation •
-       58 operande: • '$' '?'
-      First example: IF "test" concatenation '=' concatenation • '$' '?' $@2 operande_entier "then" liste_instructions else_part "fi" $end
-      Shift derivation
-        $accept
-        ↳ 0: programme                                                                                                                                                           $end
-             ↳ 1: liste_instructions
-                  ↳ 3: instruction
-                       ↳ 7: IF test_bloc                                                                                                "then" liste_instructions else_part "fi"
-                               ↳ 38: "test" test_expr
-                                            ↳ 40: test_expr2
-                                                  ↳ 43: test_instruction                                            $@2 operande_entier
-                                                        ↳ 48: concatenation '=' concatenation
-                                                                                ↳ 36: concatenation operande
-                                                                                                    ↳ 58: • '$' '?'
-      Second example: IF "test" concatenation '=' concatenation • $@2 '$' '{' ID '}' "then" liste_instructions else_part "fi" $end
-      Reduce derivation
-        $accept
-        ↳ 0: programme                                                                                                                                                  $end
-             ↳ 1: liste_instructions
-                  ↳ 3: instruction
-                       ↳ 7: IF test_bloc                                                                                       "then" liste_instructions else_part "fi"
-                               ↳ 38: "test" test_expr
-                                            ↳ 40: test_expr2
-                                                  ↳ 43: test_expr3                                    $@2 operande_entier
-                                                        ↳ 46: test_instruction                            ↳ 74: '$' '{' ID '}'
-                                                              ↳ 48: concatenation '=' concatenation •
-
-    shift/reduce conflict on token '$':
-       48 test_instruction: concatenation '=' concatenation •
-       60 operande: • '$' '(' "expr" somme_entiere ')'
-      First example: IF "test" concatenation '=' concatenation • '$' '(' "expr" somme_entiere ')' $@2 operande_entier "then" liste_instructions else_part "fi" $end
-      Shift derivation
-        $accept
-        ↳ 0: programme                                                                                                                                                                                    $end
-             ↳ 1: liste_instructions
-                  ↳ 3: instruction
-                       ↳ 7: IF test_bloc                                                                                                                         "then" liste_instructions else_part "fi"
-                               ↳ 38: "test" test_expr
-                                            ↳ 40: test_expr2
-                                                  ↳ 43: test_instruction                                                                     $@2 operande_entier
-                                                        ↳ 48: concatenation '=' concatenation
-                                                                                ↳ 36: concatenation operande
-                                                                                                    ↳ 60: • '$' '(' "expr" somme_entiere ')'
-      Second example: IF "test" concatenation '=' concatenation • $@2 '$' '{' ID '}' "then" liste_instructions else_part "fi" $end
-      Reduce derivation
-        $accept
-        ↳ 0: programme                                                                                                                                                  $end
-             ↳ 1: liste_instructions
-                  ↳ 3: instruction
-                       ↳ 7: IF test_bloc                                                                                       "then" liste_instructions else_part "fi"
-                               ↳ 38: "test" test_expr
-                                            ↳ 40: test_expr2
-                                                  ↳ 43: test_expr3                                    $@2 operande_entier
-                                                        ↳ 46: test_instruction                            ↳ 74: '$' '{' ID '}'
-                                                              ↳ 48: concatenation '=' concatenation •
-
-    shift/reduce conflict on token '$':
-       48 test_instruction: concatenation '=' concatenation •
-       61 operande: • '$' '(' appel_de_fonction ')'
-      First example: IF "test" concatenation '=' concatenation • '$' '(' appel_de_fonction ')' $@2 operande_entier "then" liste_instructions else_part "fi" $end
-      Shift derivation
-        $accept
-        ↳ 0: programme                                                                                                                                                                                 $end
-             ↳ 1: liste_instructions
-                  ↳ 3: instruction
-                       ↳ 7: IF test_bloc                                                                                                                      "then" liste_instructions else_part "fi"
-                               ↳ 38: "test" test_expr
-                                            ↳ 40: test_expr2
-                                                  ↳ 43: test_instruction                                                                  $@2 operande_entier
-                                                        ↳ 48: concatenation '=' concatenation
-                                                                                ↳ 36: concatenation operande
-                                                                                                    ↳ 61: • '$' '(' appel_de_fonction ')'
-      Second example: IF "test" concatenation '=' concatenation • $@2 '$' '{' ID '}' "then" liste_instructions else_part "fi" $end
-      Reduce derivation
-        $accept
-        ↳ 0: programme                                                                                                                                                  $end
-             ↳ 1: liste_instructions
-                  ↳ 3: instruction
-                       ↳ 7: IF test_bloc                                                                                       "then" liste_instructions else_part "fi"
-                               ↳ 38: "test" test_expr
-                                            ↳ 40: test_expr2
-                                                  ↳ 43: test_expr3                                    $@2 operande_entier
-                                                        ↳ 46: test_instruction                            ↳ 74: '$' '{' ID '}'
-                                                              ↳ 48: concatenation '=' concatenation •
-
+    $default  reduce using rule 38 (test_expr)
 
 
 State 132
 
-   36 concatenation: concatenation • operande
-   49 test_instruction: concatenation "!=" concatenation •  [ENTIER, '+', '-', "then", "do", ')', "-o", "-a", '(', '$']
-   52 operande: • '$' '{' ID '}'
-   54         | • '$' '{' ID '[' operande_entier ']' '}' $@3 operande_entier
-   55         | • MOT
-   56         | • '$' ENTIER
-   57         | • '$' '*'
-   58         | • '$' '?'
-   59         | • CHAINE
-   60         | • '$' '(' "expr" somme_entiere ')'
-   61         | • '$' '(' appel_de_fonction ')'
+   40 test_expr2: test_expr2 "-a" test_expr3 •
 
-    MOT     shift, and go to state 19
-    CHAINE  shift, and go to state 20
-    '$'     shift, and go to state 25
-
-    '$'       [reduce using rule 49 (test_instruction)]
-    $default  reduce using rule 49 (test_instruction)
-
-    operande  go to state 88
-
-    shift/reduce conflict on token '$':
-       49 test_instruction: concatenation "!=" concatenation •
-       52 operande: • '$' '{' ID '}'
-      First example: IF "test" concatenation "!=" concatenation • '$' '{' ID '}' $@2 operande_entier "then" liste_instructions else_part "fi" $end
-      Shift derivation
-        $accept
-        ↳ 0: programme                                                                                                                                                                   $end
-             ↳ 1: liste_instructions
-                  ↳ 3: instruction
-                       ↳ 7: IF test_bloc                                                                                                        "then" liste_instructions else_part "fi"
-                               ↳ 38: "test" test_expr
-                                            ↳ 40: test_expr2
-                                                  ↳ 43: test_instruction                                                    $@2 operande_entier
-                                                        ↳ 49: concatenation "!=" concatenation
-                                                                                 ↳ 36: concatenation operande
-                                                                                                     ↳ 52: • '$' '{' ID '}'
-      Second example: IF "test" concatenation "!=" concatenation • $@2 '$' '{' ID '}' "then" liste_instructions else_part "fi" $end
-      Reduce derivation
-        $accept
-        ↳ 0: programme                                                                                                                                                   $end
-             ↳ 1: liste_instructions
-                  ↳ 3: instruction
-                       ↳ 7: IF test_bloc                                                                                        "then" liste_instructions else_part "fi"
-                               ↳ 38: "test" test_expr
-                                            ↳ 40: test_expr2
-                                                  ↳ 43: test_expr3                                     $@2 operande_entier
-                                                        ↳ 46: test_instruction                             ↳ 74: '$' '{' ID '}'
-                                                              ↳ 49: concatenation "!=" concatenation •
-
-    shift/reduce conflict on token '$':
-       49 test_instruction: concatenation "!=" concatenation •
-       54 operande: • '$' '{' ID '[' operande_entier ']' '}' $@3 operande_entier
-      First example: IF "test" concatenation "!=" concatenation • '$' '{' ID '[' operande_entier ']' '}' $@3 operande_entier $@2 operande_entier "then" liste_instructions else_part "fi" $end
-      Shift derivation
-        $accept
-        ↳ 0: programme                                                                                                                                                                                                               $end
-             ↳ 1: liste_instructions
-                  ↳ 3: instruction
-                       ↳ 7: IF test_bloc                                                                                                                                                    "then" liste_instructions else_part "fi"
-                               ↳ 38: "test" test_expr
-                                            ↳ 40: test_expr2
-                                                  ↳ 43: test_instruction                                                                                                $@2 operande_entier
-                                                        ↳ 49: concatenation "!=" concatenation
-                                                                                 ↳ 36: concatenation operande
-                                                                                                     ↳ 54: • '$' '{' ID '[' operande_entier ']' '}' $@3 operande_entier
-      Second example: IF "test" concatenation "!=" concatenation • $@2 '$' '{' ID '}' "then" liste_instructions else_part "fi" $end
-      Reduce derivation
-        $accept
-        ↳ 0: programme                                                                                                                                                   $end
-             ↳ 1: liste_instructions
-                  ↳ 3: instruction
-                       ↳ 7: IF test_bloc                                                                                        "then" liste_instructions else_part "fi"
-                               ↳ 38: "test" test_expr
-                                            ↳ 40: test_expr2
-                                                  ↳ 43: test_expr3                                     $@2 operande_entier
-                                                        ↳ 46: test_instruction                             ↳ 74: '$' '{' ID '}'
-                                                              ↳ 49: concatenation "!=" concatenation •
-
-    shift/reduce conflict on token '$':
-       49 test_instruction: concatenation "!=" concatenation •
-       56 operande: • '$' ENTIER
-      First example: IF "test" concatenation "!=" concatenation • '$' ENTIER $@2 operande_entier "then" liste_instructions else_part "fi" $end
-      Shift derivation
-        $accept
-        ↳ 0: programme                                                                                                                                                               $end
-             ↳ 1: liste_instructions
-                  ↳ 3: instruction
-                       ↳ 7: IF test_bloc                                                                                                    "then" liste_instructions else_part "fi"
-                               ↳ 38: "test" test_expr
-                                            ↳ 40: test_expr2
-                                                  ↳ 43: test_instruction                                                $@2 operande_entier
-                                                        ↳ 49: concatenation "!=" concatenation
-                                                                                 ↳ 36: concatenation operande
-                                                                                                     ↳ 56: • '$' ENTIER
-      Second example: IF "test" concatenation "!=" concatenation • $@2 '$' '{' ID '}' "then" liste_instructions else_part "fi" $end
-      Reduce derivation
-        $accept
-        ↳ 0: programme                                                                                                                                                   $end
-             ↳ 1: liste_instructions
-                  ↳ 3: instruction
-                       ↳ 7: IF test_bloc                                                                                        "then" liste_instructions else_part "fi"
-                               ↳ 38: "test" test_expr
-                                            ↳ 40: test_expr2
-                                                  ↳ 43: test_expr3                                     $@2 operande_entier
-                                                        ↳ 46: test_instruction                             ↳ 74: '$' '{' ID '}'
-                                                              ↳ 49: concatenation "!=" concatenation •
-
-    shift/reduce conflict on token '$':
-       49 test_instruction: concatenation "!=" concatenation •
-       57 operande: • '$' '*'
-      First example: IF "test" concatenation "!=" concatenation • '$' '*' $@2 operande_entier "then" liste_instructions else_part "fi" $end
-      Shift derivation
-        $accept
-        ↳ 0: programme                                                                                                                                                            $end
-             ↳ 1: liste_instructions
-                  ↳ 3: instruction
-                       ↳ 7: IF test_bloc                                                                                                 "then" liste_instructions else_part "fi"
-                               ↳ 38: "test" test_expr
-                                            ↳ 40: test_expr2
-                                                  ↳ 43: test_instruction                                             $@2 operande_entier
-                                                        ↳ 49: concatenation "!=" concatenation
-                                                                                 ↳ 36: concatenation operande
-                                                                                                     ↳ 57: • '$' '*'
-      Second example: IF "test" concatenation "!=" concatenation • $@2 '$' '{' ID '}' "then" liste_instructions else_part "fi" $end
-      Reduce derivation
-        $accept
-        ↳ 0: programme                                                                                                                                                   $end
-             ↳ 1: liste_instructions
-                  ↳ 3: instruction
-                       ↳ 7: IF test_bloc                                                                                        "then" liste_instructions else_part "fi"
-                               ↳ 38: "test" test_expr
-                                            ↳ 40: test_expr2
-                                                  ↳ 43: test_expr3                                     $@2 operande_entier
-                                                        ↳ 46: test_instruction                             ↳ 74: '$' '{' ID '}'
-                                                              ↳ 49: concatenation "!=" concatenation •
-
-    shift/reduce conflict on token '$':
-       49 test_instruction: concatenation "!=" concatenation •
-       58 operande: • '$' '?'
-      First example: IF "test" concatenation "!=" concatenation • '$' '?' $@2 operande_entier "then" liste_instructions else_part "fi" $end
-      Shift derivation
-        $accept
-        ↳ 0: programme                                                                                                                                                            $end
-             ↳ 1: liste_instructions
-                  ↳ 3: instruction
-                       ↳ 7: IF test_bloc                                                                                                 "then" liste_instructions else_part "fi"
-                               ↳ 38: "test" test_expr
-                                            ↳ 40: test_expr2
-                                                  ↳ 43: test_instruction                                             $@2 operande_entier
-                                                        ↳ 49: concatenation "!=" concatenation
-                                                                                 ↳ 36: concatenation operande
-                                                                                                     ↳ 58: • '$' '?'
-      Second example: IF "test" concatenation "!=" concatenation • $@2 '$' '{' ID '}' "then" liste_instructions else_part "fi" $end
-      Reduce derivation
-        $accept
-        ↳ 0: programme                                                                                                                                                   $end
-             ↳ 1: liste_instructions
-                  ↳ 3: instruction
-                       ↳ 7: IF test_bloc                                                                                        "then" liste_instructions else_part "fi"
-                               ↳ 38: "test" test_expr
-                                            ↳ 40: test_expr2
-                                                  ↳ 43: test_expr3                                     $@2 operande_entier
-                                                        ↳ 46: test_instruction                             ↳ 74: '$' '{' ID '}'
-                                                              ↳ 49: concatenation "!=" concatenation •
-
-    shift/reduce conflict on token '$':
-       49 test_instruction: concatenation "!=" concatenation •
-       60 operande: • '$' '(' "expr" somme_entiere ')'
-      First example: IF "test" concatenation "!=" concatenation • '$' '(' "expr" somme_entiere ')' $@2 operande_entier "then" liste_instructions else_part "fi" $end
-      Shift derivation
-        $accept
-        ↳ 0: programme                                                                                                                                                                                     $end
-             ↳ 1: liste_instructions
-                  ↳ 3: instruction
-                       ↳ 7: IF test_bloc                                                                                                                          "then" liste_instructions else_part "fi"
-                               ↳ 38: "test" test_expr
-                                            ↳ 40: test_expr2
-                                                  ↳ 43: test_instruction                                                                      $@2 operande_entier
-                                                        ↳ 49: concatenation "!=" concatenation
-                                                                                 ↳ 36: concatenation operande
-                                                                                                     ↳ 60: • '$' '(' "expr" somme_entiere ')'
-      Second example: IF "test" concatenation "!=" concatenation • $@2 '$' '{' ID '}' "then" liste_instructions else_part "fi" $end
-      Reduce derivation
-        $accept
-        ↳ 0: programme                                                                                                                                                   $end
-             ↳ 1: liste_instructions
-                  ↳ 3: instruction
-                       ↳ 7: IF test_bloc                                                                                        "then" liste_instructions else_part "fi"
-                               ↳ 38: "test" test_expr
-                                            ↳ 40: test_expr2
-                                                  ↳ 43: test_expr3                                     $@2 operande_entier
-                                                        ↳ 46: test_instruction                             ↳ 74: '$' '{' ID '}'
-                                                              ↳ 49: concatenation "!=" concatenation •
-
-    shift/reduce conflict on token '$':
-       49 test_instruction: concatenation "!=" concatenation •
-       61 operande: • '$' '(' appel_de_fonction ')'
-      First example: IF "test" concatenation "!=" concatenation • '$' '(' appel_de_fonction ')' $@2 operande_entier "then" liste_instructions else_part "fi" $end
-      Shift derivation
-        $accept
-        ↳ 0: programme                                                                                                                                                                                  $end
-             ↳ 1: liste_instructions
-                  ↳ 3: instruction
-                       ↳ 7: IF test_bloc                                                                                                                       "then" liste_instructions else_part "fi"
-                               ↳ 38: "test" test_expr
-                                            ↳ 40: test_expr2
-                                                  ↳ 43: test_instruction                                                                   $@2 operande_entier
-                                                        ↳ 49: concatenation "!=" concatenation
-                                                                                 ↳ 36: concatenation operande
-                                                                                                     ↳ 61: • '$' '(' appel_de_fonction ')'
-      Second example: IF "test" concatenation "!=" concatenation • $@2 '$' '{' ID '}' "then" liste_instructions else_part "fi" $end
-      Reduce derivation
-        $accept
-        ↳ 0: programme                                                                                                                                                   $end
-             ↳ 1: liste_instructions
-                  ↳ 3: instruction
-                       ↳ 7: IF test_bloc                                                                                        "then" liste_instructions else_part "fi"
-                               ↳ 38: "test" test_expr
-                                            ↳ 40: test_expr2
-                                                  ↳ 43: test_expr3                                     $@2 operande_entier
-                                                        ↳ 46: test_instruction                             ↳ 74: '$' '{' ID '}'
-                                                              ↳ 49: concatenation "!=" concatenation •
-
+    $default  reduce using rule 40 (test_expr2)
 
 
 State 133
 
-   39 test_expr: test_expr "-o" test_expr2 •  ["then", "do", ')', "-o"]
-   41 test_expr2: test_expr2 • "-a" test_expr3
+   49 test_instruction: operande operateur2 operande •
 
-    "-a"  shift, and go to state 90
-
-    $default  reduce using rule 39 (test_expr)
+    $default  reduce using rule 49 (test_instruction)
 
 
 State 134
 
-   41 test_expr2: test_expr2 "-a" test_expr3 •
-
-    $default  reduce using rule 41 (test_expr2)
-
-
-State 135
-
-   43 test_expr2: test_expr3 $@2 operande_entier •
-
-    $default  reduce using rule 43 (test_expr2)
-
-
-State 136
-
-   51 test_instruction: operande operateur2 operande •
-
-    $default  reduce using rule 51 (test_instruction)
-
-
-State 137
-
    22 else_part: "elif" • test_bloc "then" liste_instructions else_part
-   38 test_bloc: • "test" test_expr
+   37 test_bloc: • "test" test_expr
 
     "test"  shift, and go to state 17
 
-    test_bloc  go to state 163
+    test_bloc  go to state 160
 
 
-State 138
+State 135
 
     2 liste_instructions: • liste_instructions ';' instruction
     3                   | • instruction
@@ -3013,9 +2334,9 @@ State 138
    20            | • "exit"
    21            | • "exit" operande_entier
    23 else_part: "else" • liste_instructions
-   88 declaration_de_fonction: • ID '(' ')' '{' decl_loc liste_instructions '}'
-   91 appel_de_fonction: • ID liste_operandes
-   92                  | • ID
+   85 declaration_de_fonction: • ID '(' ')' '{' decl_loc liste_instructions '}'
+   88 appel_de_fonction: • ID liste_operandes
+   89                  | • ID
 
     IF         shift, and go to state 1
     ID         shift, and go to state 2
@@ -3029,43 +2350,98 @@ State 138
     "return"   shift, and go to state 10
     "exit"     shift, and go to state 11
 
-    liste_instructions       go to state 164
+    liste_instructions       go to state 161
     instruction              go to state 14
     declaration_de_fonction  go to state 15
     appel_de_fonction        go to state 16
 
 
-State 139
+State 136
 
     7 instruction: IF test_bloc "then" liste_instructions else_part • "fi"
 
-    "fi"  shift, and go to state 165
+    "fi"  shift, and go to state 162
+
+
+State 137
+
+    5 instruction: ID '[' operande_entier ']' '=' • concatenation
+   35 concatenation: • concatenation operande
+   36              | • operande
+   50 operande: • '$' '{' ID '}'
+   51         | • '$' '{' ID '[' operande_entier ']' '}'
+   52         | • MOT
+   53         | • '$' ENTIER
+   54         | • '$' '*'
+   55         | • '$' '?'
+   56         | • CHAINE
+   57         | • '$' '(' "expr" somme_entiere ')'
+   58         | • '$' '(' appel_de_fonction ')'
+
+    MOT     shift, and go to state 19
+    CHAINE  shift, and go to state 20
+    '$'     shift, and go to state 31
+
+    concatenation  go to state 163
+    operande       go to state 58
+
+
+State 138
+
+   34 liste_operandes: '$' '{' ID '[' • '*' ']' '}'
+   51 operande: '$' '{' ID '[' • operande_entier ']' '}'
+   71 operande_entier: • '$' '{' ID '}'
+   72                | • '$' '{' ID '[' operande_entier ']' '}'
+   73                | • '$' ENTIER
+   74                | • plus_ou_moins '$' '{' ID '}'
+   75                | • plus_ou_moins '$' '{' ID '[' operande_entier ']' '}'
+   76                | • plus_ou_moins '$' ENTIER
+   77                | • ENTIER
+   78                | • plus_ou_moins ENTIER
+   79                | • '(' somme_entiere ')'
+   80 plus_ou_moins: • '+'
+   81              | • '-'
+
+    ENTIER  shift, and go to state 35
+    '+'     shift, and go to state 36
+    '-'     shift, and go to state 37
+    '*'     shift, and go to state 164
+    '$'     shift, and go to state 38
+    '('     shift, and go to state 39
+
+    operande_entier  go to state 165
+    plus_ou_moins    go to state 41
+
+
+State 139
+
+   50 operande: '$' '{' ID '}' •
+
+    $default  reduce using rule 50 (operande)
 
 
 State 140
 
-    5 instruction: ID '[' operande_entier ']' '=' • concatenation
-   36 concatenation: • concatenation operande
-   37              | • operande
-   52 operande: • '$' '{' ID '}'
-   54         | • '$' '{' ID '[' operande_entier ']' '}' $@3 operande_entier
-   55         | • MOT
-   56         | • '$' ENTIER
-   57         | • '$' '*'
-   58         | • '$' '?'
-   59         | • CHAINE
-   60         | • '$' '(' "expr" somme_entiere ')'
-   61         | • '$' '(' appel_de_fonction ')'
+   57 operande: '$' '(' "expr" somme_entiere • ')'
+   67 somme_entiere: somme_entiere • plus_ou_moins produit_entier
+   80 plus_ou_moins: • '+'
+   81              | • '-'
 
-    MOT     shift, and go to state 19
-    CHAINE  shift, and go to state 20
-    '$'     shift, and go to state 25
+    '+'  shift, and go to state 36
+    '-'  shift, and go to state 37
+    ')'  shift, and go to state 166
 
-    concatenation  go to state 166
-    operande       go to state 58
+    plus_ou_moins  go to state 120
 
 
 State 141
+
+   58 operande: '$' '(' appel_de_fonction ')' •
+
+    $default  reduce using rule 58 (operande)
+
+
+State 142
 
     2 liste_instructions: • liste_instructions ';' instruction
     3                   | • instruction
@@ -3087,11 +2463,11 @@ State 141
    19            | • "return" operande_entier
    20            | • "exit"
    21            | • "exit" operande_entier
-   88 declaration_de_fonction: • ID '(' ')' '{' decl_loc liste_instructions '}'
-   88                        | ID '(' ')' '{' decl_loc • liste_instructions '}'
-   89 decl_loc: decl_loc • "local" ID '=' concatenation ';'
-   91 appel_de_fonction: • ID liste_operandes
-   92                  | • ID
+   85 declaration_de_fonction: • ID '(' ')' '{' decl_loc liste_instructions '}'
+   85                        | ID '(' ')' '{' decl_loc • liste_instructions '}'
+   86 decl_loc: decl_loc • "local" ID '=' concatenation ';'
+   88 appel_de_fonction: • ID liste_operandes
+   89                  | • ID
 
     IF         shift, and go to state 1
     ID         shift, and go to state 2
@@ -3112,81 +2488,21 @@ State 141
     appel_de_fonction        go to state 16
 
 
-State 142
-
-   60 operande: '$' '(' "expr" somme_entiere • ')'
-   70 somme_entiere: somme_entiere • plus_ou_moins produit_entier
-   83 plus_ou_moins: • '+'
-   84              | • '-'
-
-    '+'  shift, and go to state 36
-    '-'  shift, and go to state 37
-    ')'  shift, and go to state 169
-
-    plus_ou_moins  go to state 121
-
-
 State 143
-
-   61 operande: '$' '(' appel_de_fonction ')' •
-
-    $default  reduce using rule 61 (operande)
-
-
-State 144
-
-   54 operande: '$' '{' ID '[' • operande_entier ']' '}' $@3 operande_entier
-   74 operande_entier: • '$' '{' ID '}'
-   75                | • '$' '{' ID '[' operande_entier ']' '}'
-   76                | • '$' ENTIER
-   77                | • plus_ou_moins '$' '{' ID '}'
-   78                | • plus_ou_moins '$' '{' ID '[' operande_entier ']' '}'
-   79                | • plus_ou_moins '$' ENTIER
-   80                | • ENTIER
-   81                | • plus_ou_moins ENTIER
-   82                | • '(' somme_entiere ')'
-   83 plus_ou_moins: • '+'
-   84              | • '-'
-
-    ENTIER  shift, and go to state 35
-    '+'     shift, and go to state 36
-    '-'     shift, and go to state 37
-    '('     shift, and go to state 38
-    '$'     shift, and go to state 39
-
-    operande_entier  go to state 170
-    plus_ou_moins    go to state 41
-
-
-State 145
-
-   52 operande: '$' '{' ID '}' •
-
-    $default  reduce using rule 52 (operande)
-
-
-State 146
-
-   33 liste_operandes: liste_operandes operande $@1 operande_entier •
-
-    $default  reduce using rule 33 (liste_operandes)
-
-
-State 147
 
     6 instruction: "declare" ID '[' ENTIER ']' •
 
     $default  reduce using rule 6 (instruction)
 
 
-State 148
+State 144
 
     8 instruction: "for" ID "do" liste_instructions "done" •
 
     $default  reduce using rule 8 (instruction)
 
 
-State 149
+State 145
 
     2 liste_instructions: • liste_instructions ';' instruction
     3                   | • instruction
@@ -3209,9 +2525,110 @@ State 149
    19            | • "return" operande_entier
    20            | • "exit"
    21            | • "exit" operande_entier
-   88 declaration_de_fonction: • ID '(' ')' '{' decl_loc liste_instructions '}'
-   91 appel_de_fonction: • ID liste_operandes
-   92                  | • ID
+   85 declaration_de_fonction: • ID '(' ')' '{' decl_loc liste_instructions '}'
+   88 appel_de_fonction: • ID liste_operandes
+   89                  | • ID
+
+    IF         shift, and go to state 1
+    ID         shift, and go to state 2
+    "declare"  shift, and go to state 3
+    "for"      shift, and go to state 4
+    "while"    shift, and go to state 5
+    "until"    shift, and go to state 6
+    "case"     shift, and go to state 7
+    "echo"     shift, and go to state 8
+    "read"     shift, and go to state 9
+    "return"   shift, and go to state 10
+    "exit"     shift, and go to state 11
+
+    liste_instructions       go to state 169
+    instruction              go to state 14
+    declaration_de_fonction  go to state 15
+    appel_de_fonction        go to state 16
+
+
+State 146
+
+   10 instruction: "while" test_bloc "do" liste_instructions "done" •
+
+    $default  reduce using rule 10 (instruction)
+
+
+State 147
+
+   11 instruction: "until" test_bloc "do" liste_instructions "done" •
+
+    $default  reduce using rule 11 (instruction)
+
+
+State 148
+
+   51 operande: '$' '{' ID '[' • operande_entier ']' '}'
+   71 operande_entier: • '$' '{' ID '}'
+   72                | • '$' '{' ID '[' operande_entier ']' '}'
+   73                | • '$' ENTIER
+   74                | • plus_ou_moins '$' '{' ID '}'
+   75                | • plus_ou_moins '$' '{' ID '[' operande_entier ']' '}'
+   76                | • plus_ou_moins '$' ENTIER
+   77                | • ENTIER
+   78                | • plus_ou_moins ENTIER
+   79                | • '(' somme_entiere ')'
+   80 plus_ou_moins: • '+'
+   81              | • '-'
+
+    ENTIER  shift, and go to state 35
+    '+'     shift, and go to state 36
+    '-'     shift, and go to state 37
+    '$'     shift, and go to state 38
+    '('     shift, and go to state 39
+
+    operande_entier  go to state 165
+    plus_ou_moins    go to state 41
+
+
+State 149
+
+   12 instruction: "case" operande "in" liste_cas "esac" •
+
+    $default  reduce using rule 12 (instruction)
+
+
+State 150
+
+   25 liste_cas: liste_cas filtre • ')' liste_instructions ';' ';'
+   29 filtre: filtre • '|' MOT
+   30       | filtre • '|' CHAINE
+
+    ')'  shift, and go to state 170
+    '|'  shift, and go to state 152
+
+
+State 151
+
+    2 liste_instructions: • liste_instructions ';' instruction
+    3                   | • instruction
+    4 instruction: • ID '=' concatenation
+    5            | • ID '[' operande_entier ']' '=' concatenation
+    6            | • "declare" ID '[' ENTIER ']'
+    7            | • IF test_bloc "then" liste_instructions else_part "fi"
+    8            | • "for" ID "do" liste_instructions "done"
+    9            | • "for" ID "in" liste_operandes "do" liste_instructions "done"
+   10            | • "while" test_bloc "do" liste_instructions "done"
+   11            | • "until" test_bloc "do" liste_instructions "done"
+   12            | • "case" operande "in" liste_cas "esac"
+   13            | • "echo" liste_operandes
+   14            | • "read" ID
+   15            | • "read" ID '[' operande_entier ']'
+   16            | • declaration_de_fonction
+   17            | • appel_de_fonction
+   18            | • "return"
+   19            | • "return" operande_entier
+   20            | • "exit"
+   21            | • "exit" operande_entier
+   26 liste_cas: filtre ')' • liste_instructions ';' ';'
+   85 declaration_de_fonction: • ID '(' ')' '{' decl_loc liste_instructions '}'
+   88 appel_de_fonction: • ID liste_operandes
+   89                  | • ID
 
     IF         shift, and go to state 1
     ID         shift, and go to state 2
@@ -3231,178 +2648,102 @@ State 149
     appel_de_fonction        go to state 16
 
 
-State 150
-
-   10 instruction: "while" test_bloc "do" liste_instructions "done" •
-
-    $default  reduce using rule 10 (instruction)
-
-
-State 151
-
-   11 instruction: "until" test_bloc "do" liste_instructions "done" •
-
-    $default  reduce using rule 11 (instruction)
-
-
 State 152
-
-   12 instruction: "case" operande "in" liste_cas "esac" •
-
-    $default  reduce using rule 12 (instruction)
-
-
-State 153
-
-   25 liste_cas: liste_cas filtre • ')' liste_instructions ";;"
-   29 filtre: filtre • '|' MOT
-   30       | filtre • '|' CHAINE
-
-    ')'  shift, and go to state 172
-    '|'  shift, and go to state 155
-
-
-State 154
-
-    2 liste_instructions: • liste_instructions ';' instruction
-    3                   | • instruction
-    4 instruction: • ID '=' concatenation
-    5            | • ID '[' operande_entier ']' '=' concatenation
-    6            | • "declare" ID '[' ENTIER ']'
-    7            | • IF test_bloc "then" liste_instructions else_part "fi"
-    8            | • "for" ID "do" liste_instructions "done"
-    9            | • "for" ID "in" liste_operandes "do" liste_instructions "done"
-   10            | • "while" test_bloc "do" liste_instructions "done"
-   11            | • "until" test_bloc "do" liste_instructions "done"
-   12            | • "case" operande "in" liste_cas "esac"
-   13            | • "echo" liste_operandes
-   14            | • "read" ID
-   15            | • "read" ID '[' operande_entier ']'
-   16            | • declaration_de_fonction
-   17            | • appel_de_fonction
-   18            | • "return"
-   19            | • "return" operande_entier
-   20            | • "exit"
-   21            | • "exit" operande_entier
-   26 liste_cas: filtre ')' • liste_instructions ";;"
-   88 declaration_de_fonction: • ID '(' ')' '{' decl_loc liste_instructions '}'
-   91 appel_de_fonction: • ID liste_operandes
-   92                  | • ID
-
-    IF         shift, and go to state 1
-    ID         shift, and go to state 2
-    "declare"  shift, and go to state 3
-    "for"      shift, and go to state 4
-    "while"    shift, and go to state 5
-    "until"    shift, and go to state 6
-    "case"     shift, and go to state 7
-    "echo"     shift, and go to state 8
-    "read"     shift, and go to state 9
-    "return"   shift, and go to state 10
-    "exit"     shift, and go to state 11
-
-    liste_instructions       go to state 173
-    instruction              go to state 14
-    declaration_de_fonction  go to state 15
-    appel_de_fonction        go to state 16
-
-
-State 155
 
    29 filtre: filtre '|' • MOT
    30       | filtre '|' • CHAINE
 
-    MOT     shift, and go to state 174
-    CHAINE  shift, and go to state 175
+    MOT     shift, and go to state 172
+    CHAINE  shift, and go to state 173
 
 
-State 156
+State 153
 
    15 instruction: "read" ID '[' operande_entier ']' •
 
     $default  reduce using rule 15 (instruction)
 
 
-State 157
+State 154
 
-   70 somme_entiere: somme_entiere plus_ou_moins produit_entier •  ['+', '-', ')']
-   72 produit_entier: produit_entier • fois_div_mod operande_entier
-   85 fois_div_mod: • '*'
-   86             | • '/'
-   87             | • '%'
-
-    '*'  shift, and go to state 122
-    '/'  shift, and go to state 123
-    '%'  shift, and go to state 124
-
-    $default  reduce using rule 70 (somme_entiere)
-
-    fois_div_mod  go to state 125
-
-
-State 158
-
-   72 produit_entier: produit_entier fois_div_mod operande_entier •
-
-    $default  reduce using rule 72 (produit_entier)
-
-
-State 159
-
-   74 operande_entier: • '$' '{' ID '}'
-   75                | • '$' '{' ID '[' operande_entier ']' '}'
-   75                | '$' '{' ID '[' • operande_entier ']' '}'
-   76                | • '$' ENTIER
-   77                | • plus_ou_moins '$' '{' ID '}'
-   78                | • plus_ou_moins '$' '{' ID '[' operande_entier ']' '}'
-   79                | • plus_ou_moins '$' ENTIER
-   80                | • ENTIER
-   81                | • plus_ou_moins ENTIER
-   82                | • '(' somme_entiere ')'
-   83 plus_ou_moins: • '+'
-   84              | • '-'
+   71 operande_entier: • '$' '{' ID '}'
+   72                | • '$' '{' ID '[' operande_entier ']' '}'
+   72                | '$' '{' ID '[' • operande_entier ']' '}'
+   73                | • '$' ENTIER
+   74                | • plus_ou_moins '$' '{' ID '}'
+   75                | • plus_ou_moins '$' '{' ID '[' operande_entier ']' '}'
+   76                | • plus_ou_moins '$' ENTIER
+   77                | • ENTIER
+   78                | • plus_ou_moins ENTIER
+   79                | • '(' somme_entiere ')'
+   80 plus_ou_moins: • '+'
+   81              | • '-'
 
     ENTIER  shift, and go to state 35
     '+'     shift, and go to state 36
     '-'     shift, and go to state 37
-    '('     shift, and go to state 38
-    '$'     shift, and go to state 39
+    '$'     shift, and go to state 38
+    '('     shift, and go to state 39
 
-    operande_entier  go to state 176
+    operande_entier  go to state 174
     plus_ou_moins    go to state 41
+
+
+State 155
+
+   71 operande_entier: '$' '{' ID '}' •
+
+    $default  reduce using rule 71 (operande_entier)
+
+
+State 156
+
+   67 somme_entiere: somme_entiere plus_ou_moins produit_entier •  ['+', '-', ')']
+   69 produit_entier: produit_entier • fois_div_mod operande_entier
+   82 fois_div_mod: • '*'
+   83             | • '/'
+   84             | • '%'
+
+    '*'  shift, and go to state 121
+    '/'  shift, and go to state 122
+    '%'  shift, and go to state 123
+
+    $default  reduce using rule 67 (somme_entiere)
+
+    fois_div_mod  go to state 124
+
+
+State 157
+
+   69 produit_entier: produit_entier fois_div_mod operande_entier •
+
+    $default  reduce using rule 69 (produit_entier)
+
+
+State 158
+
+   74 operande_entier: plus_ou_moins '$' '{' ID • '}'
+   75                | plus_ou_moins '$' '{' ID • '[' operande_entier ']' '}'
+
+    '['  shift, and go to state 175
+    '}'  shift, and go to state 176
+
+
+State 159
+
+   43 test_expr3: '!' '(' test_expr ')' •
+
+    $default  reduce using rule 43 (test_expr3)
 
 
 State 160
 
-   74 operande_entier: '$' '{' ID '}' •
+   22 else_part: "elif" test_bloc • "then" liste_instructions else_part
 
-    $default  reduce using rule 74 (operande_entier)
+    "then"  shift, and go to state 177
 
 
 State 161
-
-   77 operande_entier: plus_ou_moins '$' '{' ID • '}'
-   78                | plus_ou_moins '$' '{' ID • '[' operande_entier ']' '}'
-
-    '['  shift, and go to state 177
-    '}'  shift, and go to state 178
-
-
-State 162
-
-   45 test_expr3: '!' '(' test_expr ')' •
-
-    $default  reduce using rule 45 (test_expr3)
-
-
-State 163
-
-   22 else_part: "elif" test_bloc • "then" liste_instructions else_part
-
-    "then"  shift, and go to state 179
-
-
-State 164
 
     2 liste_instructions: liste_instructions • ';' instruction
    23 else_part: "else" liste_instructions •  ["fi"]
@@ -3412,39 +2753,60 @@ State 164
     $default  reduce using rule 23 (else_part)
 
 
-State 165
+State 162
 
     7 instruction: IF test_bloc "then" liste_instructions else_part "fi" •
 
     $default  reduce using rule 7 (instruction)
 
 
-State 166
+State 163
 
-    5 instruction: ID '[' operande_entier ']' '=' concatenation •  [$end, ';', "fi", "done", "elif", "else", ";;", '}']
-   36 concatenation: concatenation • operande
-   52 operande: • '$' '{' ID '}'
-   54         | • '$' '{' ID '[' operande_entier ']' '}' $@3 operande_entier
-   55         | • MOT
-   56         | • '$' ENTIER
-   57         | • '$' '*'
-   58         | • '$' '?'
-   59         | • CHAINE
-   60         | • '$' '(' "expr" somme_entiere ')'
-   61         | • '$' '(' appel_de_fonction ')'
+    5 instruction: ID '[' operande_entier ']' '=' concatenation •  [$end, ';', "fi", "done", "elif", "else", '}']
+   35 concatenation: concatenation • operande
+   50 operande: • '$' '{' ID '}'
+   51         | • '$' '{' ID '[' operande_entier ']' '}'
+   52         | • MOT
+   53         | • '$' ENTIER
+   54         | • '$' '*'
+   55         | • '$' '?'
+   56         | • CHAINE
+   57         | • '$' '(' "expr" somme_entiere ')'
+   58         | • '$' '(' appel_de_fonction ')'
 
     MOT     shift, and go to state 19
     CHAINE  shift, and go to state 20
-    '$'     shift, and go to state 25
+    '$'     shift, and go to state 31
 
     $default  reduce using rule 5 (instruction)
 
     operande  go to state 88
 
 
+State 164
+
+   34 liste_operandes: '$' '{' ID '[' '*' • ']' '}'
+
+    ']'  shift, and go to state 178
+
+
+State 165
+
+   51 operande: '$' '{' ID '[' operande_entier • ']' '}'
+
+    ']'  shift, and go to state 179
+
+
+State 166
+
+   57 operande: '$' '(' "expr" somme_entiere ')' •
+
+    $default  reduce using rule 57 (operande)
+
+
 State 167
 
-   89 decl_loc: decl_loc "local" • ID '=' concatenation ';'
+   86 decl_loc: decl_loc "local" • ID '=' concatenation ';'
 
     ID  shift, and go to state 180
 
@@ -3452,7 +2814,7 @@ State 167
 State 168
 
     2 liste_instructions: liste_instructions • ';' instruction
-   88 declaration_de_fonction: ID '(' ')' '{' decl_loc liste_instructions • '}'
+   85 declaration_de_fonction: ID '(' ')' '{' decl_loc liste_instructions • '}'
 
     ';'  shift, and go to state 44
     '}'  shift, and go to state 181
@@ -3460,28 +2822,14 @@ State 168
 
 State 169
 
-   60 operande: '$' '(' "expr" somme_entiere ')' •
-
-    $default  reduce using rule 60 (operande)
-
-
-State 170
-
-   54 operande: '$' '{' ID '[' operande_entier • ']' '}' $@3 operande_entier
-
-    ']'  shift, and go to state 182
-
-
-State 171
-
     2 liste_instructions: liste_instructions • ';' instruction
     9 instruction: "for" ID "in" liste_operandes "do" liste_instructions • "done"
 
     ';'     shift, and go to state 44
-    "done"  shift, and go to state 183
+    "done"  shift, and go to state 182
 
 
-State 172
+State 170
 
     2 liste_instructions: • liste_instructions ';' instruction
     3                   | • instruction
@@ -3503,10 +2851,10 @@ State 172
    19            | • "return" operande_entier
    20            | • "exit"
    21            | • "exit" operande_entier
-   25 liste_cas: liste_cas filtre ')' • liste_instructions ";;"
-   88 declaration_de_fonction: • ID '(' ')' '{' decl_loc liste_instructions '}'
-   91 appel_de_fonction: • ID liste_operandes
-   92                  | • ID
+   25 liste_cas: liste_cas filtre ')' • liste_instructions ';' ';'
+   85 declaration_de_fonction: • ID '(' ')' '{' decl_loc liste_instructions '}'
+   88 appel_de_fonction: • ID liste_operandes
+   89                  | • ID
 
     IF         shift, and go to state 1
     ID         shift, and go to state 2
@@ -3520,75 +2868,74 @@ State 172
     "return"   shift, and go to state 10
     "exit"     shift, and go to state 11
 
-    liste_instructions       go to state 184
+    liste_instructions       go to state 183
     instruction              go to state 14
     declaration_de_fonction  go to state 15
     appel_de_fonction        go to state 16
 
 
-State 173
+State 171
 
     2 liste_instructions: liste_instructions • ';' instruction
-   26 liste_cas: filtre ')' liste_instructions • ";;"
+   26 liste_cas: filtre ')' liste_instructions • ';' ';'
 
-    ';'   shift, and go to state 44
-    ";;"  shift, and go to state 185
+    ';'  shift, and go to state 184
 
 
-State 174
+State 172
 
    29 filtre: filtre '|' MOT •
 
     $default  reduce using rule 29 (filtre)
 
 
-State 175
+State 173
 
    30 filtre: filtre '|' CHAINE •
 
     $default  reduce using rule 30 (filtre)
 
 
-State 176
+State 174
 
-   75 operande_entier: '$' '{' ID '[' operande_entier • ']' '}'
+   72 operande_entier: '$' '{' ID '[' operande_entier • ']' '}'
 
-    ']'  shift, and go to state 186
+    ']'  shift, and go to state 185
 
 
-State 177
+State 175
 
-   74 operande_entier: • '$' '{' ID '}'
-   75                | • '$' '{' ID '[' operande_entier ']' '}'
-   76                | • '$' ENTIER
-   77                | • plus_ou_moins '$' '{' ID '}'
-   78                | • plus_ou_moins '$' '{' ID '[' operande_entier ']' '}'
-   78                | plus_ou_moins '$' '{' ID '[' • operande_entier ']' '}'
-   79                | • plus_ou_moins '$' ENTIER
-   80                | • ENTIER
-   81                | • plus_ou_moins ENTIER
-   82                | • '(' somme_entiere ')'
-   83 plus_ou_moins: • '+'
-   84              | • '-'
+   71 operande_entier: • '$' '{' ID '}'
+   72                | • '$' '{' ID '[' operande_entier ']' '}'
+   73                | • '$' ENTIER
+   74                | • plus_ou_moins '$' '{' ID '}'
+   75                | • plus_ou_moins '$' '{' ID '[' operande_entier ']' '}'
+   75                | plus_ou_moins '$' '{' ID '[' • operande_entier ']' '}'
+   76                | • plus_ou_moins '$' ENTIER
+   77                | • ENTIER
+   78                | • plus_ou_moins ENTIER
+   79                | • '(' somme_entiere ')'
+   80 plus_ou_moins: • '+'
+   81              | • '-'
 
     ENTIER  shift, and go to state 35
     '+'     shift, and go to state 36
     '-'     shift, and go to state 37
-    '('     shift, and go to state 38
-    '$'     shift, and go to state 39
+    '$'     shift, and go to state 38
+    '('     shift, and go to state 39
 
-    operande_entier  go to state 187
+    operande_entier  go to state 186
     plus_ou_moins    go to state 41
 
 
-State 178
+State 176
 
-   77 operande_entier: plus_ou_moins '$' '{' ID '}' •
+   74 operande_entier: plus_ou_moins '$' '{' ID '}' •
 
-    $default  reduce using rule 77 (operande_entier)
+    $default  reduce using rule 74 (operande_entier)
 
 
-State 179
+State 177
 
     2 liste_instructions: • liste_instructions ';' instruction
     3                   | • instruction
@@ -3611,9 +2958,9 @@ State 179
    20            | • "exit"
    21            | • "exit" operande_entier
    22 else_part: "elif" test_bloc "then" • liste_instructions else_part
-   88 declaration_de_fonction: • ID '(' ')' '{' decl_loc liste_instructions '}'
-   91 appel_de_fonction: • ID liste_operandes
-   92                  | • ID
+   85 declaration_de_fonction: • ID '(' ')' '{' decl_loc liste_instructions '}'
+   88 appel_de_fonction: • ID liste_operandes
+   89                  | • ID
 
     IF         shift, and go to state 1
     ID         shift, and go to state 2
@@ -3627,71 +2974,114 @@ State 179
     "return"   shift, and go to state 10
     "exit"     shift, and go to state 11
 
-    liste_instructions       go to state 188
+    liste_instructions       go to state 187
     instruction              go to state 14
     declaration_de_fonction  go to state 15
     appel_de_fonction        go to state 16
 
 
+State 178
+
+   34 liste_operandes: '$' '{' ID '[' '*' ']' • '}'
+
+    '}'  shift, and go to state 188
+
+
+State 179
+
+   51 operande: '$' '{' ID '[' operande_entier ']' • '}'
+
+    '}'  shift, and go to state 189
+
+
 State 180
 
-   89 decl_loc: decl_loc "local" ID • '=' concatenation ';'
+   86 decl_loc: decl_loc "local" ID • '=' concatenation ';'
 
-    '='  shift, and go to state 189
+    '='  shift, and go to state 190
 
 
 State 181
 
-   88 declaration_de_fonction: ID '(' ')' '{' decl_loc liste_instructions '}' •
+   85 declaration_de_fonction: ID '(' ')' '{' decl_loc liste_instructions '}' •
 
-    $default  reduce using rule 88 (declaration_de_fonction)
+    $default  reduce using rule 85 (declaration_de_fonction)
 
 
 State 182
-
-   54 operande: '$' '{' ID '[' operande_entier ']' • '}' $@3 operande_entier
-
-    '}'  shift, and go to state 190
-
-
-State 183
 
     9 instruction: "for" ID "in" liste_operandes "do" liste_instructions "done" •
 
     $default  reduce using rule 9 (instruction)
 
 
-State 184
+State 183
 
     2 liste_instructions: liste_instructions • ';' instruction
-   25 liste_cas: liste_cas filtre ')' liste_instructions • ";;"
+   25 liste_cas: liste_cas filtre ')' liste_instructions • ';' ';'
 
-    ';'   shift, and go to state 44
-    ";;"  shift, and go to state 191
+    ';'  shift, and go to state 191
+
+
+State 184
+
+    2 liste_instructions: liste_instructions ';' • instruction
+    4 instruction: • ID '=' concatenation
+    5            | • ID '[' operande_entier ']' '=' concatenation
+    6            | • "declare" ID '[' ENTIER ']'
+    7            | • IF test_bloc "then" liste_instructions else_part "fi"
+    8            | • "for" ID "do" liste_instructions "done"
+    9            | • "for" ID "in" liste_operandes "do" liste_instructions "done"
+   10            | • "while" test_bloc "do" liste_instructions "done"
+   11            | • "until" test_bloc "do" liste_instructions "done"
+   12            | • "case" operande "in" liste_cas "esac"
+   13            | • "echo" liste_operandes
+   14            | • "read" ID
+   15            | • "read" ID '[' operande_entier ']'
+   16            | • declaration_de_fonction
+   17            | • appel_de_fonction
+   18            | • "return"
+   19            | • "return" operande_entier
+   20            | • "exit"
+   21            | • "exit" operande_entier
+   26 liste_cas: filtre ')' liste_instructions ';' • ';'
+   85 declaration_de_fonction: • ID '(' ')' '{' decl_loc liste_instructions '}'
+   88 appel_de_fonction: • ID liste_operandes
+   89                  | • ID
+
+    IF         shift, and go to state 1
+    ID         shift, and go to state 2
+    ';'        shift, and go to state 192
+    "declare"  shift, and go to state 3
+    "for"      shift, and go to state 4
+    "while"    shift, and go to state 5
+    "until"    shift, and go to state 6
+    "case"     shift, and go to state 7
+    "echo"     shift, and go to state 8
+    "read"     shift, and go to state 9
+    "return"   shift, and go to state 10
+    "exit"     shift, and go to state 11
+
+    instruction              go to state 82
+    declaration_de_fonction  go to state 15
+    appel_de_fonction        go to state 16
 
 
 State 185
 
-   26 liste_cas: filtre ')' liste_instructions ";;" •
+   72 operande_entier: '$' '{' ID '[' operande_entier ']' • '}'
 
-    $default  reduce using rule 26 (liste_cas)
+    '}'  shift, and go to state 193
 
 
 State 186
 
-   75 operande_entier: '$' '{' ID '[' operande_entier ']' • '}'
+   75 operande_entier: plus_ou_moins '$' '{' ID '[' operande_entier • ']' '}'
 
-    '}'  shift, and go to state 192
+    ']'  shift, and go to state 194
 
 
 State 187
-
-   78 operande_entier: plus_ou_moins '$' '{' ID '[' operande_entier • ']' '}'
-
-    ']'  shift, and go to state 193
-
-
-State 188
 
     2 liste_instructions: liste_instructions • ';' instruction
    22 else_part: • "elif" test_bloc "then" liste_instructions else_part
@@ -3700,138 +3090,161 @@ State 188
    24          | ε •  ["fi"]
 
     ';'     shift, and go to state 44
-    "elif"  shift, and go to state 137
-    "else"  shift, and go to state 138
+    "elif"  shift, and go to state 134
+    "else"  shift, and go to state 135
 
     $default  reduce using rule 24 (else_part)
 
-    else_part  go to state 194
+    else_part  go to state 195
+
+
+State 188
+
+   34 liste_operandes: '$' '{' ID '[' '*' ']' '}' •
+
+    $default  reduce using rule 34 (liste_operandes)
 
 
 State 189
 
-   36 concatenation: • concatenation operande
-   37              | • operande
-   52 operande: • '$' '{' ID '}'
-   54         | • '$' '{' ID '[' operande_entier ']' '}' $@3 operande_entier
-   55         | • MOT
-   56         | • '$' ENTIER
-   57         | • '$' '*'
-   58         | • '$' '?'
-   59         | • CHAINE
-   60         | • '$' '(' "expr" somme_entiere ')'
-   61         | • '$' '(' appel_de_fonction ')'
-   89 decl_loc: decl_loc "local" ID '=' • concatenation ';'
+   51 operande: '$' '{' ID '[' operande_entier ']' '}' •
 
-    MOT     shift, and go to state 19
-    CHAINE  shift, and go to state 20
-    '$'     shift, and go to state 25
-
-    concatenation  go to state 195
-    operande       go to state 58
+    $default  reduce using rule 51 (operande)
 
 
 State 190
 
-   53 $@3: ε •
-   54 operande: '$' '{' ID '[' operande_entier ']' '}' • $@3 operande_entier
+   35 concatenation: • concatenation operande
+   36              | • operande
+   50 operande: • '$' '{' ID '}'
+   51         | • '$' '{' ID '[' operande_entier ']' '}'
+   52         | • MOT
+   53         | • '$' ENTIER
+   54         | • '$' '*'
+   55         | • '$' '?'
+   56         | • CHAINE
+   57         | • '$' '(' "expr" somme_entiere ')'
+   58         | • '$' '(' appel_de_fonction ')'
+   86 decl_loc: decl_loc "local" ID '=' • concatenation ';'
 
-    $default  reduce using rule 53 ($@3)
+    MOT     shift, and go to state 19
+    CHAINE  shift, and go to state 20
+    '$'     shift, and go to state 31
 
-    $@3  go to state 196
+    concatenation  go to state 196
+    operande       go to state 58
 
 
 State 191
 
-   25 liste_cas: liste_cas filtre ')' liste_instructions ";;" •
+    2 liste_instructions: liste_instructions ';' • instruction
+    4 instruction: • ID '=' concatenation
+    5            | • ID '[' operande_entier ']' '=' concatenation
+    6            | • "declare" ID '[' ENTIER ']'
+    7            | • IF test_bloc "then" liste_instructions else_part "fi"
+    8            | • "for" ID "do" liste_instructions "done"
+    9            | • "for" ID "in" liste_operandes "do" liste_instructions "done"
+   10            | • "while" test_bloc "do" liste_instructions "done"
+   11            | • "until" test_bloc "do" liste_instructions "done"
+   12            | • "case" operande "in" liste_cas "esac"
+   13            | • "echo" liste_operandes
+   14            | • "read" ID
+   15            | • "read" ID '[' operande_entier ']'
+   16            | • declaration_de_fonction
+   17            | • appel_de_fonction
+   18            | • "return"
+   19            | • "return" operande_entier
+   20            | • "exit"
+   21            | • "exit" operande_entier
+   25 liste_cas: liste_cas filtre ')' liste_instructions ';' • ';'
+   85 declaration_de_fonction: • ID '(' ')' '{' decl_loc liste_instructions '}'
+   88 appel_de_fonction: • ID liste_operandes
+   89                  | • ID
 
-    $default  reduce using rule 25 (liste_cas)
+    IF         shift, and go to state 1
+    ID         shift, and go to state 2
+    ';'        shift, and go to state 197
+    "declare"  shift, and go to state 3
+    "for"      shift, and go to state 4
+    "while"    shift, and go to state 5
+    "until"    shift, and go to state 6
+    "case"     shift, and go to state 7
+    "echo"     shift, and go to state 8
+    "read"     shift, and go to state 9
+    "return"   shift, and go to state 10
+    "exit"     shift, and go to state 11
+
+    instruction              go to state 82
+    declaration_de_fonction  go to state 15
+    appel_de_fonction        go to state 16
 
 
 State 192
 
-   75 operande_entier: '$' '{' ID '[' operande_entier ']' '}' •
+   26 liste_cas: filtre ')' liste_instructions ';' ';' •
 
-    $default  reduce using rule 75 (operande_entier)
+    $default  reduce using rule 26 (liste_cas)
 
 
 State 193
 
-   78 operande_entier: plus_ou_moins '$' '{' ID '[' operande_entier ']' • '}'
+   72 operande_entier: '$' '{' ID '[' operande_entier ']' '}' •
 
-    '}'  shift, and go to state 197
+    $default  reduce using rule 72 (operande_entier)
 
 
 State 194
+
+   75 operande_entier: plus_ou_moins '$' '{' ID '[' operande_entier ']' • '}'
+
+    '}'  shift, and go to state 198
+
+
+State 195
 
    22 else_part: "elif" test_bloc "then" liste_instructions else_part •
 
     $default  reduce using rule 22 (else_part)
 
 
-State 195
+State 196
 
-   36 concatenation: concatenation • operande
-   52 operande: • '$' '{' ID '}'
-   54         | • '$' '{' ID '[' operande_entier ']' '}' $@3 operande_entier
-   55         | • MOT
-   56         | • '$' ENTIER
-   57         | • '$' '*'
-   58         | • '$' '?'
-   59         | • CHAINE
-   60         | • '$' '(' "expr" somme_entiere ')'
-   61         | • '$' '(' appel_de_fonction ')'
-   89 decl_loc: decl_loc "local" ID '=' concatenation • ';'
+   35 concatenation: concatenation • operande
+   50 operande: • '$' '{' ID '}'
+   51         | • '$' '{' ID '[' operande_entier ']' '}'
+   52         | • MOT
+   53         | • '$' ENTIER
+   54         | • '$' '*'
+   55         | • '$' '?'
+   56         | • CHAINE
+   57         | • '$' '(' "expr" somme_entiere ')'
+   58         | • '$' '(' appel_de_fonction ')'
+   86 decl_loc: decl_loc "local" ID '=' concatenation • ';'
 
     MOT     shift, and go to state 19
     CHAINE  shift, and go to state 20
-    ';'     shift, and go to state 198
-    '$'     shift, and go to state 25
+    ';'     shift, and go to state 199
+    '$'     shift, and go to state 31
 
     operande  go to state 88
 
 
-State 196
-
-   54 operande: '$' '{' ID '[' operande_entier ']' '}' $@3 • operande_entier
-   74 operande_entier: • '$' '{' ID '}'
-   75                | • '$' '{' ID '[' operande_entier ']' '}'
-   76                | • '$' ENTIER
-   77                | • plus_ou_moins '$' '{' ID '}'
-   78                | • plus_ou_moins '$' '{' ID '[' operande_entier ']' '}'
-   79                | • plus_ou_moins '$' ENTIER
-   80                | • ENTIER
-   81                | • plus_ou_moins ENTIER
-   82                | • '(' somme_entiere ')'
-   83 plus_ou_moins: • '+'
-   84              | • '-'
-
-    ENTIER  shift, and go to state 35
-    '+'     shift, and go to state 36
-    '-'     shift, and go to state 37
-    '('     shift, and go to state 38
-    '$'     shift, and go to state 39
-
-    operande_entier  go to state 199
-    plus_ou_moins    go to state 41
-
-
 State 197
 
-   78 operande_entier: plus_ou_moins '$' '{' ID '[' operande_entier ']' '}' •
+   25 liste_cas: liste_cas filtre ')' liste_instructions ';' ';' •
 
-    $default  reduce using rule 78 (operande_entier)
+    $default  reduce using rule 25 (liste_cas)
 
 
 State 198
 
-   89 decl_loc: decl_loc "local" ID '=' concatenation ';' •
+   75 operande_entier: plus_ou_moins '$' '{' ID '[' operande_entier ']' '}' •
 
-    $default  reduce using rule 89 (decl_loc)
+    $default  reduce using rule 75 (operande_entier)
 
 
 State 199
 
-   54 operande: '$' '{' ID '[' operande_entier ']' '}' $@3 operande_entier •
+   86 decl_loc: decl_loc "local" ID '=' concatenation ';' •
 
-    $default  reduce using rule 54 (operande)
+    $default  reduce using rule 86 (decl_loc)
