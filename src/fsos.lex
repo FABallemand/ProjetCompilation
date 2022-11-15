@@ -1,6 +1,5 @@
-
 %{
-#include "projet.tab.h"
+#include "bsos.tab.h"
 #include <stdio.h>
 %}
 
@@ -54,7 +53,7 @@ done return DONE;
 read return READ;
 echo return ECHO;
 
-"return" return RETURN;
+return return RETURN;
 
 exit return EXIT;
 

@@ -27,9 +27,9 @@ liste_instructions
 
 instruction
 : ID '=' concatenation {}
-| ID[operande_entier] '=' concatenation {}
-| "declare" ID[ENTIER] {}
-| "if" test_bloc "then" liste_instructions else_part "fi" {}
+| ID '[' operande_entier ']' '=' concatenation {}
+| "declare" ID '[' ENTIER ']' {}
+| IF test_bloc "then" liste_instructions else_part "fi" {}
 | "for" ID "do" liste_instructions "done" {}
 | "for" ID "in" liste_operandes "do" liste_instructions "done" {}
 | "while" test_bloc "do" liste_instructions "done" {}
@@ -37,7 +37,7 @@ instruction
 | "case" operande "in" liste_cas "esac" {}
 | "echo" liste_operandes {}
 | "read" ID {}
-| "read" ID[operande_entier] {}
+| "read" ID '[' operande_entier ']' {}
 | declaration_de_fonction {}
 | appel_de_fonction {}
 | "return" {}
@@ -66,7 +66,7 @@ filtre
 ;
 
 liste_operandes
-: liste_operandes operande {}
+: liste_operandes operande {}operande_entier
 | operande {}
 | "${" ID "[*]}" {}
 ;
@@ -87,7 +87,7 @@ test_expr
 
 test_expr2
 : test_expr2 "-a" test_expr3 {}
-| test_expr3 {}
+| test_expr3 {}operande_entier
 ;
 
 test_expr3
@@ -105,15 +105,15 @@ test_instruction
 ;
 
 operande
-: "${" ID '}' {}
-| "${" ID '[' operande_entier "]}" {}
+: '$' '{' ID '}' {}
+| '$' '{' ID '[' operande_entier ']''}' {}operande_entier
 | MOT {}
 | '$' ENTIER {}
-| "$*" {}
-| "$?" {}
+| '$''*' {}
+| '$''?' {}
 | CHAINE {}
-| "$(" "expr" somme_entiere ')' {}
-| "$(" appel_de_fonction ')' {}
+| '$''(' "expr" somme_entiere ')' {}
+| '$''(' appel_de_fonction ')' {}
 ;
 
 operateur1
@@ -141,11 +141,11 @@ produit_entier
 ;
 
 operande_entier
-: "${" ID '}' {}
-| "${" ID '[' operande_entier "]}" {}
+: '$''{' ID '}' {}
+| '$''{' ID '[' operande_entier ']''}' {}
 | '$' ENTIER {}
-| plus_ou_moins "${" ID '}' {}
-| plus_ou_moins "${" ID '[' operande_entier "]}" {}
+| plus_ou_moins '$''{' ID '}' {}
+| plus_ou_moins '$''{' ID '[' operande_entier ']''}' {}
 | plus_ou_moins '$' ENTIER {}
 | ENTIER {}
 | plus_ou_moins ENTIER {}
@@ -164,7 +164,7 @@ fois_div_mod
 ;
 
 declaration_de_fonction
-: ID "() {" decl_loc liste_instructions '}' {}
+: ID '('')' '{' decl_loc liste_instructions '}' {}
 ;
 
 
