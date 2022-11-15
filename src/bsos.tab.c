@@ -69,13 +69,13 @@
 /* First part of user prologue.  */
 #line 1 "src/bsos.y"
 
-#include stdio.h
-#include stdlib.h
+#include <stdio.h>
+#include <stdlib.h>
 
 extern int yylex();
 extern void yyerror(const char *msg);
 
-#line 79 "bsos.tab.c"
+#line 79 "src/bsos.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -1312,533 +1312,533 @@ yyreduce:
   case 2: /* programme: liste_instructions  */
 #line 20 "src/bsos.y"
                      {}
-#line 1316 "bsos.tab.c"
+#line 1316 "src/bsos.tab.c"
     break;
 
   case 3: /* liste_instructions: liste_instructions ';' instruction  */
 #line 24 "src/bsos.y"
                                      {}
-#line 1322 "bsos.tab.c"
+#line 1322 "src/bsos.tab.c"
     break;
 
   case 4: /* liste_instructions: instruction  */
 #line 25 "src/bsos.y"
               {}
-#line 1328 "bsos.tab.c"
+#line 1328 "src/bsos.tab.c"
     break;
 
   case 5: /* instruction: ID '=' concatenation  */
 #line 29 "src/bsos.y"
                        {}
-#line 1334 "bsos.tab.c"
+#line 1334 "src/bsos.tab.c"
     break;
 
   case 6: /* instruction: ID '[' operande_entier ']' '=' concatenation  */
 #line 30 "src/bsos.y"
                                                {}
-#line 1340 "bsos.tab.c"
+#line 1340 "src/bsos.tab.c"
     break;
 
   case 7: /* instruction: "declare" ID '[' ENTIER ']'  */
 #line 31 "src/bsos.y"
                               {}
-#line 1346 "bsos.tab.c"
+#line 1346 "src/bsos.tab.c"
     break;
 
   case 8: /* instruction: IF test_bloc "then" liste_instructions else_part "fi"  */
 #line 32 "src/bsos.y"
                                                         {}
-#line 1352 "bsos.tab.c"
+#line 1352 "src/bsos.tab.c"
     break;
 
   case 9: /* instruction: "for" ID "do" liste_instructions "done"  */
 #line 33 "src/bsos.y"
                                           {}
-#line 1358 "bsos.tab.c"
+#line 1358 "src/bsos.tab.c"
     break;
 
   case 10: /* instruction: "for" ID "in" liste_operandes "do" liste_instructions "done"  */
 #line 34 "src/bsos.y"
                                                                {}
-#line 1364 "bsos.tab.c"
+#line 1364 "src/bsos.tab.c"
     break;
 
   case 11: /* instruction: "while" test_bloc "do" liste_instructions "done"  */
 #line 35 "src/bsos.y"
                                                    {}
-#line 1370 "bsos.tab.c"
+#line 1370 "src/bsos.tab.c"
     break;
 
   case 12: /* instruction: "until" test_bloc "do" liste_instructions "done"  */
 #line 36 "src/bsos.y"
                                                    {}
-#line 1376 "bsos.tab.c"
+#line 1376 "src/bsos.tab.c"
     break;
 
   case 13: /* instruction: "case" operande "in" liste_cas "esac"  */
 #line 37 "src/bsos.y"
                                         {}
-#line 1382 "bsos.tab.c"
+#line 1382 "src/bsos.tab.c"
     break;
 
   case 14: /* instruction: "echo" liste_operandes  */
 #line 38 "src/bsos.y"
                          {}
-#line 1388 "bsos.tab.c"
+#line 1388 "src/bsos.tab.c"
     break;
 
   case 15: /* instruction: "read" ID  */
 #line 39 "src/bsos.y"
             {}
-#line 1394 "bsos.tab.c"
+#line 1394 "src/bsos.tab.c"
     break;
 
   case 16: /* instruction: "read" ID '[' operande_entier ']'  */
 #line 40 "src/bsos.y"
                                     {}
-#line 1400 "bsos.tab.c"
+#line 1400 "src/bsos.tab.c"
     break;
 
   case 17: /* instruction: declaration_de_fonction  */
 #line 41 "src/bsos.y"
                           {}
-#line 1406 "bsos.tab.c"
+#line 1406 "src/bsos.tab.c"
     break;
 
   case 18: /* instruction: appel_de_fonction  */
 #line 42 "src/bsos.y"
                     {}
-#line 1412 "bsos.tab.c"
+#line 1412 "src/bsos.tab.c"
     break;
 
   case 19: /* instruction: "return"  */
 #line 43 "src/bsos.y"
            {}
-#line 1418 "bsos.tab.c"
+#line 1418 "src/bsos.tab.c"
     break;
 
   case 20: /* instruction: "return" operande_entier  */
 #line 44 "src/bsos.y"
                            {}
-#line 1424 "bsos.tab.c"
+#line 1424 "src/bsos.tab.c"
     break;
 
   case 21: /* instruction: "exit"  */
 #line 45 "src/bsos.y"
          {}
-#line 1430 "bsos.tab.c"
+#line 1430 "src/bsos.tab.c"
     break;
 
   case 22: /* instruction: "exit" operande_entier  */
 #line 46 "src/bsos.y"
                          {}
-#line 1436 "bsos.tab.c"
+#line 1436 "src/bsos.tab.c"
     break;
 
   case 23: /* else_part: "elif" test_bloc "then" liste_instructions else_part  */
 #line 50 "src/bsos.y"
                                                        {}
-#line 1442 "bsos.tab.c"
+#line 1442 "src/bsos.tab.c"
     break;
 
   case 24: /* else_part: "else" liste_instructions  */
 #line 51 "src/bsos.y"
                             {}
-#line 1448 "bsos.tab.c"
+#line 1448 "src/bsos.tab.c"
     break;
 
   case 25: /* else_part: %empty  */
 #line 52 "src/bsos.y"
          {}
-#line 1454 "bsos.tab.c"
+#line 1454 "src/bsos.tab.c"
     break;
 
   case 26: /* liste_cas: liste_cas filtre ')' liste_instructions ';' ';'  */
 #line 56 "src/bsos.y"
                                                  {}
-#line 1460 "bsos.tab.c"
+#line 1460 "src/bsos.tab.c"
     break;
 
   case 27: /* liste_cas: filtre ')' liste_instructions ';' ';'  */
 #line 57 "src/bsos.y"
                                        {}
-#line 1466 "bsos.tab.c"
+#line 1466 "src/bsos.tab.c"
     break;
 
   case 28: /* filtre: MOT  */
 #line 61 "src/bsos.y"
       {}
-#line 1472 "bsos.tab.c"
+#line 1472 "src/bsos.tab.c"
     break;
 
   case 29: /* filtre: CHAINE  */
 #line 62 "src/bsos.y"
          {}
-#line 1478 "bsos.tab.c"
+#line 1478 "src/bsos.tab.c"
     break;
 
   case 30: /* filtre: filtre '|' MOT  */
 #line 63 "src/bsos.y"
                  {}
-#line 1484 "bsos.tab.c"
+#line 1484 "src/bsos.tab.c"
     break;
 
   case 31: /* filtre: filtre '|' CHAINE  */
 #line 64 "src/bsos.y"
                     {}
-#line 1490 "bsos.tab.c"
+#line 1490 "src/bsos.tab.c"
     break;
 
   case 33: /* liste_operandes: liste_operandes operande  */
 #line 69 "src/bsos.y"
                            {}
-#line 1496 "bsos.tab.c"
+#line 1496 "src/bsos.tab.c"
     break;
 
   case 34: /* liste_operandes: operande  */
 #line 70 "src/bsos.y"
            {}
-#line 1502 "bsos.tab.c"
+#line 1502 "src/bsos.tab.c"
     break;
 
   case 35: /* liste_operandes: '$' '{' ID '[' '*' ']' '}'  */
 #line 71 "src/bsos.y"
                          {}
-#line 1508 "bsos.tab.c"
+#line 1508 "src/bsos.tab.c"
     break;
 
   case 36: /* concatenation: concatenation operande  */
 #line 75 "src/bsos.y"
                          {}
-#line 1514 "bsos.tab.c"
+#line 1514 "src/bsos.tab.c"
     break;
 
   case 37: /* concatenation: operande  */
 #line 76 "src/bsos.y"
            {}
-#line 1520 "bsos.tab.c"
+#line 1520 "src/bsos.tab.c"
     break;
 
   case 38: /* test_bloc: "test" test_expr  */
 #line 80 "src/bsos.y"
                    {}
-#line 1526 "bsos.tab.c"
+#line 1526 "src/bsos.tab.c"
     break;
 
   case 39: /* test_expr: test_expr "-o" test_expr2  */
 #line 84 "src/bsos.y"
                             {}
-#line 1532 "bsos.tab.c"
+#line 1532 "src/bsos.tab.c"
     break;
 
   case 40: /* test_expr: test_expr2  */
 #line 85 "src/bsos.y"
              {}
-#line 1538 "bsos.tab.c"
+#line 1538 "src/bsos.tab.c"
     break;
 
   case 41: /* test_expr2: test_expr2 "-a" test_expr3  */
 #line 89 "src/bsos.y"
                              {}
-#line 1544 "bsos.tab.c"
+#line 1544 "src/bsos.tab.c"
     break;
 
   case 42: /* test_expr2: test_expr3  */
 #line 90 "src/bsos.y"
              {}
-#line 1550 "bsos.tab.c"
+#line 1550 "src/bsos.tab.c"
     break;
 
   case 43: /* test_expr3: '(' test_expr ')'  */
 #line 94 "src/bsos.y"
                     {}
-#line 1556 "bsos.tab.c"
+#line 1556 "src/bsos.tab.c"
     break;
 
   case 44: /* test_expr3: '!' '(' test_expr ')'  */
 #line 95 "src/bsos.y"
                         {}
-#line 1562 "bsos.tab.c"
+#line 1562 "src/bsos.tab.c"
     break;
 
   case 45: /* test_expr3: test_instruction  */
 #line 96 "src/bsos.y"
                    {}
-#line 1568 "bsos.tab.c"
+#line 1568 "src/bsos.tab.c"
     break;
 
   case 46: /* test_expr3: '!' test_instruction  */
 #line 97 "src/bsos.y"
                        {}
-#line 1574 "bsos.tab.c"
+#line 1574 "src/bsos.tab.c"
     break;
 
   case 47: /* test_instruction: concatenation '=' concatenation  */
 #line 101 "src/bsos.y"
                                   {}
-#line 1580 "bsos.tab.c"
+#line 1580 "src/bsos.tab.c"
     break;
 
   case 48: /* test_instruction: concatenation "!=" concatenation  */
 #line 102 "src/bsos.y"
                                    {}
-#line 1586 "bsos.tab.c"
+#line 1586 "src/bsos.tab.c"
     break;
 
   case 49: /* test_instruction: operateur1 concatenation  */
 #line 103 "src/bsos.y"
                            {}
-#line 1592 "bsos.tab.c"
+#line 1592 "src/bsos.tab.c"
     break;
 
   case 50: /* test_instruction: operande operateur2 operande  */
 #line 104 "src/bsos.y"
                                {}
-#line 1598 "bsos.tab.c"
+#line 1598 "src/bsos.tab.c"
     break;
 
   case 51: /* operande: '$' '{' ID '}'  */
 #line 108 "src/bsos.y"
                  {}
-#line 1604 "bsos.tab.c"
+#line 1604 "src/bsos.tab.c"
     break;
 
   case 52: /* operande: '$' '{' ID '[' operande_entier ']' '}'  */
 #line 109 "src/bsos.y"
                                         {}
-#line 1610 "bsos.tab.c"
+#line 1610 "src/bsos.tab.c"
     break;
 
   case 53: /* operande: MOT  */
 #line 110 "src/bsos.y"
       {}
-#line 1616 "bsos.tab.c"
+#line 1616 "src/bsos.tab.c"
     break;
 
   case 54: /* operande: '$' ENTIER  */
 #line 111 "src/bsos.y"
              {}
-#line 1622 "bsos.tab.c"
+#line 1622 "src/bsos.tab.c"
     break;
 
   case 55: /* operande: '$' '*'  */
 #line 112 "src/bsos.y"
          {}
-#line 1628 "bsos.tab.c"
+#line 1628 "src/bsos.tab.c"
     break;
 
   case 56: /* operande: '$' '?'  */
 #line 113 "src/bsos.y"
          {}
-#line 1634 "bsos.tab.c"
+#line 1634 "src/bsos.tab.c"
     break;
 
   case 57: /* operande: CHAINE  */
 #line 114 "src/bsos.y"
          {}
-#line 1640 "bsos.tab.c"
+#line 1640 "src/bsos.tab.c"
     break;
 
   case 58: /* operande: '$' '(' "expr" somme_entiere ')'  */
 #line 115 "src/bsos.y"
                                   {}
-#line 1646 "bsos.tab.c"
+#line 1646 "src/bsos.tab.c"
     break;
 
   case 59: /* operande: '$' '(' appel_de_fonction ')'  */
 #line 116 "src/bsos.y"
                                {}
-#line 1652 "bsos.tab.c"
+#line 1652 "src/bsos.tab.c"
     break;
 
   case 60: /* operateur1: "-n"  */
 #line 120 "src/bsos.y"
        {}
-#line 1658 "bsos.tab.c"
+#line 1658 "src/bsos.tab.c"
     break;
 
   case 61: /* operateur1: "-z"  */
 #line 121 "src/bsos.y"
        {}
-#line 1664 "bsos.tab.c"
+#line 1664 "src/bsos.tab.c"
     break;
 
   case 62: /* operateur2: "-eq"  */
 #line 125 "src/bsos.y"
         {}
-#line 1670 "bsos.tab.c"
+#line 1670 "src/bsos.tab.c"
     break;
 
   case 63: /* operateur2: "-ne"  */
 #line 126 "src/bsos.y"
         {}
-#line 1676 "bsos.tab.c"
+#line 1676 "src/bsos.tab.c"
     break;
 
   case 64: /* operateur2: "-gt"  */
 #line 127 "src/bsos.y"
         {}
-#line 1682 "bsos.tab.c"
+#line 1682 "src/bsos.tab.c"
     break;
 
   case 65: /* operateur2: "-ge"  */
 #line 128 "src/bsos.y"
         {}
-#line 1688 "bsos.tab.c"
+#line 1688 "src/bsos.tab.c"
     break;
 
   case 66: /* operateur2: "-lt"  */
 #line 129 "src/bsos.y"
         {}
-#line 1694 "bsos.tab.c"
+#line 1694 "src/bsos.tab.c"
     break;
 
   case 67: /* operateur2: "-le"  */
 #line 130 "src/bsos.y"
         {}
-#line 1700 "bsos.tab.c"
+#line 1700 "src/bsos.tab.c"
     break;
 
   case 68: /* somme_entiere: somme_entiere plus_ou_moins produit_entier  */
 #line 134 "src/bsos.y"
                                              {}
-#line 1706 "bsos.tab.c"
+#line 1706 "src/bsos.tab.c"
     break;
 
   case 69: /* somme_entiere: produit_entier  */
 #line 135 "src/bsos.y"
                  {}
-#line 1712 "bsos.tab.c"
+#line 1712 "src/bsos.tab.c"
     break;
 
   case 70: /* produit_entier: produit_entier fois_div_mod operande_entier  */
 #line 139 "src/bsos.y"
                                               {}
-#line 1718 "bsos.tab.c"
+#line 1718 "src/bsos.tab.c"
     break;
 
   case 71: /* produit_entier: operande_entier  */
 #line 140 "src/bsos.y"
                   {}
-#line 1724 "bsos.tab.c"
+#line 1724 "src/bsos.tab.c"
     break;
 
   case 72: /* operande_entier: '$' '{' ID '}'  */
 #line 144 "src/bsos.y"
                 {}
-#line 1730 "bsos.tab.c"
+#line 1730 "src/bsos.tab.c"
     break;
 
   case 73: /* operande_entier: '$' '{' ID '[' operande_entier ']' '}'  */
 #line 145 "src/bsos.y"
                                        {}
-#line 1736 "bsos.tab.c"
+#line 1736 "src/bsos.tab.c"
     break;
 
   case 74: /* operande_entier: '$' ENTIER  */
 #line 146 "src/bsos.y"
              {}
-#line 1742 "bsos.tab.c"
+#line 1742 "src/bsos.tab.c"
     break;
 
   case 75: /* operande_entier: plus_ou_moins '$' '{' ID '}'  */
 #line 147 "src/bsos.y"
                               {}
-#line 1748 "bsos.tab.c"
+#line 1748 "src/bsos.tab.c"
     break;
 
   case 76: /* operande_entier: plus_ou_moins '$' '{' ID '[' operande_entier ']' '}'  */
 #line 148 "src/bsos.y"
                                                      {}
-#line 1754 "bsos.tab.c"
+#line 1754 "src/bsos.tab.c"
     break;
 
   case 77: /* operande_entier: plus_ou_moins '$' ENTIER  */
 #line 149 "src/bsos.y"
                            {}
-#line 1760 "bsos.tab.c"
+#line 1760 "src/bsos.tab.c"
     break;
 
   case 78: /* operande_entier: ENTIER  */
 #line 150 "src/bsos.y"
          {}
-#line 1766 "bsos.tab.c"
+#line 1766 "src/bsos.tab.c"
     break;
 
   case 79: /* operande_entier: plus_ou_moins ENTIER  */
 #line 151 "src/bsos.y"
                        {}
-#line 1772 "bsos.tab.c"
+#line 1772 "src/bsos.tab.c"
     break;
 
   case 80: /* operande_entier: '(' somme_entiere ')'  */
 #line 152 "src/bsos.y"
                         {}
-#line 1778 "bsos.tab.c"
+#line 1778 "src/bsos.tab.c"
     break;
 
   case 81: /* plus_ou_moins: '+'  */
 #line 156 "src/bsos.y"
       {}
-#line 1784 "bsos.tab.c"
+#line 1784 "src/bsos.tab.c"
     break;
 
   case 82: /* plus_ou_moins: '-'  */
 #line 157 "src/bsos.y"
       {}
-#line 1790 "bsos.tab.c"
+#line 1790 "src/bsos.tab.c"
     break;
 
   case 83: /* fois_div_mod: '*'  */
 #line 161 "src/bsos.y"
       {}
-#line 1796 "bsos.tab.c"
+#line 1796 "src/bsos.tab.c"
     break;
 
   case 84: /* fois_div_mod: '/'  */
 #line 162 "src/bsos.y"
       {}
-#line 1802 "bsos.tab.c"
+#line 1802 "src/bsos.tab.c"
     break;
 
   case 85: /* fois_div_mod: '%'  */
 #line 163 "src/bsos.y"
       {}
-#line 1808 "bsos.tab.c"
+#line 1808 "src/bsos.tab.c"
     break;
 
   case 86: /* declaration_de_fonction: ID '(' ')' '{' decl_loc liste_instructions '}'  */
 #line 167 "src/bsos.y"
                                                 {}
-#line 1814 "bsos.tab.c"
+#line 1814 "src/bsos.tab.c"
     break;
 
   case 87: /* decl_loc: decl_loc "local" ID '=' concatenation ';'  */
 #line 172 "src/bsos.y"
                                             {}
-#line 1820 "bsos.tab.c"
+#line 1820 "src/bsos.tab.c"
     break;
 
   case 88: /* decl_loc: %empty  */
 #line 173 "src/bsos.y"
          {}
-#line 1826 "bsos.tab.c"
+#line 1826 "src/bsos.tab.c"
     break;
 
   case 89: /* appel_de_fonction: ID liste_operandes  */
 #line 177 "src/bsos.y"
                      {}
-#line 1832 "bsos.tab.c"
+#line 1832 "src/bsos.tab.c"
     break;
 
   case 90: /* appel_de_fonction: ID  */
 #line 178 "src/bsos.y"
      {}
-#line 1838 "bsos.tab.c"
+#line 1838 "src/bsos.tab.c"
     break;
 
 
-#line 1842 "bsos.tab.c"
+#line 1842 "src/bsos.tab.c"
 
       default: break;
     }
@@ -2032,3 +2032,9 @@ yyreturnlab:
 }
 
 #line 181 "src/bsos.y"
+
+
+void yyerror(const char *msg)
+{
+    fprintf(stderr, "Erreur syntaxique : %s\n", msg);
+}

@@ -1,6 +1,6 @@
 %{
-#include stdio.h
-#include stdlib.h
+#include <stdio.h>
+#include <stdlib.h>
 
 extern int yylex();
 extern void yyerror(const char *msg);
@@ -179,3 +179,8 @@ appel_de_fonction
 ;
 
 %%
+
+void yyerror(const char *msg)
+{
+    fprintf(stderr, "Erreur syntaxique : %s\n", msg);
+}

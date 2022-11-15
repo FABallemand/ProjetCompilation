@@ -1,6 +1,7 @@
 %{
-#include "bsos.tab.h"
-#include <stdio.h>
+    #include "bsos.tab.h"
+    #include "token.h"
+    #include <stdio.h>
 %}
 
 %option nounput
@@ -8,15 +9,15 @@
 
 %%
 
+\+ return PLUS;
 \- return yytext[0];
 \* return yytext[0];
 \/ return yytext[0];
 % return yytext[0];
-= return yytext[0];
-!= return yytext;
+= return EQUAL;
+!= return NOT_EQUAL;
 
-! return yytext[0];
-& return yytext[0];
+! return NOT;
 "|" return yytext[0];
 
 \( return yytext[0];
@@ -51,7 +52,7 @@ do return DO;
 done return DONE;
 
 read return READ;
-echo return ECHO;
+echo return ECHO_;
 
 return return RETURN;
 
@@ -59,15 +60,13 @@ exit return EXIT;
 
 [[:digit:]][[:digit:]]* return ENTIER;
 
-'(.|"\\n"|"\\t")' return CHAR_VALUE;
-
 [\"\']([^\"\'\\]|\\.)*[\"\'] return CHAINE;
 
 [[:alpha:]_][[:alnum:]_-]* return ID;
 
 [[:space:]] ;
 
-# .* '\n' return COMMENT;
+#[[:alnum:][:blank:]]*\n return COMMENT;
 
 . ;
 
