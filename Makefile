@@ -15,6 +15,7 @@ BISONFILE = bsos
 CFILE = csos
 
 $(BINDIR)/$(TARGET): $(OBJDIR)/$(CFILE).o $(OBJDIR)/$(BISONFILE).tab.o $(OBJDIR)/$(FLEXFILE).yy.o
+	mkdir -p $(BINDIR) $(SRCDIR) $(INCDIR) $(OBJDIR)
 	$(CC) $(CFLAGS) $(OBJDIR)/$(CFILE).o $(OBJDIR)/$(BISONFILE).tab.o $(OBJDIR)/$(FLEXFILE).yy.o -o $(BINDIR)/$(TARGET)
 
 $(OBJDIR)/$(CFILE).o:
