@@ -1,6 +1,5 @@
 %{
     #include "bsos.tab.h"
-    #include "token.h"
     #include <stdio.h>
 %}
 
@@ -9,24 +8,37 @@
 
 %%
 
+"-n" return T_NOT_EMPTY;
+"-z" return T_EMPTY;
+"-eq" return T_EQUAL;
+"-ne" return T_NOT_EQUAL;
+"-gt" return T_GT;
+"-ge" return T_GE;
+"-lt" return T_LT;
+"-le" return T_LE;
+"-a" return C_AND;
+"-o" return C_OR;
+
+
 \+ return PLUS;
-\- return yytext[0];
-\* return yytext[0];
-\/ return yytext[0];
-% return yytext[0];
+\- return MOINS;
+\* return STAR;
+\/ return DIVISION;
+% return MOD;
 = return EQUAL;
 != return NOT_EQUAL;
 
 ! return NOT;
-"|" return yytext[0];
+"|" return CASE_OR;
+"$" return DOLLAR;
+\? return STATUS;
 
-\( return yytext[0];
-\) return yytext[0];
-\{ return yytext[0];
-\} return yytext[0];
-\[ return yytext[0];
-\] return yytext[0];
-\" return yytext[0];
+\( return OPAR;
+\) return CPAR;
+\{ return OBRA;
+\} return CBRA;
+\[ return OABRA;
+\] return CABRA;
 
 
 test return TEST;
@@ -58,7 +70,7 @@ return return RETURN;
 
 exit return EXIT;
 
-[[:digit:]][[:digit:]]* return ENTIER;
+[+-]?[[:digit:]][[:digit:]]* return ENTIER;
 
 [\"\']([^\"\'\\]|\\.)*[\"\'] return CHAINE;
 
@@ -66,7 +78,7 @@ exit return EXIT;
 
 [[:space:]] ;
 
-#[[:alnum:][:blank:]]*\n return COMMENT;
+#[[:alnum:][:blank:]]*\n ;
 
 . ;
 

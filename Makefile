@@ -21,8 +21,10 @@ $(OBJDIR)/$(CFILE).o:
 	$(CC) $(CFLAGS) -c -o $(OBJDIR)/$(CFILE).o $(SRCDIR)/$(CFILE).c
 
 $(SRCDIR)/$(BISONFILE).tab.c: $(SRCDIR)/$(BISONFILE).y
-	# bison -Wcounterexamples --report=all -d -t $<
-	bison -o $(SRCDIR)/$(BISONFILE).tab.c -Wcounterexamples --report=all --header=$(INCDIR)/$(BISONFILE).tab.h -t $<
+	bison --report=all -d -t $<
+	# bison -o $(SRCDIR)/$(BISONFILE).tab.c -Wcounterexamples --report=all --header=$(INCDIR)/$(BISONFILE).tab.h -t $<
+	mv $(BISONFILE).tab.c $(SRCDIR)
+	mv $(BISONFILE).tab.h $(INCDIR)
 
 $(OBJDIR)/$(BISONFILE).tab.o: $(SRCDIR)/$(BISONFILE).tab.c
 	$(CC) $(CFLAGS) -c -o $(OBJDIR)/$(BISONFILE).tab.o $(SRCDIR)/$(BISONFILE).tab.c -I $(INCDIR)

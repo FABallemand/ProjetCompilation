@@ -6,10 +6,9 @@ extern int yylex();
 extern void yyerror(const char *msg);
 %}
 
-%token TEST EXPR LOCAL DECLARE IF THEN ELIF ELSE FI FOR WHILE CASE ESAC IN DO DONE READ ECHO RETURN EXIT COMMENT ID MOT CHAINE ENTIER
-
-%left '+' '-'
-%left '*' '/'
+%token TEST EXPR LOCAL DECLARE IF THEN ELIF ELSE FI FOR WHILE UNTIL CASE ESAC IN DO DONE READ ECHO_ RETURN EXIT COMMENT ID MOT CHAINE ENTIER PLUS MOINS STAR DIVISION EQUAL NOT_EQUAL NOT MOD CASE_OR SEMI_CO OPAR CPAR OBRA CBRA OABRA CABRA DOLLAR STATUS T_NOT_EMPTY T_EMPTY T_EQUAL T_NOT_EQUAL T_GT T_GE T_LT T_LE C_AND C_OR
+%left PLUS MOINS
+%left STAR DIVISION
 %left UMOINS
 
 %start programme
@@ -21,54 +20,54 @@ programme
 ;
 
 liste_instructions
-: liste_instructions ';' instruction {}
+: liste_instructions SEMI_CO instruction {}
 | instruction {}
 ;
 
 instruction
-: ID '=' concatenation {}
-| ID '[' operande_entier ']' '=' concatenation {}
-| "declare" ID '[' ENTIER ']' {}
-| IF test_bloc "then" liste_instructions else_part "fi" {}
-| "for" ID "do" liste_instructions "done" {}
-| "for" ID "in" liste_operandes "do" liste_instructions "done" {}
-| "while" test_bloc "do" liste_instructions "done" {}
-| "until" test_bloc "do" liste_instructions "done" {}
-| "case" operande "in" liste_cas "esac" {}
-| "echo" liste_operandes {}
-| "read" ID {}
-| "read" ID '[' operande_entier ']' {}
+: ID EQUAL concatenation {}
+| ID OABRA operande_entier CABRA EQUAL concatenation {}
+| DECLARE ID OABRA ENTIER CABRA {}
+| IF test_bloc THEN liste_instructions else_part FI {}
+| FOR ID DO liste_instructions DONE {}
+| FOR ID IN liste_operandes DO liste_instructions DONE {}
+| WHILE test_bloc DO liste_instructions DONE {}
+| UNTIL test_bloc DO liste_instructions DONE {}
+| CASE operande IN liste_cas ESAC {}
+| ECHO_ liste_operandes {}
+| READ ID {}
+| READ ID OABRA operande_entier CABRA {}
 | declaration_de_fonction {}
 | appel_de_fonction {}
-| "return" {}
-| "return" operande_entier {}
-| "exit" {}
-| "exit" operande_entier {}
+| RETURN {}
+| RETURN operande_entier {}
+| EXIT {}
+| EXIT operande_entier {}
 ;
 
 else_part
-: "elif" test_bloc "then" liste_instructions else_part {}
-| "else" liste_instructions {}
+: ELIF test_bloc THEN liste_instructions else_part {}
+| ELSE liste_instructions {}
 | %empty {}
 ;
 
 liste_cas
-: liste_cas filtre ')' liste_instructions ';'';' {}
-| filtre ')' liste_instructions ';'';' {}
+: liste_cas filtre CPAR liste_instructions SEMI_CO SEMI_CO {}
+| filtre CPAR liste_instructions SEMI_CO SEMI_CO {}
 ;
 
 filtre
 : MOT {}
 | CHAINE {}
-| filtre '|' MOT {}
-| filtre '|' CHAINE {}
-| '*'
+| filtre CASE_OR MOT {}
+| filtre CASE_OR CHAINE {}
+| STAR 
 ;
 
 liste_operandes
 : liste_operandes operande {}
 | operande {}
-| '$''{' ID '[''*'']''}' {}
+| DOLLAR OBRA ID OABRA STAR CABRA CBRA {}
 ;
 
 concatenation
@@ -77,57 +76,57 @@ concatenation
 ;
 
 test_bloc
-: "test" test_expr {}
+: TEST test_expr {}
 ;
 
 test_expr
-: test_expr "-o" test_expr2 {}
+: test_expr C_OR test_expr2 {}
 | test_expr2 {}
 ;
 
 test_expr2
-: test_expr2 "-a" test_expr3 {}
+: test_expr2 C_AND test_expr3 {}
 | test_expr3 {}
 ;
 
 test_expr3
-: '(' test_expr ')' {}
-| '!' '(' test_expr ')' {}
+: OPAR test_expr CPAR {}
+| NOT OPAR test_expr CPAR {}
 | test_instruction {}
-| '!' test_instruction {}
+| NOT test_instruction {}
 ;
 
 test_instruction
-: concatenation '=' concatenation {}
-| concatenation "!=" concatenation {}
+: concatenation EQUAL concatenation {}
+| concatenation NOT_EQUAL concatenation {}
 | operateur1 concatenation {}
 | operande operateur2 operande {}
 ;
 
 operande
-: '$' '{' ID '}' {}
-| '$' '{' ID '[' operande_entier ']''}' {}
+: DOLLAR OBRA ID CBRA {}
+| DOLLAR OBRA ID OABRA operande_entier CABRA CBRA {}
 | MOT {}
-| '$' ENTIER {}
-| '$''*' {}
-| '$''?' {}
+| DOLLAR ENTIER {}
+| DOLLAR STAR  {}
+| DOLLAR STATUS {}
 | CHAINE {}
-| '$''(' "expr" somme_entiere ')' {}
-| '$''(' appel_de_fonction ')' {}
+| DOLLAR OPAR EXPR somme_entiere CPAR {}
+| DOLLAR OPAR appel_de_fonction CPAR {}
 ;
 
 operateur1
-: "-n" {}
-| "-z" {}
+: T_NOT_EMPTY {}
+| T_EMPTY {}
 ;
 
 operateur2
-: "-eq" {}
-| "-ne" {}
-| "-gt" {}
-| "-ge" {}
-| "-lt" {}
-| "-le" {}
+: T_EQUAL {}
+| T_NOT_EQUAL {}
+| T_GT {}
+| T_GE {}
+| T_LT {}
+| T_LE {}
 ;
 
 somme_entiere
@@ -141,35 +140,35 @@ produit_entier
 ;
 
 operande_entier
-: '$''{' ID '}' {}
-| '$''{' ID '[' operande_entier ']''}' {}
-| '$' ENTIER {}
-| plus_ou_moins '$''{' ID '}' {}
-| plus_ou_moins '$''{' ID '[' operande_entier ']''}' {}
-| plus_ou_moins '$' ENTIER {}
+: DOLLAR OBRA ID CBRA {}
+| DOLLAR OBRA ID OABRA operande_entier CABRA CBRA {}
+| DOLLAR ENTIER {}
+| plus_ou_moins DOLLAR OBRA ID CBRA {}
+| plus_ou_moins DOLLAR OBRA ID OABRA operande_entier CABRA CBRA {}
+| plus_ou_moins DOLLAR ENTIER {}
 | ENTIER {}
 | plus_ou_moins ENTIER {}
-| '(' somme_entiere ')' {}
+| OPAR somme_entiere CPAR {}
 ;
 
 plus_ou_moins
-: '+' {}
-| '-' {}
+: PLUS {}
+| MOINS {}
 ;
 
 fois_div_mod
-: '*' {}
-| '/' {}
-| '%' {}
+: STAR  {}
+| DIVISION {}
+| MOD {}
 ;
 
 declaration_de_fonction
-: ID '('')' '{' decl_loc liste_instructions '}' {}
+: ID OPAR CPAR OBRA decl_loc liste_instructions CBRA {}
 ;
 
 
 decl_loc
-: decl_loc "local" ID '=' concatenation ';' {}
+: decl_loc LOCAL ID EQUAL concatenation SEMI_CO {}
 | %empty {}
 ;
 
