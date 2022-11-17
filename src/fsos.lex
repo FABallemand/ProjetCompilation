@@ -21,7 +21,7 @@
 
 
 \+ return PLUS;
-\- return MOINS;
+\- return MINUS;
 \* return STAR;
 \/ return DIVISION;
 % return MOD;
