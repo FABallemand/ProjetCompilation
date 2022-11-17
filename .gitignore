@@ -1,4 +1,5 @@
 SimulateurMIPS/
+bin/
 obj/
 include/bsos.tab.h
 src/bsos.output
