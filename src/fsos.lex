@@ -70,7 +70,7 @@ return return RETURN;
 
 exit return EXIT;
 
-[+-]?[[:digit:]][[:digit:]]* return ENTIER;
+[+-]?[[:digit:]]+ return ENTIER;
 
 [\"\']([^\"\'\\]|\\.)*[\"\'] return CHAINE;
 
@@ -78,7 +78,7 @@ exit return EXIT;
 
 [[:space:]] ;
 
-#[[:alnum:][:blank:]]*\n ;
+#.*\n ;
 
 . ;
 
