@@ -9,6 +9,7 @@ extern FILE *yyin;
 extern FILE *yyout;
 extern char *yytext;
 extern int yylex();
+extern int yylineno;
 
 int main(int argc, char **argv)
 {
@@ -41,7 +42,10 @@ int main(int argc, char **argv)
     }
 
     // yydebug = 1;
+    yylineno = 1;
     int r = yyparse();
+    printf("yytext :%s\n",yytext);
+    printf("yylineno : %d\n",yylineno);
     printf("-> %d\n", r);
     return 0;
 }
