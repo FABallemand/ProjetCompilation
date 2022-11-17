@@ -19,6 +19,14 @@ jobs:
         - name: Compile
           run: make
 
+  compilation:
+      needs: activate
+      runs-on: ubuntu-latest
+      
+      steps:
+        - name: Test
+          run: make test
+
   report:
       needs: activate
       runs-on: ubuntu-latest

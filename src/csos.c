@@ -47,7 +47,7 @@ int main(int argc, char **argv)
     printf("yytext :%s\n",yytext);
     printf("yylineno : %d\n",yylineno);
     printf("-> %d\n", r);
-    return 0;
+    return r;
 }
 
 // int main(int argc, char **argv)
