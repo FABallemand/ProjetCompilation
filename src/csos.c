@@ -43,7 +43,7 @@ int main(int argc, char **argv)
     // yydebug = 1;
     int r = yyparse();
     printf("-> %d\n", r);
-    return 0;
+    return r;
 }
 
 // int main(int argc, char **argv)
