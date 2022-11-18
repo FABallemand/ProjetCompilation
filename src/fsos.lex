@@ -68,21 +68,19 @@ done return DONE;
 read return READ;
 echo return ECHO_;
 
-return return RETURN;
+return {printf("return !\n");return RETURN;}
 
 exit return EXIT;
 
-[+-]?((0)|([1-9][0-9]*)) {printf("entier\n");return ENTIER;}
-
 [\"\']([^\"\'\\]|\\.)*[\"\'] return CHAINE;
-
-[a-zA-Z0-9_][a-zA-Z0-9_-]* {printf("id\n");return ID;}
 
 [[:space:]] ;
 
 #[^\n]*\n ;
 
 \n ;
+
+[^[:space:]\n\\\(\)\{\}\[\]\=\!\,\;\:\$\|\*\%]+ return MOT;
 
 . printf("ah bon ?\n");
 

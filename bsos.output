@@ -1,9 +1,3 @@
-Terminaux inutilisés dans la grammaire
-
-    COMMENT
-    UMOINS
-
-
 Grammaire
 
     0 $accept: programme $end
@@ -13,18 +7,18 @@ Grammaire
     2 liste_instructions: liste_instructions SEMI_CO instruction
     3                   | instruction
 
-    4 instruction: ID EQUAL concatenation
-    5            | ID OABRA operande_entier CABRA EQUAL concatenation
-    6            | DECLARE ID OABRA ENTIER CABRA
+    4 instruction: MOT EQUAL concatenation
+    5            | MOT OABRA operande_entier CABRA EQUAL concatenation
+    6            | DECLARE MOT OABRA MOT CABRA
     7            | IF test_bloc THEN liste_instructions else_part FI
-    8            | FOR ID DO liste_instructions DONE
-    9            | FOR ID IN liste_operandes DO liste_instructions DONE
+    8            | FOR MOT DO liste_instructions DONE
+    9            | FOR MOT IN liste_operandes DO liste_instructions DONE
    10            | WHILE test_bloc DO liste_instructions DONE
    11            | UNTIL test_bloc DO liste_instructions DONE
    12            | CASE operande IN liste_cas ESAC
    13            | ECHO_ liste_operandes
-   14            | READ ID
-   15            | READ ID OABRA operande_entier CABRA
+   14            | READ MOT
+   15            | READ MOT OABRA operande_entier CABRA
    16            | declaration_de_fonction
    17            | appel_de_fonction
    18            | RETURN
@@ -34,7 +28,7 @@ Grammaire
 
    22 else_part: ELIF test_bloc THEN liste_instructions else_part
    23          | ELSE liste_instructions
-   24          | %empty
+   24          | ε
 
    25 liste_cas: liste_cas filtre CPAR liste_instructions SEMI_CO SEMI_CO
    26          | filtre CPAR liste_instructions SEMI_CO SEMI_CO
@@ -47,7 +41,7 @@ Grammaire
 
    32 liste_operandes: liste_operandes operande
    33                | operande
-   34                | DOLLAR OBRA ID OABRA STAR CABRA CBRA
+   34                | DOLLAR OBRA MOT OABRA STAR CABRA CBRA
 
    35 concatenation: concatenation operande
    36              | operande
@@ -70,10 +64,10 @@ Grammaire
    48                 | operateur1 concatenation
    49                 | operande operateur2 operande
 
-   50 operande: DOLLAR OBRA ID CBRA
-   51         | DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
+   50 operande: DOLLAR OBRA MOT CBRA
+   51         | DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
    52         | MOT
-   53         | DOLLAR ENTIER
+   53         | DOLLAR MOT
    54         | DOLLAR STAR
    55         | DOLLAR STATUS
    56         | CHAINE
@@ -96,14 +90,14 @@ Grammaire
    69 produit_entier: produit_entier fois_div_mod operande_entier
    70               | operande_entier
 
-   71 operande_entier: DOLLAR OBRA ID CBRA
-   72                | DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   73                | DOLLAR ENTIER
-   74                | plus_ou_moins DOLLAR OBRA ID CBRA
-   75                | plus_ou_moins DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   76                | plus_ou_moins DOLLAR ENTIER
-   77                | ENTIER
-   78                | plus_ou_moins ENTIER
+   71 operande_entier: DOLLAR OBRA MOT CBRA
+   72                | DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   73                | DOLLAR MOT
+   74                | plus_ou_moins DOLLAR OBRA MOT CBRA
+   75                | plus_ou_moins DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   76                | plus_ou_moins DOLLAR MOT
+   77                | MOT
+   78                | plus_ou_moins MOT
    79                | OPAR somme_entiere CPAR
 
    80 plus_ou_moins: PLUS
@@ -113,13 +107,13 @@ Grammaire
    83             | DIVISION
    84             | MOD
 
-   85 declaration_de_fonction: ID OPAR CPAR OBRA decl_loc liste_instructions CBRA
+   85 declaration_de_fonction: MOT OPAR CPAR OBRA decl_loc liste_instructions CBRA
 
-   86 decl_loc: decl_loc LOCAL ID EQUAL concatenation SEMI_CO
-   87         | %empty
+   86 decl_loc: decl_loc LOCAL MOT EQUAL concatenation SEMI_CO
+   87         | ε
 
-   88 appel_de_fonction: ID liste_operandes
-   89                  | ID
+   88 appel_de_fonction: MOT liste_operandes
+   89                  | MOT
 
 
 Terminaux, suivis des règles où ils apparaissent
@@ -147,147 +141,143 @@ Terminaux, suivis des règles où ils apparaissent
     ECHO_ (276) 13
     RETURN (277) 18 19
     EXIT (278) 20 21
-    COMMENT (279)
-    ID (280) 4 5 6 8 9 14 15 34 50 51 71 72 74 75 85 86 88 89
-    MOT (281) 27 29 52
-    CHAINE (282) 28 30 56
-    ENTIER (283) 6 53 73 76 77 78
-    PLUS (284) 80
-    MINUS (285) 81
-    STAR (286) 31 34 54 82
-    DIVISION (287) 83
-    EQUAL (288) 4 5 46 86
-    NOT_EQUAL (289) 47
-    NOT (290) 43 45
-    MOD (291) 84
-    CASE_OR (292) 29 30
-    SEMI_CO (293) 2 25 26 86
-    OPAR (294) 42 43 57 58 79 85
-    CPAR (295) 25 26 42 43 57 58 79 85
-    OBRA (296) 34 50 51 71 72 74 75 85
-    CBRA (297) 34 50 51 71 72 74 75 85
-    OABRA (298) 5 6 15 34 51 72 75
-    CABRA (299) 5 6 15 34 51 72 75
-    DOLLAR (300) 34 50 51 53 54 55 57 58 71 72 73 74 75 76
-    STATUS (301) 55
-    T_NOT_EMPTY (302) 59
-    T_EMPTY (303) 60
-    T_EQUAL (304) 61
-    T_NOT_EQUAL (305) 62
-    T_GT (306) 63
-    T_GE (307) 64
-    T_LT (308) 65
-    T_LE (309) 66
-    C_AND (310) 40
-    C_OR (311) 38
-    UMOINS (312)
+    MOT (279) 4 5 6 8 9 14 15 27 29 34 50 51 52 53 71 72 73 74 75 76 77 78 85 86 88 89
+    CHAINE (280) 28 30 56
+    PLUS (281) 80
+    MINUS (282) 81
+    STAR (283) 31 34 54 82
+    DIVISION (284) 83
+    EQUAL (285) 4 5 46 86
+    NOT_EQUAL (286) 47
+    NOT (287) 43 45
+    MOD (288) 84
+    CASE_OR (289) 29 30
+    SEMI_CO (290) 2 25 26 86
+    OPAR (291) 42 43 57 58 79 85
+    CPAR (292) 25 26 42 43 57 58 79 85
+    OBRA (293) 34 50 51 71 72 74 75 85
+    CBRA (294) 34 50 51 71 72 74 75 85
+    OABRA (295) 5 6 15 34 51 72 75
+    CABRA (296) 5 6 15 34 51 72 75
+    DOLLAR (297) 34 50 51 53 54 55 57 58 71 72 73 74 75 76
+    STATUS (298) 55
+    T_NOT_EMPTY (299) 59
+    T_EMPTY (300) 60
+    T_EQUAL (301) 61
+    T_NOT_EQUAL (302) 62
+    T_GT (303) 63
+    T_GE (304) 64
+    T_LT (305) 65
+    T_LE (306) 66
+    C_AND (307) 40
+    C_OR (308) 38
 
 
 Non-terminaux, suivis des règles où ils apparaissent
 
-    $accept (58)
+    $accept (54)
         à gauche: 0
-    programme (59)
+    programme (55)
         à gauche: 1
         à droite: 0
-    liste_instructions (60)
+    liste_instructions (56)
         à gauche: 2 3
         à droite: 1 2 7 8 9 10 11 22 23 25 26 85
-    instruction (61)
+    instruction (57)
         à gauche: 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21
         à droite: 2 3
-    else_part (62)
+    else_part (58)
         à gauche: 22 23 24
         à droite: 7 22
-    liste_cas (63)
+    liste_cas (59)
         à gauche: 25 26
         à droite: 12 25
-    filtre (64)
+    filtre (60)
         à gauche: 27 28 29 30 31
         à droite: 25 26 29 30
-    liste_operandes (65)
+    liste_operandes (61)
         à gauche: 32 33 34
         à droite: 9 13 32 88
-    concatenation (66)
+    concatenation (62)
         à gauche: 35 36
         à droite: 4 5 35 46 47 48 86
-    test_bloc (67)
+    test_bloc (63)
         à gauche: 37
         à droite: 7 10 11 22
-    test_expr (68)
+    test_expr (64)
         à gauche: 38 39
         à droite: 37 38 42 43
-    test_expr2 (69)
+    test_expr2 (65)
         à gauche: 40 41
         à droite: 38 39 40
-    test_expr3 (70)
+    test_expr3 (66)
         à gauche: 42 43 44 45
         à droite: 40 41
-    test_instruction (71)
+    test_instruction (67)
         à gauche: 46 47 48 49
         à droite: 44 45
-    operande (72)
+    operande (68)
         à gauche: 50 51 52 53 54 55 56 57 58
         à droite: 12 32 33 35 36 49
-    operateur1 (73)
+    operateur1 (69)
         à gauche: 59 60
         à droite: 48
-    operateur2 (74)
+    operateur2 (70)
         à gauche: 61 62 63 64 65 66
         à droite: 49
-    somme_entiere (75)
+    somme_entiere (71)
         à gauche: 67 68
         à droite: 57 67 79
-    produit_entier (76)
+    produit_entier (72)
         à gauche: 69 70
         à droite: 67 68 69
-    operande_entier (77)
+    operande_entier (73)
         à gauche: 71 72 73 74 75 76 77 78 79
         à droite: 5 15 19 21 51 69 70 72 75
-    plus_ou_moins (78)
+    plus_ou_moins (74)
         à gauche: 80 81
         à droite: 67 74 75 76 78
-    fois_div_mod (79)
+    fois_div_mod (75)
         à gauche: 82 83 84
         à droite: 69
-    declaration_de_fonction (80)
+    declaration_de_fonction (76)
         à gauche: 85
         à droite: 16
-    decl_loc (81)
+    decl_loc (77)
         à gauche: 86 87
         à droite: 85 86
-    appel_de_fonction (82)
+    appel_de_fonction (78)
         à gauche: 88 89
         à droite: 17 58
 
 
 État 0
 
-    0 $accept: . programme $end
-    1 programme: . liste_instructions
-    2 liste_instructions: . liste_instructions SEMI_CO instruction
-    3                   | . instruction
-    4 instruction: . ID EQUAL concatenation
-    5            | . ID OABRA operande_entier CABRA EQUAL concatenation
-    6            | . DECLARE ID OABRA ENTIER CABRA
-    7            | . IF test_bloc THEN liste_instructions else_part FI
-    8            | . FOR ID DO liste_instructions DONE
-    9            | . FOR ID IN liste_operandes DO liste_instructions DONE
-   10            | . WHILE test_bloc DO liste_instructions DONE
-   11            | . UNTIL test_bloc DO liste_instructions DONE
-   12            | . CASE operande IN liste_cas ESAC
-   13            | . ECHO_ liste_operandes
-   14            | . READ ID
-   15            | . READ ID OABRA operande_entier CABRA
-   16            | . declaration_de_fonction
-   17            | . appel_de_fonction
-   18            | . RETURN
-   19            | . RETURN operande_entier
-   20            | . EXIT
-   21            | . EXIT operande_entier
-   85 declaration_de_fonction: . ID OPAR CPAR OBRA decl_loc liste_instructions CBRA
-   88 appel_de_fonction: . ID liste_operandes
-   89                  | . ID
+    0 $accept: • programme $end
+    1 programme: • liste_instructions
+    2 liste_instructions: • liste_instructions SEMI_CO instruction
+    3                   | • instruction
+    4 instruction: • MOT EQUAL concatenation
+    5            | • MOT OABRA operande_entier CABRA EQUAL concatenation
+    6            | • DECLARE MOT OABRA MOT CABRA
+    7            | • IF test_bloc THEN liste_instructions else_part FI
+    8            | • FOR MOT DO liste_instructions DONE
+    9            | • FOR MOT IN liste_operandes DO liste_instructions DONE
+   10            | • WHILE test_bloc DO liste_instructions DONE
+   11            | • UNTIL test_bloc DO liste_instructions DONE
+   12            | • CASE operande IN liste_cas ESAC
+   13            | • ECHO_ liste_operandes
+   14            | • READ MOT
+   15            | • READ MOT OABRA operande_entier CABRA
+   16            | • declaration_de_fonction
+   17            | • appel_de_fonction
+   18            | • RETURN
+   19            | • RETURN operande_entier
+   20            | • EXIT
+   21            | • EXIT operande_entier
+   85 declaration_de_fonction: • MOT OPAR CPAR OBRA decl_loc liste_instructions CBRA
+   88 appel_de_fonction: • MOT liste_operandes
+   89                  | • MOT
 
     DECLARE  décalage et aller à l'état 1
     IF       décalage et aller à l'état 2
@@ -299,7 +289,7 @@ Non-terminaux, suivis des règles où ils apparaissent
     ECHO_    décalage et aller à l'état 8
     RETURN   décalage et aller à l'état 9
     EXIT     décalage et aller à l'état 10
-    ID       décalage et aller à l'état 11
+    MOT      décalage et aller à l'état 11
 
     programme                aller à l'état 12
     liste_instructions       aller à l'état 13
@@ -310,15 +300,15 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 1
 
-    6 instruction: DECLARE . ID OABRA ENTIER CABRA
+    6 instruction: DECLARE • MOT OABRA MOT CABRA
 
-    ID  décalage et aller à l'état 17
+    MOT  décalage et aller à l'état 17
 
 
 État 2
 
-    7 instruction: IF . test_bloc THEN liste_instructions else_part FI
-   37 test_bloc: . TEST test_expr
+    7 instruction: IF • test_bloc THEN liste_instructions else_part FI
+   37 test_bloc: • TEST test_expr
 
     TEST  décalage et aller à l'état 18
 
@@ -327,16 +317,16 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 3
 
-    8 instruction: FOR . ID DO liste_instructions DONE
-    9            | FOR . ID IN liste_operandes DO liste_instructions DONE
+    8 instruction: FOR • MOT DO liste_instructions DONE
+    9            | FOR • MOT IN liste_operandes DO liste_instructions DONE
 
-    ID  décalage et aller à l'état 20
+    MOT  décalage et aller à l'état 20
 
 
 État 4
 
-   10 instruction: WHILE . test_bloc DO liste_instructions DONE
-   37 test_bloc: . TEST test_expr
+   10 instruction: WHILE • test_bloc DO liste_instructions DONE
+   37 test_bloc: • TEST test_expr
 
     TEST  décalage et aller à l'état 18
 
@@ -345,8 +335,8 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 5
 
-   11 instruction: UNTIL . test_bloc DO liste_instructions DONE
-   37 test_bloc: . TEST test_expr
+   11 instruction: UNTIL • test_bloc DO liste_instructions DONE
+   37 test_bloc: • TEST test_expr
 
     TEST  décalage et aller à l'état 18
 
@@ -355,16 +345,16 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 6
 
-   12 instruction: CASE . operande IN liste_cas ESAC
-   50 operande: . DOLLAR OBRA ID CBRA
-   51         | . DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   52         | . MOT
-   53         | . DOLLAR ENTIER
-   54         | . DOLLAR STAR
-   55         | . DOLLAR STATUS
-   56         | . CHAINE
-   57         | . DOLLAR OPAR EXPR somme_entiere CPAR
-   58         | . DOLLAR OPAR appel_de_fonction CPAR
+   12 instruction: CASE • operande IN liste_cas ESAC
+   50 operande: • DOLLAR OBRA MOT CBRA
+   51         | • DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   52         | • MOT
+   53         | • DOLLAR MOT
+   54         | • DOLLAR STAR
+   55         | • DOLLAR STATUS
+   56         | • CHAINE
+   57         | • DOLLAR OPAR EXPR somme_entiere CPAR
+   58         | • DOLLAR OPAR appel_de_fonction CPAR
 
     MOT     décalage et aller à l'état 23
     CHAINE  décalage et aller à l'état 24
@@ -375,27 +365,27 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 7
 
-   14 instruction: READ . ID
-   15            | READ . ID OABRA operande_entier CABRA
+   14 instruction: READ • MOT
+   15            | READ • MOT OABRA operande_entier CABRA
 
-    ID  décalage et aller à l'état 27
+    MOT  décalage et aller à l'état 27
 
 
 État 8
 
-   13 instruction: ECHO_ . liste_operandes
-   32 liste_operandes: . liste_operandes operande
-   33                | . operande
-   34                | . DOLLAR OBRA ID OABRA STAR CABRA CBRA
-   50 operande: . DOLLAR OBRA ID CBRA
-   51         | . DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   52         | . MOT
-   53         | . DOLLAR ENTIER
-   54         | . DOLLAR STAR
-   55         | . DOLLAR STATUS
-   56         | . CHAINE
-   57         | . DOLLAR OPAR EXPR somme_entiere CPAR
-   58         | . DOLLAR OPAR appel_de_fonction CPAR
+   13 instruction: ECHO_ • liste_operandes
+   32 liste_operandes: • liste_operandes operande
+   33                | • operande
+   34                | • DOLLAR OBRA MOT OABRA STAR CABRA CBRA
+   50 operande: • DOLLAR OBRA MOT CBRA
+   51         | • DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   52         | • MOT
+   53         | • DOLLAR MOT
+   54         | • DOLLAR STAR
+   55         | • DOLLAR STATUS
+   56         | • CHAINE
+   57         | • DOLLAR OPAR EXPR somme_entiere CPAR
+   58         | • DOLLAR OPAR appel_de_fonction CPAR
 
     MOT     décalage et aller à l'état 23
     CHAINE  décalage et aller à l'état 24
@@ -407,21 +397,21 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 9
 
-   18 instruction: RETURN .  [$end, ELIF, ELSE, FI, DONE, SEMI_CO, CBRA]
-   19            | RETURN . operande_entier
-   71 operande_entier: . DOLLAR OBRA ID CBRA
-   72                | . DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   73                | . DOLLAR ENTIER
-   74                | . plus_ou_moins DOLLAR OBRA ID CBRA
-   75                | . plus_ou_moins DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   76                | . plus_ou_moins DOLLAR ENTIER
-   77                | . ENTIER
-   78                | . plus_ou_moins ENTIER
-   79                | . OPAR somme_entiere CPAR
-   80 plus_ou_moins: . PLUS
-   81              | . MINUS
+   18 instruction: RETURN •  [$end, ELIF, ELSE, FI, DONE, SEMI_CO, CBRA]
+   19            | RETURN • operande_entier
+   71 operande_entier: • DOLLAR OBRA MOT CBRA
+   72                | • DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   73                | • DOLLAR MOT
+   74                | • plus_ou_moins DOLLAR OBRA MOT CBRA
+   75                | • plus_ou_moins DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   76                | • plus_ou_moins DOLLAR MOT
+   77                | • MOT
+   78                | • plus_ou_moins MOT
+   79                | • OPAR somme_entiere CPAR
+   80 plus_ou_moins: • PLUS
+   81              | • MINUS
 
-    ENTIER  décalage et aller à l'état 31
+    MOT     décalage et aller à l'état 31
     PLUS    décalage et aller à l'état 32
     MINUS   décalage et aller à l'état 33
     OPAR    décalage et aller à l'état 34
@@ -435,21 +425,21 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 10
 
-   20 instruction: EXIT .  [$end, ELIF, ELSE, FI, DONE, SEMI_CO, CBRA]
-   21            | EXIT . operande_entier
-   71 operande_entier: . DOLLAR OBRA ID CBRA
-   72                | . DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   73                | . DOLLAR ENTIER
-   74                | . plus_ou_moins DOLLAR OBRA ID CBRA
-   75                | . plus_ou_moins DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   76                | . plus_ou_moins DOLLAR ENTIER
-   77                | . ENTIER
-   78                | . plus_ou_moins ENTIER
-   79                | . OPAR somme_entiere CPAR
-   80 plus_ou_moins: . PLUS
-   81              | . MINUS
+   20 instruction: EXIT •  [$end, ELIF, ELSE, FI, DONE, SEMI_CO, CBRA]
+   21            | EXIT • operande_entier
+   71 operande_entier: • DOLLAR OBRA MOT CBRA
+   72                | • DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   73                | • DOLLAR MOT
+   74                | • plus_ou_moins DOLLAR OBRA MOT CBRA
+   75                | • plus_ou_moins DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   76                | • plus_ou_moins DOLLAR MOT
+   77                | • MOT
+   78                | • plus_ou_moins MOT
+   79                | • OPAR somme_entiere CPAR
+   80 plus_ou_moins: • PLUS
+   81              | • MINUS
 
-    ENTIER  décalage et aller à l'état 31
+    MOT     décalage et aller à l'état 31
     PLUS    décalage et aller à l'état 32
     MINUS   décalage et aller à l'état 33
     OPAR    décalage et aller à l'état 34
@@ -463,23 +453,23 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 11
 
-    4 instruction: ID . EQUAL concatenation
-    5            | ID . OABRA operande_entier CABRA EQUAL concatenation
-   32 liste_operandes: . liste_operandes operande
-   33                | . operande
-   34                | . DOLLAR OBRA ID OABRA STAR CABRA CBRA
-   50 operande: . DOLLAR OBRA ID CBRA
-   51         | . DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   52         | . MOT
-   53         | . DOLLAR ENTIER
-   54         | . DOLLAR STAR
-   55         | . DOLLAR STATUS
-   56         | . CHAINE
-   57         | . DOLLAR OPAR EXPR somme_entiere CPAR
-   58         | . DOLLAR OPAR appel_de_fonction CPAR
-   85 declaration_de_fonction: ID . OPAR CPAR OBRA decl_loc liste_instructions CBRA
-   88 appel_de_fonction: ID . liste_operandes
-   89                  | ID .  [$end, ELIF, ELSE, FI, DONE, SEMI_CO, CBRA]
+    4 instruction: MOT • EQUAL concatenation
+    5            | MOT • OABRA operande_entier CABRA EQUAL concatenation
+   32 liste_operandes: • liste_operandes operande
+   33                | • operande
+   34                | • DOLLAR OBRA MOT OABRA STAR CABRA CBRA
+   50 operande: • DOLLAR OBRA MOT CBRA
+   51         | • DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   52         | • MOT
+   53         | • DOLLAR MOT
+   54         | • DOLLAR STAR
+   55         | • DOLLAR STATUS
+   56         | • CHAINE
+   57         | • DOLLAR OPAR EXPR somme_entiere CPAR
+   58         | • DOLLAR OPAR appel_de_fonction CPAR
+   85 declaration_de_fonction: MOT • OPAR CPAR OBRA decl_loc liste_instructions CBRA
+   88 appel_de_fonction: MOT • liste_operandes
+   89                  | MOT •  [$end, ELIF, ELSE, FI, DONE, SEMI_CO, CBRA]
 
     MOT     décalage et aller à l'état 23
     CHAINE  décalage et aller à l'état 24
@@ -496,15 +486,15 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 12
 
-    0 $accept: programme . $end
+    0 $accept: programme • $end
 
     $end  décalage et aller à l'état 43
 
 
 État 13
 
-    1 programme: liste_instructions .  [$end]
-    2 liste_instructions: liste_instructions . SEMI_CO instruction
+    1 programme: liste_instructions •  [$end]
+    2 liste_instructions: liste_instructions • SEMI_CO instruction
 
     SEMI_CO  décalage et aller à l'état 44
 
@@ -513,60 +503,60 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 14
 
-    3 liste_instructions: instruction .
+    3 liste_instructions: instruction •
 
     $défaut  réduction par utilisation de la règle 3 (liste_instructions)
 
 
 État 15
 
-   16 instruction: declaration_de_fonction .
+   16 instruction: declaration_de_fonction •
 
     $défaut  réduction par utilisation de la règle 16 (instruction)
 
 
 État 16
 
-   17 instruction: appel_de_fonction .
+   17 instruction: appel_de_fonction •
 
     $défaut  réduction par utilisation de la règle 17 (instruction)
 
 
 État 17
 
-    6 instruction: DECLARE ID . OABRA ENTIER CABRA
+    6 instruction: DECLARE MOT • OABRA MOT CABRA
 
     OABRA  décalage et aller à l'état 45
 
 
 État 18
 
-   35 concatenation: . concatenation operande
-   36              | . operande
-   37 test_bloc: TEST . test_expr
-   38 test_expr: . test_expr C_OR test_expr2
-   39          | . test_expr2
-   40 test_expr2: . test_expr2 C_AND test_expr3
-   41           | . test_expr3
-   42 test_expr3: . OPAR test_expr CPAR
-   43           | . NOT OPAR test_expr CPAR
-   44           | . test_instruction
-   45           | . NOT test_instruction
-   46 test_instruction: . concatenation EQUAL concatenation
-   47                 | . concatenation NOT_EQUAL concatenation
-   48                 | . operateur1 concatenation
-   49                 | . operande operateur2 operande
-   50 operande: . DOLLAR OBRA ID CBRA
-   51         | . DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   52         | . MOT
-   53         | . DOLLAR ENTIER
-   54         | . DOLLAR STAR
-   55         | . DOLLAR STATUS
-   56         | . CHAINE
-   57         | . DOLLAR OPAR EXPR somme_entiere CPAR
-   58         | . DOLLAR OPAR appel_de_fonction CPAR
-   59 operateur1: . T_NOT_EMPTY
-   60           | . T_EMPTY
+   35 concatenation: • concatenation operande
+   36              | • operande
+   37 test_bloc: TEST • test_expr
+   38 test_expr: • test_expr C_OR test_expr2
+   39          | • test_expr2
+   40 test_expr2: • test_expr2 C_AND test_expr3
+   41           | • test_expr3
+   42 test_expr3: • OPAR test_expr CPAR
+   43           | • NOT OPAR test_expr CPAR
+   44           | • test_instruction
+   45           | • NOT test_instruction
+   46 test_instruction: • concatenation EQUAL concatenation
+   47                 | • concatenation NOT_EQUAL concatenation
+   48                 | • operateur1 concatenation
+   49                 | • operande operateur2 operande
+   50 operande: • DOLLAR OBRA MOT CBRA
+   51         | • DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   52         | • MOT
+   53         | • DOLLAR MOT
+   54         | • DOLLAR STAR
+   55         | • DOLLAR STATUS
+   56         | • CHAINE
+   57         | • DOLLAR OPAR EXPR somme_entiere CPAR
+   58         | • DOLLAR OPAR appel_de_fonction CPAR
+   59 operateur1: • T_NOT_EMPTY
+   60           | • T_EMPTY
 
     MOT          décalage et aller à l'état 23
     CHAINE       décalage et aller à l'état 24
@@ -587,15 +577,15 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 19
 
-    7 instruction: IF test_bloc . THEN liste_instructions else_part FI
+    7 instruction: IF test_bloc • THEN liste_instructions else_part FI
 
     THEN  décalage et aller à l'état 57
 
 
 État 20
 
-    8 instruction: FOR ID . DO liste_instructions DONE
-    9            | FOR ID . IN liste_operandes DO liste_instructions DONE
+    8 instruction: FOR MOT • DO liste_instructions DONE
+    9            | FOR MOT • IN liste_operandes DO liste_instructions DONE
 
     IN  décalage et aller à l'état 58
     DO  décalage et aller à l'état 59
@@ -603,43 +593,43 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 21
 
-   10 instruction: WHILE test_bloc . DO liste_instructions DONE
+   10 instruction: WHILE test_bloc • DO liste_instructions DONE
 
     DO  décalage et aller à l'état 60
 
 
 État 22
 
-   11 instruction: UNTIL test_bloc . DO liste_instructions DONE
+   11 instruction: UNTIL test_bloc • DO liste_instructions DONE
 
     DO  décalage et aller à l'état 61
 
 
 État 23
 
-   52 operande: MOT .
+   52 operande: MOT •
 
     $défaut  réduction par utilisation de la règle 52 (operande)
 
 
 État 24
 
-   56 operande: CHAINE .
+   56 operande: CHAINE •
 
     $défaut  réduction par utilisation de la règle 56 (operande)
 
 
 État 25
 
-   50 operande: DOLLAR . OBRA ID CBRA
-   51         | DOLLAR . OBRA ID OABRA operande_entier CABRA CBRA
-   53         | DOLLAR . ENTIER
-   54         | DOLLAR . STAR
-   55         | DOLLAR . STATUS
-   57         | DOLLAR . OPAR EXPR somme_entiere CPAR
-   58         | DOLLAR . OPAR appel_de_fonction CPAR
+   50 operande: DOLLAR • OBRA MOT CBRA
+   51         | DOLLAR • OBRA MOT OABRA operande_entier CABRA CBRA
+   53         | DOLLAR • MOT
+   54         | DOLLAR • STAR
+   55         | DOLLAR • STATUS
+   57         | DOLLAR • OPAR EXPR somme_entiere CPAR
+   58         | DOLLAR • OPAR appel_de_fonction CPAR
 
-    ENTIER  décalage et aller à l'état 62
+    MOT     décalage et aller à l'état 62
     STAR    décalage et aller à l'état 63
     OPAR    décalage et aller à l'état 64
     OBRA    décalage et aller à l'état 65
@@ -648,15 +638,15 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 26
 
-   12 instruction: CASE operande . IN liste_cas ESAC
+   12 instruction: CASE operande • IN liste_cas ESAC
 
     IN  décalage et aller à l'état 67
 
 
 État 27
 
-   14 instruction: READ ID .  [$end, ELIF, ELSE, FI, DONE, SEMI_CO, CBRA]
-   15            | READ ID . OABRA operande_entier CABRA
+   14 instruction: READ MOT •  [$end, ELIF, ELSE, FI, DONE, SEMI_CO, CBRA]
+   15            | READ MOT • OABRA operande_entier CABRA
 
     OABRA  décalage et aller à l'état 68
 
@@ -665,16 +655,16 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 28
 
-   34 liste_operandes: DOLLAR . OBRA ID OABRA STAR CABRA CBRA
-   50 operande: DOLLAR . OBRA ID CBRA
-   51         | DOLLAR . OBRA ID OABRA operande_entier CABRA CBRA
-   53         | DOLLAR . ENTIER
-   54         | DOLLAR . STAR
-   55         | DOLLAR . STATUS
-   57         | DOLLAR . OPAR EXPR somme_entiere CPAR
-   58         | DOLLAR . OPAR appel_de_fonction CPAR
+   34 liste_operandes: DOLLAR • OBRA MOT OABRA STAR CABRA CBRA
+   50 operande: DOLLAR • OBRA MOT CBRA
+   51         | DOLLAR • OBRA MOT OABRA operande_entier CABRA CBRA
+   53         | DOLLAR • MOT
+   54         | DOLLAR • STAR
+   55         | DOLLAR • STATUS
+   57         | DOLLAR • OPAR EXPR somme_entiere CPAR
+   58         | DOLLAR • OPAR appel_de_fonction CPAR
 
-    ENTIER  décalage et aller à l'état 62
+    MOT     décalage et aller à l'état 62
     STAR    décalage et aller à l'état 63
     OPAR    décalage et aller à l'état 64
     OBRA    décalage et aller à l'état 69
@@ -683,17 +673,17 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 29
 
-   13 instruction: ECHO_ liste_operandes .  [$end, ELIF, ELSE, FI, DONE, SEMI_CO, CBRA]
-   32 liste_operandes: liste_operandes . operande
-   50 operande: . DOLLAR OBRA ID CBRA
-   51         | . DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   52         | . MOT
-   53         | . DOLLAR ENTIER
-   54         | . DOLLAR STAR
-   55         | . DOLLAR STATUS
-   56         | . CHAINE
-   57         | . DOLLAR OPAR EXPR somme_entiere CPAR
-   58         | . DOLLAR OPAR appel_de_fonction CPAR
+   13 instruction: ECHO_ liste_operandes •  [$end, ELIF, ELSE, FI, DONE, SEMI_CO, CBRA]
+   32 liste_operandes: liste_operandes • operande
+   50 operande: • DOLLAR OBRA MOT CBRA
+   51         | • DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   52         | • MOT
+   53         | • DOLLAR MOT
+   54         | • DOLLAR STAR
+   55         | • DOLLAR STATUS
+   56         | • CHAINE
+   57         | • DOLLAR OPAR EXPR somme_entiere CPAR
+   58         | • DOLLAR OPAR appel_de_fonction CPAR
 
     MOT     décalage et aller à l'état 23
     CHAINE  décalage et aller à l'état 24
@@ -706,52 +696,52 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 30
 
-   33 liste_operandes: operande .
+   33 liste_operandes: operande •
 
     $défaut  réduction par utilisation de la règle 33 (liste_operandes)
 
 
 État 31
 
-   77 operande_entier: ENTIER .
+   77 operande_entier: MOT •
 
     $défaut  réduction par utilisation de la règle 77 (operande_entier)
 
 
 État 32
 
-   80 plus_ou_moins: PLUS .
+   80 plus_ou_moins: PLUS •
 
     $défaut  réduction par utilisation de la règle 80 (plus_ou_moins)
 
 
 État 33
 
-   81 plus_ou_moins: MINUS .
+   81 plus_ou_moins: MINUS •
 
     $défaut  réduction par utilisation de la règle 81 (plus_ou_moins)
 
 
 État 34
 
-   67 somme_entiere: . somme_entiere plus_ou_moins produit_entier
-   68              | . produit_entier
-   69 produit_entier: . produit_entier fois_div_mod operande_entier
-   70               | . operande_entier
-   71 operande_entier: . DOLLAR OBRA ID CBRA
-   72                | . DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   73                | . DOLLAR ENTIER
-   74                | . plus_ou_moins DOLLAR OBRA ID CBRA
-   75                | . plus_ou_moins DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   76                | . plus_ou_moins DOLLAR ENTIER
-   77                | . ENTIER
-   78                | . plus_ou_moins ENTIER
-   79                | . OPAR somme_entiere CPAR
-   79                | OPAR . somme_entiere CPAR
-   80 plus_ou_moins: . PLUS
-   81              | . MINUS
+   67 somme_entiere: • somme_entiere plus_ou_moins produit_entier
+   68              | • produit_entier
+   69 produit_entier: • produit_entier fois_div_mod operande_entier
+   70               | • operande_entier
+   71 operande_entier: • DOLLAR OBRA MOT CBRA
+   72                | • DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   73                | • DOLLAR MOT
+   74                | • plus_ou_moins DOLLAR OBRA MOT CBRA
+   75                | • plus_ou_moins DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   76                | • plus_ou_moins DOLLAR MOT
+   77                | • MOT
+   78                | • plus_ou_moins MOT
+   79                | • OPAR somme_entiere CPAR
+   79                | OPAR • somme_entiere CPAR
+   80 plus_ou_moins: • PLUS
+   81              | • MINUS
 
-    ENTIER  décalage et aller à l'état 31
+    MOT     décalage et aller à l'état 31
     PLUS    décalage et aller à l'état 32
     MINUS   décalage et aller à l'état 33
     OPAR    décalage et aller à l'état 34
@@ -765,53 +755,53 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 35
 
-   71 operande_entier: DOLLAR . OBRA ID CBRA
-   72                | DOLLAR . OBRA ID OABRA operande_entier CABRA CBRA
-   73                | DOLLAR . ENTIER
+   71 operande_entier: DOLLAR • OBRA MOT CBRA
+   72                | DOLLAR • OBRA MOT OABRA operande_entier CABRA CBRA
+   73                | DOLLAR • MOT
 
-    ENTIER  décalage et aller à l'état 74
-    OBRA    décalage et aller à l'état 75
+    MOT   décalage et aller à l'état 74
+    OBRA  décalage et aller à l'état 75
 
 
 État 36
 
-   19 instruction: RETURN operande_entier .
+   19 instruction: RETURN operande_entier •
 
     $défaut  réduction par utilisation de la règle 19 (instruction)
 
 
 État 37
 
-   74 operande_entier: plus_ou_moins . DOLLAR OBRA ID CBRA
-   75                | plus_ou_moins . DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   76                | plus_ou_moins . DOLLAR ENTIER
-   78                | plus_ou_moins . ENTIER
+   74 operande_entier: plus_ou_moins • DOLLAR OBRA MOT CBRA
+   75                | plus_ou_moins • DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   76                | plus_ou_moins • DOLLAR MOT
+   78                | plus_ou_moins • MOT
 
-    ENTIER  décalage et aller à l'état 76
+    MOT     décalage et aller à l'état 76
     DOLLAR  décalage et aller à l'état 77
 
 
 État 38
 
-   21 instruction: EXIT operande_entier .
+   21 instruction: EXIT operande_entier •
 
     $défaut  réduction par utilisation de la règle 21 (instruction)
 
 
 État 39
 
-    4 instruction: ID EQUAL . concatenation
-   35 concatenation: . concatenation operande
-   36              | . operande
-   50 operande: . DOLLAR OBRA ID CBRA
-   51         | . DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   52         | . MOT
-   53         | . DOLLAR ENTIER
-   54         | . DOLLAR STAR
-   55         | . DOLLAR STATUS
-   56         | . CHAINE
-   57         | . DOLLAR OPAR EXPR somme_entiere CPAR
-   58         | . DOLLAR OPAR appel_de_fonction CPAR
+    4 instruction: MOT EQUAL • concatenation
+   35 concatenation: • concatenation operande
+   36              | • operande
+   50 operande: • DOLLAR OBRA MOT CBRA
+   51         | • DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   52         | • MOT
+   53         | • DOLLAR MOT
+   54         | • DOLLAR STAR
+   55         | • DOLLAR STATUS
+   56         | • CHAINE
+   57         | • DOLLAR OPAR EXPR somme_entiere CPAR
+   58         | • DOLLAR OPAR appel_de_fonction CPAR
 
     MOT     décalage et aller à l'état 23
     CHAINE  décalage et aller à l'état 24
@@ -823,27 +813,27 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 40
 
-   85 declaration_de_fonction: ID OPAR . CPAR OBRA decl_loc liste_instructions CBRA
+   85 declaration_de_fonction: MOT OPAR • CPAR OBRA decl_loc liste_instructions CBRA
 
     CPAR  décalage et aller à l'état 80
 
 
 État 41
 
-    5 instruction: ID OABRA . operande_entier CABRA EQUAL concatenation
-   71 operande_entier: . DOLLAR OBRA ID CBRA
-   72                | . DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   73                | . DOLLAR ENTIER
-   74                | . plus_ou_moins DOLLAR OBRA ID CBRA
-   75                | . plus_ou_moins DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   76                | . plus_ou_moins DOLLAR ENTIER
-   77                | . ENTIER
-   78                | . plus_ou_moins ENTIER
-   79                | . OPAR somme_entiere CPAR
-   80 plus_ou_moins: . PLUS
-   81              | . MINUS
+    5 instruction: MOT OABRA • operande_entier CABRA EQUAL concatenation
+   71 operande_entier: • DOLLAR OBRA MOT CBRA
+   72                | • DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   73                | • DOLLAR MOT
+   74                | • plus_ou_moins DOLLAR OBRA MOT CBRA
+   75                | • plus_ou_moins DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   76                | • plus_ou_moins DOLLAR MOT
+   77                | • MOT
+   78                | • plus_ou_moins MOT
+   79                | • OPAR somme_entiere CPAR
+   80 plus_ou_moins: • PLUS
+   81              | • MINUS
 
-    ENTIER  décalage et aller à l'état 31
+    MOT     décalage et aller à l'état 31
     PLUS    décalage et aller à l'état 32
     MINUS   décalage et aller à l'état 33
     OPAR    décalage et aller à l'état 34
@@ -855,17 +845,17 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 42
 
-   32 liste_operandes: liste_operandes . operande
-   50 operande: . DOLLAR OBRA ID CBRA
-   51         | . DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   52         | . MOT
-   53         | . DOLLAR ENTIER
-   54         | . DOLLAR STAR
-   55         | . DOLLAR STATUS
-   56         | . CHAINE
-   57         | . DOLLAR OPAR EXPR somme_entiere CPAR
-   58         | . DOLLAR OPAR appel_de_fonction CPAR
-   88 appel_de_fonction: ID liste_operandes .  [$end, ELIF, ELSE, FI, DONE, SEMI_CO, CPAR, CBRA]
+   32 liste_operandes: liste_operandes • operande
+   50 operande: • DOLLAR OBRA MOT CBRA
+   51         | • DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   52         | • MOT
+   53         | • DOLLAR MOT
+   54         | • DOLLAR STAR
+   55         | • DOLLAR STATUS
+   56         | • CHAINE
+   57         | • DOLLAR OPAR EXPR somme_entiere CPAR
+   58         | • DOLLAR OPAR appel_de_fonction CPAR
+   88 appel_de_fonction: MOT liste_operandes •  [$end, ELIF, ELSE, FI, DONE, SEMI_CO, CPAR, CBRA]
 
     MOT     décalage et aller à l'état 23
     CHAINE  décalage et aller à l'état 24
@@ -878,35 +868,35 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 43
 
-    0 $accept: programme $end .
+    0 $accept: programme $end •
 
     $défaut  accepter
 
 
 État 44
 
-    2 liste_instructions: liste_instructions SEMI_CO . instruction
-    4 instruction: . ID EQUAL concatenation
-    5            | . ID OABRA operande_entier CABRA EQUAL concatenation
-    6            | . DECLARE ID OABRA ENTIER CABRA
-    7            | . IF test_bloc THEN liste_instructions else_part FI
-    8            | . FOR ID DO liste_instructions DONE
-    9            | . FOR ID IN liste_operandes DO liste_instructions DONE
-   10            | . WHILE test_bloc DO liste_instructions DONE
-   11            | . UNTIL test_bloc DO liste_instructions DONE
-   12            | . CASE operande IN liste_cas ESAC
-   13            | . ECHO_ liste_operandes
-   14            | . READ ID
-   15            | . READ ID OABRA operande_entier CABRA
-   16            | . declaration_de_fonction
-   17            | . appel_de_fonction
-   18            | . RETURN
-   19            | . RETURN operande_entier
-   20            | . EXIT
-   21            | . EXIT operande_entier
-   85 declaration_de_fonction: . ID OPAR CPAR OBRA decl_loc liste_instructions CBRA
-   88 appel_de_fonction: . ID liste_operandes
-   89                  | . ID
+    2 liste_instructions: liste_instructions SEMI_CO • instruction
+    4 instruction: • MOT EQUAL concatenation
+    5            | • MOT OABRA operande_entier CABRA EQUAL concatenation
+    6            | • DECLARE MOT OABRA MOT CABRA
+    7            | • IF test_bloc THEN liste_instructions else_part FI
+    8            | • FOR MOT DO liste_instructions DONE
+    9            | • FOR MOT IN liste_operandes DO liste_instructions DONE
+   10            | • WHILE test_bloc DO liste_instructions DONE
+   11            | • UNTIL test_bloc DO liste_instructions DONE
+   12            | • CASE operande IN liste_cas ESAC
+   13            | • ECHO_ liste_operandes
+   14            | • READ MOT
+   15            | • READ MOT OABRA operande_entier CABRA
+   16            | • declaration_de_fonction
+   17            | • appel_de_fonction
+   18            | • RETURN
+   19            | • RETURN operande_entier
+   20            | • EXIT
+   21            | • EXIT operande_entier
+   85 declaration_de_fonction: • MOT OPAR CPAR OBRA decl_loc liste_instructions CBRA
+   88 appel_de_fonction: • MOT liste_operandes
+   89                  | • MOT
 
     DECLARE  décalage et aller à l'état 1
     IF       décalage et aller à l'état 2
@@ -918,7 +908,7 @@ Non-terminaux, suivis des règles où ils apparaissent
     ECHO_    décalage et aller à l'état 8
     RETURN   décalage et aller à l'état 9
     EXIT     décalage et aller à l'état 10
-    ID       décalage et aller à l'état 11
+    MOT      décalage et aller à l'état 11
 
     instruction              aller à l'état 82
     declaration_de_fonction  aller à l'état 15
@@ -927,32 +917,32 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 45
 
-    6 instruction: DECLARE ID OABRA . ENTIER CABRA
+    6 instruction: DECLARE MOT OABRA • MOT CABRA
 
-    ENTIER  décalage et aller à l'état 83
+    MOT  décalage et aller à l'état 83
 
 
 État 46
 
-   35 concatenation: . concatenation operande
-   36              | . operande
-   43 test_expr3: NOT . OPAR test_expr CPAR
-   45           | NOT . test_instruction
-   46 test_instruction: . concatenation EQUAL concatenation
-   47                 | . concatenation NOT_EQUAL concatenation
-   48                 | . operateur1 concatenation
-   49                 | . operande operateur2 operande
-   50 operande: . DOLLAR OBRA ID CBRA
-   51         | . DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   52         | . MOT
-   53         | . DOLLAR ENTIER
-   54         | . DOLLAR STAR
-   55         | . DOLLAR STATUS
-   56         | . CHAINE
-   57         | . DOLLAR OPAR EXPR somme_entiere CPAR
-   58         | . DOLLAR OPAR appel_de_fonction CPAR
-   59 operateur1: . T_NOT_EMPTY
-   60           | . T_EMPTY
+   35 concatenation: • concatenation operande
+   36              | • operande
+   43 test_expr3: NOT • OPAR test_expr CPAR
+   45           | NOT • test_instruction
+   46 test_instruction: • concatenation EQUAL concatenation
+   47                 | • concatenation NOT_EQUAL concatenation
+   48                 | • operateur1 concatenation
+   49                 | • operande operateur2 operande
+   50 operande: • DOLLAR OBRA MOT CBRA
+   51         | • DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   52         | • MOT
+   53         | • DOLLAR MOT
+   54         | • DOLLAR STAR
+   55         | • DOLLAR STATUS
+   56         | • CHAINE
+   57         | • DOLLAR OPAR EXPR somme_entiere CPAR
+   58         | • DOLLAR OPAR appel_de_fonction CPAR
+   59 operateur1: • T_NOT_EMPTY
+   60           | • T_EMPTY
 
     MOT          décalage et aller à l'état 23
     CHAINE       décalage et aller à l'état 24
@@ -969,32 +959,32 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 47
 
-   35 concatenation: . concatenation operande
-   36              | . operande
-   38 test_expr: . test_expr C_OR test_expr2
-   39          | . test_expr2
-   40 test_expr2: . test_expr2 C_AND test_expr3
-   41           | . test_expr3
-   42 test_expr3: . OPAR test_expr CPAR
-   42           | OPAR . test_expr CPAR
-   43           | . NOT OPAR test_expr CPAR
-   44           | . test_instruction
-   45           | . NOT test_instruction
-   46 test_instruction: . concatenation EQUAL concatenation
-   47                 | . concatenation NOT_EQUAL concatenation
-   48                 | . operateur1 concatenation
-   49                 | . operande operateur2 operande
-   50 operande: . DOLLAR OBRA ID CBRA
-   51         | . DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   52         | . MOT
-   53         | . DOLLAR ENTIER
-   54         | . DOLLAR STAR
-   55         | . DOLLAR STATUS
-   56         | . CHAINE
-   57         | . DOLLAR OPAR EXPR somme_entiere CPAR
-   58         | . DOLLAR OPAR appel_de_fonction CPAR
-   59 operateur1: . T_NOT_EMPTY
-   60           | . T_EMPTY
+   35 concatenation: • concatenation operande
+   36              | • operande
+   38 test_expr: • test_expr C_OR test_expr2
+   39          | • test_expr2
+   40 test_expr2: • test_expr2 C_AND test_expr3
+   41           | • test_expr3
+   42 test_expr3: • OPAR test_expr CPAR
+   42           | OPAR • test_expr CPAR
+   43           | • NOT OPAR test_expr CPAR
+   44           | • test_instruction
+   45           | • NOT test_instruction
+   46 test_instruction: • concatenation EQUAL concatenation
+   47                 | • concatenation NOT_EQUAL concatenation
+   48                 | • operateur1 concatenation
+   49                 | • operande operateur2 operande
+   50 operande: • DOLLAR OBRA MOT CBRA
+   51         | • DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   52         | • MOT
+   53         | • DOLLAR MOT
+   54         | • DOLLAR STAR
+   55         | • DOLLAR STATUS
+   56         | • CHAINE
+   57         | • DOLLAR OPAR EXPR somme_entiere CPAR
+   58         | • DOLLAR OPAR appel_de_fonction CPAR
+   59 operateur1: • T_NOT_EMPTY
+   60           | • T_EMPTY
 
     MOT          décalage et aller à l'état 23
     CHAINE       décalage et aller à l'état 24
@@ -1015,32 +1005,32 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 48
 
-   59 operateur1: T_NOT_EMPTY .
+   59 operateur1: T_NOT_EMPTY •
 
     $défaut  réduction par utilisation de la règle 59 (operateur1)
 
 
 État 49
 
-   60 operateur1: T_EMPTY .
+   60 operateur1: T_EMPTY •
 
     $défaut  réduction par utilisation de la règle 60 (operateur1)
 
 
 État 50
 
-   35 concatenation: concatenation . operande
-   46 test_instruction: concatenation . EQUAL concatenation
-   47                 | concatenation . NOT_EQUAL concatenation
-   50 operande: . DOLLAR OBRA ID CBRA
-   51         | . DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   52         | . MOT
-   53         | . DOLLAR ENTIER
-   54         | . DOLLAR STAR
-   55         | . DOLLAR STATUS
-   56         | . CHAINE
-   57         | . DOLLAR OPAR EXPR somme_entiere CPAR
-   58         | . DOLLAR OPAR appel_de_fonction CPAR
+   35 concatenation: concatenation • operande
+   46 test_instruction: concatenation • EQUAL concatenation
+   47                 | concatenation • NOT_EQUAL concatenation
+   50 operande: • DOLLAR OBRA MOT CBRA
+   51         | • DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   52         | • MOT
+   53         | • DOLLAR MOT
+   54         | • DOLLAR STAR
+   55         | • DOLLAR STATUS
+   56         | • CHAINE
+   57         | • DOLLAR OPAR EXPR somme_entiere CPAR
+   58         | • DOLLAR OPAR appel_de_fonction CPAR
 
     MOT        décalage et aller à l'état 23
     CHAINE     décalage et aller à l'état 24
@@ -1053,8 +1043,8 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 51
 
-   37 test_bloc: TEST test_expr .  [THEN, DO]
-   38 test_expr: test_expr . C_OR test_expr2
+   37 test_bloc: TEST test_expr •  [THEN, DO]
+   38 test_expr: test_expr • C_OR test_expr2
 
     C_OR  décalage et aller à l'état 90
 
@@ -1063,8 +1053,8 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 52
 
-   39 test_expr: test_expr2 .  [THEN, DO, CPAR, C_OR]
-   40 test_expr2: test_expr2 . C_AND test_expr3
+   39 test_expr: test_expr2 •  [THEN, DO, CPAR, C_OR]
+   40 test_expr2: test_expr2 • C_AND test_expr3
 
     C_AND  décalage et aller à l'état 91
 
@@ -1073,28 +1063,28 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 53
 
-   41 test_expr2: test_expr3 .
+   41 test_expr2: test_expr3 •
 
     $défaut  réduction par utilisation de la règle 41 (test_expr2)
 
 
 État 54
 
-   44 test_expr3: test_instruction .
+   44 test_expr3: test_instruction •
 
     $défaut  réduction par utilisation de la règle 44 (test_expr3)
 
 
 État 55
 
-   36 concatenation: operande .  [MOT, CHAINE, EQUAL, NOT_EQUAL, DOLLAR]
-   49 test_instruction: operande . operateur2 operande
-   61 operateur2: . T_EQUAL
-   62           | . T_NOT_EQUAL
-   63           | . T_GT
-   64           | . T_GE
-   65           | . T_LT
-   66           | . T_LE
+   36 concatenation: operande •  [MOT, CHAINE, EQUAL, NOT_EQUAL, DOLLAR]
+   49 test_instruction: operande • operateur2 operande
+   61 operateur2: • T_EQUAL
+   62           | • T_NOT_EQUAL
+   63           | • T_GT
+   64           | • T_GE
+   65           | • T_LT
+   66           | • T_LE
 
     T_EQUAL      décalage et aller à l'état 92
     T_NOT_EQUAL  décalage et aller à l'état 93
@@ -1110,18 +1100,18 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 56
 
-   35 concatenation: . concatenation operande
-   36              | . operande
-   48 test_instruction: operateur1 . concatenation
-   50 operande: . DOLLAR OBRA ID CBRA
-   51         | . DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   52         | . MOT
-   53         | . DOLLAR ENTIER
-   54         | . DOLLAR STAR
-   55         | . DOLLAR STATUS
-   56         | . CHAINE
-   57         | . DOLLAR OPAR EXPR somme_entiere CPAR
-   58         | . DOLLAR OPAR appel_de_fonction CPAR
+   35 concatenation: • concatenation operande
+   36              | • operande
+   48 test_instruction: operateur1 • concatenation
+   50 operande: • DOLLAR OBRA MOT CBRA
+   51         | • DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   52         | • MOT
+   53         | • DOLLAR MOT
+   54         | • DOLLAR STAR
+   55         | • DOLLAR STATUS
+   56         | • CHAINE
+   57         | • DOLLAR OPAR EXPR somme_entiere CPAR
+   58         | • DOLLAR OPAR appel_de_fonction CPAR
 
     MOT     décalage et aller à l'état 23
     CHAINE  décalage et aller à l'état 24
@@ -1133,30 +1123,30 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 57
 
-    2 liste_instructions: . liste_instructions SEMI_CO instruction
-    3                   | . instruction
-    4 instruction: . ID EQUAL concatenation
-    5            | . ID OABRA operande_entier CABRA EQUAL concatenation
-    6            | . DECLARE ID OABRA ENTIER CABRA
-    7            | . IF test_bloc THEN liste_instructions else_part FI
-    7            | IF test_bloc THEN . liste_instructions else_part FI
-    8            | . FOR ID DO liste_instructions DONE
-    9            | . FOR ID IN liste_operandes DO liste_instructions DONE
-   10            | . WHILE test_bloc DO liste_instructions DONE
-   11            | . UNTIL test_bloc DO liste_instructions DONE
-   12            | . CASE operande IN liste_cas ESAC
-   13            | . ECHO_ liste_operandes
-   14            | . READ ID
-   15            | . READ ID OABRA operande_entier CABRA
-   16            | . declaration_de_fonction
-   17            | . appel_de_fonction
-   18            | . RETURN
-   19            | . RETURN operande_entier
-   20            | . EXIT
-   21            | . EXIT operande_entier
-   85 declaration_de_fonction: . ID OPAR CPAR OBRA decl_loc liste_instructions CBRA
-   88 appel_de_fonction: . ID liste_operandes
-   89                  | . ID
+    2 liste_instructions: • liste_instructions SEMI_CO instruction
+    3                   | • instruction
+    4 instruction: • MOT EQUAL concatenation
+    5            | • MOT OABRA operande_entier CABRA EQUAL concatenation
+    6            | • DECLARE MOT OABRA MOT CABRA
+    7            | • IF test_bloc THEN liste_instructions else_part FI
+    7            | IF test_bloc THEN • liste_instructions else_part FI
+    8            | • FOR MOT DO liste_instructions DONE
+    9            | • FOR MOT IN liste_operandes DO liste_instructions DONE
+   10            | • WHILE test_bloc DO liste_instructions DONE
+   11            | • UNTIL test_bloc DO liste_instructions DONE
+   12            | • CASE operande IN liste_cas ESAC
+   13            | • ECHO_ liste_operandes
+   14            | • READ MOT
+   15            | • READ MOT OABRA operande_entier CABRA
+   16            | • declaration_de_fonction
+   17            | • appel_de_fonction
+   18            | • RETURN
+   19            | • RETURN operande_entier
+   20            | • EXIT
+   21            | • EXIT operande_entier
+   85 declaration_de_fonction: • MOT OPAR CPAR OBRA decl_loc liste_instructions CBRA
+   88 appel_de_fonction: • MOT liste_operandes
+   89                  | • MOT
 
     DECLARE  décalage et aller à l'état 1
     IF       décalage et aller à l'état 2
@@ -1168,7 +1158,7 @@ Non-terminaux, suivis des règles où ils apparaissent
     ECHO_    décalage et aller à l'état 8
     RETURN   décalage et aller à l'état 9
     EXIT     décalage et aller à l'état 10
-    ID       décalage et aller à l'état 11
+    MOT      décalage et aller à l'état 11
 
     liste_instructions       aller à l'état 100
     instruction              aller à l'état 14
@@ -1178,19 +1168,19 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 58
 
-    9 instruction: FOR ID IN . liste_operandes DO liste_instructions DONE
-   32 liste_operandes: . liste_operandes operande
-   33                | . operande
-   34                | . DOLLAR OBRA ID OABRA STAR CABRA CBRA
-   50 operande: . DOLLAR OBRA ID CBRA
-   51         | . DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   52         | . MOT
-   53         | . DOLLAR ENTIER
-   54         | . DOLLAR STAR
-   55         | . DOLLAR STATUS
-   56         | . CHAINE
-   57         | . DOLLAR OPAR EXPR somme_entiere CPAR
-   58         | . DOLLAR OPAR appel_de_fonction CPAR
+    9 instruction: FOR MOT IN • liste_operandes DO liste_instructions DONE
+   32 liste_operandes: • liste_operandes operande
+   33                | • operande
+   34                | • DOLLAR OBRA MOT OABRA STAR CABRA CBRA
+   50 operande: • DOLLAR OBRA MOT CBRA
+   51         | • DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   52         | • MOT
+   53         | • DOLLAR MOT
+   54         | • DOLLAR STAR
+   55         | • DOLLAR STATUS
+   56         | • CHAINE
+   57         | • DOLLAR OPAR EXPR somme_entiere CPAR
+   58         | • DOLLAR OPAR appel_de_fonction CPAR
 
     MOT     décalage et aller à l'état 23
     CHAINE  décalage et aller à l'état 24
@@ -1202,30 +1192,30 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 59
 
-    2 liste_instructions: . liste_instructions SEMI_CO instruction
-    3                   | . instruction
-    4 instruction: . ID EQUAL concatenation
-    5            | . ID OABRA operande_entier CABRA EQUAL concatenation
-    6            | . DECLARE ID OABRA ENTIER CABRA
-    7            | . IF test_bloc THEN liste_instructions else_part FI
-    8            | . FOR ID DO liste_instructions DONE
-    8            | FOR ID DO . liste_instructions DONE
-    9            | . FOR ID IN liste_operandes DO liste_instructions DONE
-   10            | . WHILE test_bloc DO liste_instructions DONE
-   11            | . UNTIL test_bloc DO liste_instructions DONE
-   12            | . CASE operande IN liste_cas ESAC
-   13            | . ECHO_ liste_operandes
-   14            | . READ ID
-   15            | . READ ID OABRA operande_entier CABRA
-   16            | . declaration_de_fonction
-   17            | . appel_de_fonction
-   18            | . RETURN
-   19            | . RETURN operande_entier
-   20            | . EXIT
-   21            | . EXIT operande_entier
-   85 declaration_de_fonction: . ID OPAR CPAR OBRA decl_loc liste_instructions CBRA
-   88 appel_de_fonction: . ID liste_operandes
-   89                  | . ID
+    2 liste_instructions: • liste_instructions SEMI_CO instruction
+    3                   | • instruction
+    4 instruction: • MOT EQUAL concatenation
+    5            | • MOT OABRA operande_entier CABRA EQUAL concatenation
+    6            | • DECLARE MOT OABRA MOT CABRA
+    7            | • IF test_bloc THEN liste_instructions else_part FI
+    8            | • FOR MOT DO liste_instructions DONE
+    8            | FOR MOT DO • liste_instructions DONE
+    9            | • FOR MOT IN liste_operandes DO liste_instructions DONE
+   10            | • WHILE test_bloc DO liste_instructions DONE
+   11            | • UNTIL test_bloc DO liste_instructions DONE
+   12            | • CASE operande IN liste_cas ESAC
+   13            | • ECHO_ liste_operandes
+   14            | • READ MOT
+   15            | • READ MOT OABRA operande_entier CABRA
+   16            | • declaration_de_fonction
+   17            | • appel_de_fonction
+   18            | • RETURN
+   19            | • RETURN operande_entier
+   20            | • EXIT
+   21            | • EXIT operande_entier
+   85 declaration_de_fonction: • MOT OPAR CPAR OBRA decl_loc liste_instructions CBRA
+   88 appel_de_fonction: • MOT liste_operandes
+   89                  | • MOT
 
     DECLARE  décalage et aller à l'état 1
     IF       décalage et aller à l'état 2
@@ -1237,7 +1227,7 @@ Non-terminaux, suivis des règles où ils apparaissent
     ECHO_    décalage et aller à l'état 8
     RETURN   décalage et aller à l'état 9
     EXIT     décalage et aller à l'état 10
-    ID       décalage et aller à l'état 11
+    MOT      décalage et aller à l'état 11
 
     liste_instructions       aller à l'état 102
     instruction              aller à l'état 14
@@ -1247,30 +1237,30 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 60
 
-    2 liste_instructions: . liste_instructions SEMI_CO instruction
-    3                   | . instruction
-    4 instruction: . ID EQUAL concatenation
-    5            | . ID OABRA operande_entier CABRA EQUAL concatenation
-    6            | . DECLARE ID OABRA ENTIER CABRA
-    7            | . IF test_bloc THEN liste_instructions else_part FI
-    8            | . FOR ID DO liste_instructions DONE
-    9            | . FOR ID IN liste_operandes DO liste_instructions DONE
-   10            | . WHILE test_bloc DO liste_instructions DONE
-   10            | WHILE test_bloc DO . liste_instructions DONE
-   11            | . UNTIL test_bloc DO liste_instructions DONE
-   12            | . CASE operande IN liste_cas ESAC
-   13            | . ECHO_ liste_operandes
-   14            | . READ ID
-   15            | . READ ID OABRA operande_entier CABRA
-   16            | . declaration_de_fonction
-   17            | . appel_de_fonction
-   18            | . RETURN
-   19            | . RETURN operande_entier
-   20            | . EXIT
-   21            | . EXIT operande_entier
-   85 declaration_de_fonction: . ID OPAR CPAR OBRA decl_loc liste_instructions CBRA
-   88 appel_de_fonction: . ID liste_operandes
-   89                  | . ID
+    2 liste_instructions: • liste_instructions SEMI_CO instruction
+    3                   | • instruction
+    4 instruction: • MOT EQUAL concatenation
+    5            | • MOT OABRA operande_entier CABRA EQUAL concatenation
+    6            | • DECLARE MOT OABRA MOT CABRA
+    7            | • IF test_bloc THEN liste_instructions else_part FI
+    8            | • FOR MOT DO liste_instructions DONE
+    9            | • FOR MOT IN liste_operandes DO liste_instructions DONE
+   10            | • WHILE test_bloc DO liste_instructions DONE
+   10            | WHILE test_bloc DO • liste_instructions DONE
+   11            | • UNTIL test_bloc DO liste_instructions DONE
+   12            | • CASE operande IN liste_cas ESAC
+   13            | • ECHO_ liste_operandes
+   14            | • READ MOT
+   15            | • READ MOT OABRA operande_entier CABRA
+   16            | • declaration_de_fonction
+   17            | • appel_de_fonction
+   18            | • RETURN
+   19            | • RETURN operande_entier
+   20            | • EXIT
+   21            | • EXIT operande_entier
+   85 declaration_de_fonction: • MOT OPAR CPAR OBRA decl_loc liste_instructions CBRA
+   88 appel_de_fonction: • MOT liste_operandes
+   89                  | • MOT
 
     DECLARE  décalage et aller à l'état 1
     IF       décalage et aller à l'état 2
@@ -1282,7 +1272,7 @@ Non-terminaux, suivis des règles où ils apparaissent
     ECHO_    décalage et aller à l'état 8
     RETURN   décalage et aller à l'état 9
     EXIT     décalage et aller à l'état 10
-    ID       décalage et aller à l'état 11
+    MOT      décalage et aller à l'état 11
 
     liste_instructions       aller à l'état 103
     instruction              aller à l'état 14
@@ -1292,30 +1282,30 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 61
 
-    2 liste_instructions: . liste_instructions SEMI_CO instruction
-    3                   | . instruction
-    4 instruction: . ID EQUAL concatenation
-    5            | . ID OABRA operande_entier CABRA EQUAL concatenation
-    6            | . DECLARE ID OABRA ENTIER CABRA
-    7            | . IF test_bloc THEN liste_instructions else_part FI
-    8            | . FOR ID DO liste_instructions DONE
-    9            | . FOR ID IN liste_operandes DO liste_instructions DONE
-   10            | . WHILE test_bloc DO liste_instructions DONE
-   11            | . UNTIL test_bloc DO liste_instructions DONE
-   11            | UNTIL test_bloc DO . liste_instructions DONE
-   12            | . CASE operande IN liste_cas ESAC
-   13            | . ECHO_ liste_operandes
-   14            | . READ ID
-   15            | . READ ID OABRA operande_entier CABRA
-   16            | . declaration_de_fonction
-   17            | . appel_de_fonction
-   18            | . RETURN
-   19            | . RETURN operande_entier
-   20            | . EXIT
-   21            | . EXIT operande_entier
-   85 declaration_de_fonction: . ID OPAR CPAR OBRA decl_loc liste_instructions CBRA
-   88 appel_de_fonction: . ID liste_operandes
-   89                  | . ID
+    2 liste_instructions: • liste_instructions SEMI_CO instruction
+    3                   | • instruction
+    4 instruction: • MOT EQUAL concatenation
+    5            | • MOT OABRA operande_entier CABRA EQUAL concatenation
+    6            | • DECLARE MOT OABRA MOT CABRA
+    7            | • IF test_bloc THEN liste_instructions else_part FI
+    8            | • FOR MOT DO liste_instructions DONE
+    9            | • FOR MOT IN liste_operandes DO liste_instructions DONE
+   10            | • WHILE test_bloc DO liste_instructions DONE
+   11            | • UNTIL test_bloc DO liste_instructions DONE
+   11            | UNTIL test_bloc DO • liste_instructions DONE
+   12            | • CASE operande IN liste_cas ESAC
+   13            | • ECHO_ liste_operandes
+   14            | • READ MOT
+   15            | • READ MOT OABRA operande_entier CABRA
+   16            | • declaration_de_fonction
+   17            | • appel_de_fonction
+   18            | • RETURN
+   19            | • RETURN operande_entier
+   20            | • EXIT
+   21            | • EXIT operande_entier
+   85 declaration_de_fonction: • MOT OPAR CPAR OBRA decl_loc liste_instructions CBRA
+   88 appel_de_fonction: • MOT liste_operandes
+   89                  | • MOT
 
     DECLARE  décalage et aller à l'état 1
     IF       décalage et aller à l'état 2
@@ -1327,7 +1317,7 @@ Non-terminaux, suivis des règles où ils apparaissent
     ECHO_    décalage et aller à l'état 8
     RETURN   décalage et aller à l'état 9
     EXIT     décalage et aller à l'état 10
-    ID       décalage et aller à l'état 11
+    MOT      décalage et aller à l'état 11
 
     liste_instructions       aller à l'état 104
     instruction              aller à l'état 14
@@ -1337,56 +1327,56 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 62
 
-   53 operande: DOLLAR ENTIER .
+   53 operande: DOLLAR MOT •
 
     $défaut  réduction par utilisation de la règle 53 (operande)
 
 
 État 63
 
-   54 operande: DOLLAR STAR .
+   54 operande: DOLLAR STAR •
 
     $défaut  réduction par utilisation de la règle 54 (operande)
 
 
 État 64
 
-   57 operande: DOLLAR OPAR . EXPR somme_entiere CPAR
-   58         | DOLLAR OPAR . appel_de_fonction CPAR
-   88 appel_de_fonction: . ID liste_operandes
-   89                  | . ID
+   57 operande: DOLLAR OPAR • EXPR somme_entiere CPAR
+   58         | DOLLAR OPAR • appel_de_fonction CPAR
+   88 appel_de_fonction: • MOT liste_operandes
+   89                  | • MOT
 
     EXPR  décalage et aller à l'état 105
-    ID    décalage et aller à l'état 106
+    MOT   décalage et aller à l'état 106
 
     appel_de_fonction  aller à l'état 107
 
 
 État 65
 
-   50 operande: DOLLAR OBRA . ID CBRA
-   51         | DOLLAR OBRA . ID OABRA operande_entier CABRA CBRA
+   50 operande: DOLLAR OBRA • MOT CBRA
+   51         | DOLLAR OBRA • MOT OABRA operande_entier CABRA CBRA
 
-    ID  décalage et aller à l'état 108
+    MOT  décalage et aller à l'état 108
 
 
 État 66
 
-   55 operande: DOLLAR STATUS .
+   55 operande: DOLLAR STATUS •
 
     $défaut  réduction par utilisation de la règle 55 (operande)
 
 
 État 67
 
-   12 instruction: CASE operande IN . liste_cas ESAC
-   25 liste_cas: . liste_cas filtre CPAR liste_instructions SEMI_CO SEMI_CO
-   26          | . filtre CPAR liste_instructions SEMI_CO SEMI_CO
-   27 filtre: . MOT
-   28       | . CHAINE
-   29       | . filtre CASE_OR MOT
-   30       | . filtre CASE_OR CHAINE
-   31       | . STAR
+   12 instruction: CASE operande IN • liste_cas ESAC
+   25 liste_cas: • liste_cas filtre CPAR liste_instructions SEMI_CO SEMI_CO
+   26          | • filtre CPAR liste_instructions SEMI_CO SEMI_CO
+   27 filtre: • MOT
+   28       | • CHAINE
+   29       | • filtre CASE_OR MOT
+   30       | • filtre CASE_OR CHAINE
+   31       | • STAR
 
     MOT     décalage et aller à l'état 109
     CHAINE  décalage et aller à l'état 110
@@ -1398,20 +1388,20 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 68
 
-   15 instruction: READ ID OABRA . operande_entier CABRA
-   71 operande_entier: . DOLLAR OBRA ID CBRA
-   72                | . DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   73                | . DOLLAR ENTIER
-   74                | . plus_ou_moins DOLLAR OBRA ID CBRA
-   75                | . plus_ou_moins DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   76                | . plus_ou_moins DOLLAR ENTIER
-   77                | . ENTIER
-   78                | . plus_ou_moins ENTIER
-   79                | . OPAR somme_entiere CPAR
-   80 plus_ou_moins: . PLUS
-   81              | . MINUS
+   15 instruction: READ MOT OABRA • operande_entier CABRA
+   71 operande_entier: • DOLLAR OBRA MOT CBRA
+   72                | • DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   73                | • DOLLAR MOT
+   74                | • plus_ou_moins DOLLAR OBRA MOT CBRA
+   75                | • plus_ou_moins DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   76                | • plus_ou_moins DOLLAR MOT
+   77                | • MOT
+   78                | • plus_ou_moins MOT
+   79                | • OPAR somme_entiere CPAR
+   80 plus_ou_moins: • PLUS
+   81              | • MINUS
 
-    ENTIER  décalage et aller à l'état 31
+    MOT     décalage et aller à l'état 31
     PLUS    décalage et aller à l'état 32
     MINUS   décalage et aller à l'état 33
     OPAR    décalage et aller à l'état 34
@@ -1423,26 +1413,26 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 69
 
-   34 liste_operandes: DOLLAR OBRA . ID OABRA STAR CABRA CBRA
-   50 operande: DOLLAR OBRA . ID CBRA
-   51         | DOLLAR OBRA . ID OABRA operande_entier CABRA CBRA
+   34 liste_operandes: DOLLAR OBRA • MOT OABRA STAR CABRA CBRA
+   50 operande: DOLLAR OBRA • MOT CBRA
+   51         | DOLLAR OBRA • MOT OABRA operande_entier CABRA CBRA
 
-    ID  décalage et aller à l'état 115
+    MOT  décalage et aller à l'état 115
 
 
 État 70
 
-   32 liste_operandes: liste_operandes operande .
+   32 liste_operandes: liste_operandes operande •
 
     $défaut  réduction par utilisation de la règle 32 (liste_operandes)
 
 
 État 71
 
-   67 somme_entiere: somme_entiere . plus_ou_moins produit_entier
-   79 operande_entier: OPAR somme_entiere . CPAR
-   80 plus_ou_moins: . PLUS
-   81              | . MINUS
+   67 somme_entiere: somme_entiere • plus_ou_moins produit_entier
+   79 operande_entier: OPAR somme_entiere • CPAR
+   80 plus_ou_moins: • PLUS
+   81              | • MINUS
 
     PLUS   décalage et aller à l'état 32
     MINUS  décalage et aller à l'état 33
@@ -1453,11 +1443,11 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 72
 
-   68 somme_entiere: produit_entier .  [PLUS, MINUS, CPAR]
-   69 produit_entier: produit_entier . fois_div_mod operande_entier
-   82 fois_div_mod: . STAR
-   83             | . DIVISION
-   84             | . MOD
+   68 somme_entiere: produit_entier •  [PLUS, MINUS, CPAR]
+   69 produit_entier: produit_entier • fois_div_mod operande_entier
+   82 fois_div_mod: • STAR
+   83             | • DIVISION
+   84             | • MOD
 
     STAR      décalage et aller à l'état 118
     DIVISION  décalage et aller à l'état 119
@@ -1470,56 +1460,56 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 73
 
-   70 produit_entier: operande_entier .
+   70 produit_entier: operande_entier •
 
     $défaut  réduction par utilisation de la règle 70 (produit_entier)
 
 
 État 74
 
-   73 operande_entier: DOLLAR ENTIER .
+   73 operande_entier: DOLLAR MOT •
 
     $défaut  réduction par utilisation de la règle 73 (operande_entier)
 
 
 État 75
 
-   71 operande_entier: DOLLAR OBRA . ID CBRA
-   72                | DOLLAR OBRA . ID OABRA operande_entier CABRA CBRA
+   71 operande_entier: DOLLAR OBRA • MOT CBRA
+   72                | DOLLAR OBRA • MOT OABRA operande_entier CABRA CBRA
 
-    ID  décalage et aller à l'état 122
+    MOT  décalage et aller à l'état 122
 
 
 État 76
 
-   78 operande_entier: plus_ou_moins ENTIER .
+   78 operande_entier: plus_ou_moins MOT •
 
     $défaut  réduction par utilisation de la règle 78 (operande_entier)
 
 
 État 77
 
-   74 operande_entier: plus_ou_moins DOLLAR . OBRA ID CBRA
-   75                | plus_ou_moins DOLLAR . OBRA ID OABRA operande_entier CABRA CBRA
-   76                | plus_ou_moins DOLLAR . ENTIER
+   74 operande_entier: plus_ou_moins DOLLAR • OBRA MOT CBRA
+   75                | plus_ou_moins DOLLAR • OBRA MOT OABRA operande_entier CABRA CBRA
+   76                | plus_ou_moins DOLLAR • MOT
 
-    ENTIER  décalage et aller à l'état 123
-    OBRA    décalage et aller à l'état 124
+    MOT   décalage et aller à l'état 123
+    OBRA  décalage et aller à l'état 124
 
 
 État 78
 
-    4 instruction: ID EQUAL concatenation .  [$end, ELIF, ELSE, FI, DONE, SEMI_CO, CBRA]
-   35 concatenation: concatenation . operande
-   50 operande: . DOLLAR OBRA ID CBRA
-   51         | . DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   52         | . MOT
-   53         | . DOLLAR ENTIER
-   54         | . DOLLAR STAR
-   55         | . DOLLAR STATUS
-   56         | . CHAINE
-   57         | . DOLLAR OPAR EXPR somme_entiere CPAR
-   58         | . DOLLAR OPAR appel_de_fonction CPAR
+    4 instruction: MOT EQUAL concatenation •  [$end, ELIF, ELSE, FI, DONE, SEMI_CO, CBRA]
+   35 concatenation: concatenation • operande
+   50 operande: • DOLLAR OBRA MOT CBRA
+   51         | • DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   52         | • MOT
+   53         | • DOLLAR MOT
+   54         | • DOLLAR STAR
+   55         | • DOLLAR STATUS
+   56         | • CHAINE
+   57         | • DOLLAR OPAR EXPR somme_entiere CPAR
+   58         | • DOLLAR OPAR appel_de_fonction CPAR
 
     MOT     décalage et aller à l'état 23
     CHAINE  décalage et aller à l'état 24
@@ -1532,67 +1522,67 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 79
 
-   36 concatenation: operande .
+   36 concatenation: operande •
 
     $défaut  réduction par utilisation de la règle 36 (concatenation)
 
 
 État 80
 
-   85 declaration_de_fonction: ID OPAR CPAR . OBRA decl_loc liste_instructions CBRA
+   85 declaration_de_fonction: MOT OPAR CPAR • OBRA decl_loc liste_instructions CBRA
 
     OBRA  décalage et aller à l'état 125
 
 
 État 81
 
-    5 instruction: ID OABRA operande_entier . CABRA EQUAL concatenation
+    5 instruction: MOT OABRA operande_entier • CABRA EQUAL concatenation
 
     CABRA  décalage et aller à l'état 126
 
 
 État 82
 
-    2 liste_instructions: liste_instructions SEMI_CO instruction .
+    2 liste_instructions: liste_instructions SEMI_CO instruction •
 
     $défaut  réduction par utilisation de la règle 2 (liste_instructions)
 
 
 État 83
 
-    6 instruction: DECLARE ID OABRA ENTIER . CABRA
+    6 instruction: DECLARE MOT OABRA MOT • CABRA
 
     CABRA  décalage et aller à l'état 127
 
 
 État 84
 
-   35 concatenation: . concatenation operande
-   36              | . operande
-   38 test_expr: . test_expr C_OR test_expr2
-   39          | . test_expr2
-   40 test_expr2: . test_expr2 C_AND test_expr3
-   41           | . test_expr3
-   42 test_expr3: . OPAR test_expr CPAR
-   43           | . NOT OPAR test_expr CPAR
-   43           | NOT OPAR . test_expr CPAR
-   44           | . test_instruction
-   45           | . NOT test_instruction
-   46 test_instruction: . concatenation EQUAL concatenation
-   47                 | . concatenation NOT_EQUAL concatenation
-   48                 | . operateur1 concatenation
-   49                 | . operande operateur2 operande
-   50 operande: . DOLLAR OBRA ID CBRA
-   51         | . DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   52         | . MOT
-   53         | . DOLLAR ENTIER
-   54         | . DOLLAR STAR
-   55         | . DOLLAR STATUS
-   56         | . CHAINE
-   57         | . DOLLAR OPAR EXPR somme_entiere CPAR
-   58         | . DOLLAR OPAR appel_de_fonction CPAR
-   59 operateur1: . T_NOT_EMPTY
-   60           | . T_EMPTY
+   35 concatenation: • concatenation operande
+   36              | • operande
+   38 test_expr: • test_expr C_OR test_expr2
+   39          | • test_expr2
+   40 test_expr2: • test_expr2 C_AND test_expr3
+   41           | • test_expr3
+   42 test_expr3: • OPAR test_expr CPAR
+   43           | • NOT OPAR test_expr CPAR
+   43           | NOT OPAR • test_expr CPAR
+   44           | • test_instruction
+   45           | • NOT test_instruction
+   46 test_instruction: • concatenation EQUAL concatenation
+   47                 | • concatenation NOT_EQUAL concatenation
+   48                 | • operateur1 concatenation
+   49                 | • operande operateur2 operande
+   50 operande: • DOLLAR OBRA MOT CBRA
+   51         | • DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   52         | • MOT
+   53         | • DOLLAR MOT
+   54         | • DOLLAR STAR
+   55         | • DOLLAR STATUS
+   56         | • CHAINE
+   57         | • DOLLAR OPAR EXPR somme_entiere CPAR
+   58         | • DOLLAR OPAR appel_de_fonction CPAR
+   59 operateur1: • T_NOT_EMPTY
+   60           | • T_EMPTY
 
     MOT          décalage et aller à l'état 23
     CHAINE       décalage et aller à l'état 24
@@ -1613,15 +1603,15 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 85
 
-   45 test_expr3: NOT test_instruction .
+   45 test_expr3: NOT test_instruction •
 
     $défaut  réduction par utilisation de la règle 45 (test_expr3)
 
 
 État 86
 
-   38 test_expr: test_expr . C_OR test_expr2
-   42 test_expr3: OPAR test_expr . CPAR
+   38 test_expr: test_expr • C_OR test_expr2
+   42 test_expr3: OPAR test_expr • CPAR
 
     CPAR  décalage et aller à l'état 129
     C_OR  décalage et aller à l'état 90
@@ -1629,18 +1619,18 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 87
 
-   35 concatenation: . concatenation operande
-   36              | . operande
-   46 test_instruction: concatenation EQUAL . concatenation
-   50 operande: . DOLLAR OBRA ID CBRA
-   51         | . DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   52         | . MOT
-   53         | . DOLLAR ENTIER
-   54         | . DOLLAR STAR
-   55         | . DOLLAR STATUS
-   56         | . CHAINE
-   57         | . DOLLAR OPAR EXPR somme_entiere CPAR
-   58         | . DOLLAR OPAR appel_de_fonction CPAR
+   35 concatenation: • concatenation operande
+   36              | • operande
+   46 test_instruction: concatenation EQUAL • concatenation
+   50 operande: • DOLLAR OBRA MOT CBRA
+   51         | • DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   52         | • MOT
+   53         | • DOLLAR MOT
+   54         | • DOLLAR STAR
+   55         | • DOLLAR STATUS
+   56         | • CHAINE
+   57         | • DOLLAR OPAR EXPR somme_entiere CPAR
+   58         | • DOLLAR OPAR appel_de_fonction CPAR
 
     MOT     décalage et aller à l'état 23
     CHAINE  décalage et aller à l'état 24
@@ -1652,18 +1642,18 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 88
 
-   35 concatenation: . concatenation operande
-   36              | . operande
-   47 test_instruction: concatenation NOT_EQUAL . concatenation
-   50 operande: . DOLLAR OBRA ID CBRA
-   51         | . DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   52         | . MOT
-   53         | . DOLLAR ENTIER
-   54         | . DOLLAR STAR
-   55         | . DOLLAR STATUS
-   56         | . CHAINE
-   57         | . DOLLAR OPAR EXPR somme_entiere CPAR
-   58         | . DOLLAR OPAR appel_de_fonction CPAR
+   35 concatenation: • concatenation operande
+   36              | • operande
+   47 test_instruction: concatenation NOT_EQUAL • concatenation
+   50 operande: • DOLLAR OBRA MOT CBRA
+   51         | • DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   52         | • MOT
+   53         | • DOLLAR MOT
+   54         | • DOLLAR STAR
+   55         | • DOLLAR STATUS
+   56         | • CHAINE
+   57         | • DOLLAR OPAR EXPR somme_entiere CPAR
+   58         | • DOLLAR OPAR appel_de_fonction CPAR
 
     MOT     décalage et aller à l'état 23
     CHAINE  décalage et aller à l'état 24
@@ -1675,37 +1665,37 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 89
 
-   35 concatenation: concatenation operande .
+   35 concatenation: concatenation operande •
 
     $défaut  réduction par utilisation de la règle 35 (concatenation)
 
 
 État 90
 
-   35 concatenation: . concatenation operande
-   36              | . operande
-   38 test_expr: test_expr C_OR . test_expr2
-   40 test_expr2: . test_expr2 C_AND test_expr3
-   41           | . test_expr3
-   42 test_expr3: . OPAR test_expr CPAR
-   43           | . NOT OPAR test_expr CPAR
-   44           | . test_instruction
-   45           | . NOT test_instruction
-   46 test_instruction: . concatenation EQUAL concatenation
-   47                 | . concatenation NOT_EQUAL concatenation
-   48                 | . operateur1 concatenation
-   49                 | . operande operateur2 operande
-   50 operande: . DOLLAR OBRA ID CBRA
-   51         | . DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   52         | . MOT
-   53         | . DOLLAR ENTIER
-   54         | . DOLLAR STAR
-   55         | . DOLLAR STATUS
-   56         | . CHAINE
-   57         | . DOLLAR OPAR EXPR somme_entiere CPAR
-   58         | . DOLLAR OPAR appel_de_fonction CPAR
-   59 operateur1: . T_NOT_EMPTY
-   60           | . T_EMPTY
+   35 concatenation: • concatenation operande
+   36              | • operande
+   38 test_expr: test_expr C_OR • test_expr2
+   40 test_expr2: • test_expr2 C_AND test_expr3
+   41           | • test_expr3
+   42 test_expr3: • OPAR test_expr CPAR
+   43           | • NOT OPAR test_expr CPAR
+   44           | • test_instruction
+   45           | • NOT test_instruction
+   46 test_instruction: • concatenation EQUAL concatenation
+   47                 | • concatenation NOT_EQUAL concatenation
+   48                 | • operateur1 concatenation
+   49                 | • operande operateur2 operande
+   50 operande: • DOLLAR OBRA MOT CBRA
+   51         | • DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   52         | • MOT
+   53         | • DOLLAR MOT
+   54         | • DOLLAR STAR
+   55         | • DOLLAR STATUS
+   56         | • CHAINE
+   57         | • DOLLAR OPAR EXPR somme_entiere CPAR
+   58         | • DOLLAR OPAR appel_de_fonction CPAR
+   59 operateur1: • T_NOT_EMPTY
+   60           | • T_EMPTY
 
     MOT          décalage et aller à l'état 23
     CHAINE       décalage et aller à l'état 24
@@ -1725,28 +1715,28 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 91
 
-   35 concatenation: . concatenation operande
-   36              | . operande
-   40 test_expr2: test_expr2 C_AND . test_expr3
-   42 test_expr3: . OPAR test_expr CPAR
-   43           | . NOT OPAR test_expr CPAR
-   44           | . test_instruction
-   45           | . NOT test_instruction
-   46 test_instruction: . concatenation EQUAL concatenation
-   47                 | . concatenation NOT_EQUAL concatenation
-   48                 | . operateur1 concatenation
-   49                 | . operande operateur2 operande
-   50 operande: . DOLLAR OBRA ID CBRA
-   51         | . DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   52         | . MOT
-   53         | . DOLLAR ENTIER
-   54         | . DOLLAR STAR
-   55         | . DOLLAR STATUS
-   56         | . CHAINE
-   57         | . DOLLAR OPAR EXPR somme_entiere CPAR
-   58         | . DOLLAR OPAR appel_de_fonction CPAR
-   59 operateur1: . T_NOT_EMPTY
-   60           | . T_EMPTY
+   35 concatenation: • concatenation operande
+   36              | • operande
+   40 test_expr2: test_expr2 C_AND • test_expr3
+   42 test_expr3: • OPAR test_expr CPAR
+   43           | • NOT OPAR test_expr CPAR
+   44           | • test_instruction
+   45           | • NOT test_instruction
+   46 test_instruction: • concatenation EQUAL concatenation
+   47                 | • concatenation NOT_EQUAL concatenation
+   48                 | • operateur1 concatenation
+   49                 | • operande operateur2 operande
+   50 operande: • DOLLAR OBRA MOT CBRA
+   51         | • DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   52         | • MOT
+   53         | • DOLLAR MOT
+   54         | • DOLLAR STAR
+   55         | • DOLLAR STATUS
+   56         | • CHAINE
+   57         | • DOLLAR OPAR EXPR somme_entiere CPAR
+   58         | • DOLLAR OPAR appel_de_fonction CPAR
+   59 operateur1: • T_NOT_EMPTY
+   60           | • T_EMPTY
 
     MOT          décalage et aller à l'état 23
     CHAINE       décalage et aller à l'état 24
@@ -1765,58 +1755,58 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 92
 
-   61 operateur2: T_EQUAL .
+   61 operateur2: T_EQUAL •
 
     $défaut  réduction par utilisation de la règle 61 (operateur2)
 
 
 État 93
 
-   62 operateur2: T_NOT_EQUAL .
+   62 operateur2: T_NOT_EQUAL •
 
     $défaut  réduction par utilisation de la règle 62 (operateur2)
 
 
 État 94
 
-   63 operateur2: T_GT .
+   63 operateur2: T_GT •
 
     $défaut  réduction par utilisation de la règle 63 (operateur2)
 
 
 État 95
 
-   64 operateur2: T_GE .
+   64 operateur2: T_GE •
 
     $défaut  réduction par utilisation de la règle 64 (operateur2)
 
 
 État 96
 
-   65 operateur2: T_LT .
+   65 operateur2: T_LT •
 
     $défaut  réduction par utilisation de la règle 65 (operateur2)
 
 
 État 97
 
-   66 operateur2: T_LE .
+   66 operateur2: T_LE •
 
     $défaut  réduction par utilisation de la règle 66 (operateur2)
 
 
 État 98
 
-   49 test_instruction: operande operateur2 . operande
-   50 operande: . DOLLAR OBRA ID CBRA
-   51         | . DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   52         | . MOT
-   53         | . DOLLAR ENTIER
-   54         | . DOLLAR STAR
-   55         | . DOLLAR STATUS
-   56         | . CHAINE
-   57         | . DOLLAR OPAR EXPR somme_entiere CPAR
-   58         | . DOLLAR OPAR appel_de_fonction CPAR
+   49 test_instruction: operande operateur2 • operande
+   50 operande: • DOLLAR OBRA MOT CBRA
+   51         | • DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   52         | • MOT
+   53         | • DOLLAR MOT
+   54         | • DOLLAR STAR
+   55         | • DOLLAR STATUS
+   56         | • CHAINE
+   57         | • DOLLAR OPAR EXPR somme_entiere CPAR
+   58         | • DOLLAR OPAR appel_de_fonction CPAR
 
     MOT     décalage et aller à l'état 23
     CHAINE  décalage et aller à l'état 24
@@ -1827,17 +1817,17 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 99
 
-   35 concatenation: concatenation . operande
-   48 test_instruction: operateur1 concatenation .  [THEN, DO, CPAR, C_AND, C_OR]
-   50 operande: . DOLLAR OBRA ID CBRA
-   51         | . DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   52         | . MOT
-   53         | . DOLLAR ENTIER
-   54         | . DOLLAR STAR
-   55         | . DOLLAR STATUS
-   56         | . CHAINE
-   57         | . DOLLAR OPAR EXPR somme_entiere CPAR
-   58         | . DOLLAR OPAR appel_de_fonction CPAR
+   35 concatenation: concatenation • operande
+   48 test_instruction: operateur1 concatenation •  [THEN, DO, CPAR, C_AND, C_OR]
+   50 operande: • DOLLAR OBRA MOT CBRA
+   51         | • DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   52         | • MOT
+   53         | • DOLLAR MOT
+   54         | • DOLLAR STAR
+   55         | • DOLLAR STATUS
+   56         | • CHAINE
+   57         | • DOLLAR OPAR EXPR somme_entiere CPAR
+   58         | • DOLLAR OPAR appel_de_fonction CPAR
 
     MOT     décalage et aller à l'état 23
     CHAINE  décalage et aller à l'état 24
@@ -1850,11 +1840,11 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 100
 
-    2 liste_instructions: liste_instructions . SEMI_CO instruction
-    7 instruction: IF test_bloc THEN liste_instructions . else_part FI
-   22 else_part: . ELIF test_bloc THEN liste_instructions else_part
-   23          | . ELSE liste_instructions
-   24          | . %empty  [FI]
+    2 liste_instructions: liste_instructions • SEMI_CO instruction
+    7 instruction: IF test_bloc THEN liste_instructions • else_part FI
+   22 else_part: • ELIF test_bloc THEN liste_instructions else_part
+   23          | • ELSE liste_instructions
+   24          | ε •  [FI]
 
     ELIF     décalage et aller à l'état 135
     ELSE     décalage et aller à l'état 136
@@ -1867,17 +1857,17 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 101
 
-    9 instruction: FOR ID IN liste_operandes . DO liste_instructions DONE
-   32 liste_operandes: liste_operandes . operande
-   50 operande: . DOLLAR OBRA ID CBRA
-   51         | . DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   52         | . MOT
-   53         | . DOLLAR ENTIER
-   54         | . DOLLAR STAR
-   55         | . DOLLAR STATUS
-   56         | . CHAINE
-   57         | . DOLLAR OPAR EXPR somme_entiere CPAR
-   58         | . DOLLAR OPAR appel_de_fonction CPAR
+    9 instruction: FOR MOT IN liste_operandes • DO liste_instructions DONE
+   32 liste_operandes: liste_operandes • operande
+   50 operande: • DOLLAR OBRA MOT CBRA
+   51         | • DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   52         | • MOT
+   53         | • DOLLAR MOT
+   54         | • DOLLAR STAR
+   55         | • DOLLAR STATUS
+   56         | • CHAINE
+   57         | • DOLLAR OPAR EXPR somme_entiere CPAR
+   58         | • DOLLAR OPAR appel_de_fonction CPAR
 
     DO      décalage et aller à l'état 138
     MOT     décalage et aller à l'état 23
@@ -1889,8 +1879,8 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 102
 
-    2 liste_instructions: liste_instructions . SEMI_CO instruction
-    8 instruction: FOR ID DO liste_instructions . DONE
+    2 liste_instructions: liste_instructions • SEMI_CO instruction
+    8 instruction: FOR MOT DO liste_instructions • DONE
 
     DONE     décalage et aller à l'état 139
     SEMI_CO  décalage et aller à l'état 44
@@ -1898,8 +1888,8 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 103
 
-    2 liste_instructions: liste_instructions . SEMI_CO instruction
-   10 instruction: WHILE test_bloc DO liste_instructions . DONE
+    2 liste_instructions: liste_instructions • SEMI_CO instruction
+   10 instruction: WHILE test_bloc DO liste_instructions • DONE
 
     DONE     décalage et aller à l'état 140
     SEMI_CO  décalage et aller à l'état 44
@@ -1907,8 +1897,8 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 104
 
-    2 liste_instructions: liste_instructions . SEMI_CO instruction
-   11 instruction: UNTIL test_bloc DO liste_instructions . DONE
+    2 liste_instructions: liste_instructions • SEMI_CO instruction
+   11 instruction: UNTIL test_bloc DO liste_instructions • DONE
 
     DONE     décalage et aller à l'état 141
     SEMI_CO  décalage et aller à l'état 44
@@ -1916,24 +1906,24 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 105
 
-   57 operande: DOLLAR OPAR EXPR . somme_entiere CPAR
-   67 somme_entiere: . somme_entiere plus_ou_moins produit_entier
-   68              | . produit_entier
-   69 produit_entier: . produit_entier fois_div_mod operande_entier
-   70               | . operande_entier
-   71 operande_entier: . DOLLAR OBRA ID CBRA
-   72                | . DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   73                | . DOLLAR ENTIER
-   74                | . plus_ou_moins DOLLAR OBRA ID CBRA
-   75                | . plus_ou_moins DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   76                | . plus_ou_moins DOLLAR ENTIER
-   77                | . ENTIER
-   78                | . plus_ou_moins ENTIER
-   79                | . OPAR somme_entiere CPAR
-   80 plus_ou_moins: . PLUS
-   81              | . MINUS
+   57 operande: DOLLAR OPAR EXPR • somme_entiere CPAR
+   67 somme_entiere: • somme_entiere plus_ou_moins produit_entier
+   68              | • produit_entier
+   69 produit_entier: • produit_entier fois_div_mod operande_entier
+   70               | • operande_entier
+   71 operande_entier: • DOLLAR OBRA MOT CBRA
+   72                | • DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   73                | • DOLLAR MOT
+   74                | • plus_ou_moins DOLLAR OBRA MOT CBRA
+   75                | • plus_ou_moins DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   76                | • plus_ou_moins DOLLAR MOT
+   77                | • MOT
+   78                | • plus_ou_moins MOT
+   79                | • OPAR somme_entiere CPAR
+   80 plus_ou_moins: • PLUS
+   81              | • MINUS
 
-    ENTIER  décalage et aller à l'état 31
+    MOT     décalage et aller à l'état 31
     PLUS    décalage et aller à l'état 32
     MINUS   décalage et aller à l'état 33
     OPAR    décalage et aller à l'état 34
@@ -1947,20 +1937,20 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 106
 
-   32 liste_operandes: . liste_operandes operande
-   33                | . operande
-   34                | . DOLLAR OBRA ID OABRA STAR CABRA CBRA
-   50 operande: . DOLLAR OBRA ID CBRA
-   51         | . DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   52         | . MOT
-   53         | . DOLLAR ENTIER
-   54         | . DOLLAR STAR
-   55         | . DOLLAR STATUS
-   56         | . CHAINE
-   57         | . DOLLAR OPAR EXPR somme_entiere CPAR
-   58         | . DOLLAR OPAR appel_de_fonction CPAR
-   88 appel_de_fonction: ID . liste_operandes
-   89                  | ID .  [CPAR]
+   32 liste_operandes: • liste_operandes operande
+   33                | • operande
+   34                | • DOLLAR OBRA MOT OABRA STAR CABRA CBRA
+   50 operande: • DOLLAR OBRA MOT CBRA
+   51         | • DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   52         | • MOT
+   53         | • DOLLAR MOT
+   54         | • DOLLAR STAR
+   55         | • DOLLAR STATUS
+   56         | • CHAINE
+   57         | • DOLLAR OPAR EXPR somme_entiere CPAR
+   58         | • DOLLAR OPAR appel_de_fonction CPAR
+   88 appel_de_fonction: MOT • liste_operandes
+   89                  | MOT •  [CPAR]
 
     MOT     décalage et aller à l'état 23
     CHAINE  décalage et aller à l'état 24
@@ -1974,15 +1964,15 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 107
 
-   58 operande: DOLLAR OPAR appel_de_fonction . CPAR
+   58 operande: DOLLAR OPAR appel_de_fonction • CPAR
 
     CPAR  décalage et aller à l'état 143
 
 
 État 108
 
-   50 operande: DOLLAR OBRA ID . CBRA
-   51         | DOLLAR OBRA ID . OABRA operande_entier CABRA CBRA
+   50 operande: DOLLAR OBRA MOT • CBRA
+   51         | DOLLAR OBRA MOT • OABRA operande_entier CABRA CBRA
 
     CBRA   décalage et aller à l'état 144
     OABRA  décalage et aller à l'état 145
@@ -1990,34 +1980,34 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 109
 
-   27 filtre: MOT .
+   27 filtre: MOT •
 
     $défaut  réduction par utilisation de la règle 27 (filtre)
 
 
 État 110
 
-   28 filtre: CHAINE .
+   28 filtre: CHAINE •
 
     $défaut  réduction par utilisation de la règle 28 (filtre)
 
 
 État 111
 
-   31 filtre: STAR .
+   31 filtre: STAR •
 
     $défaut  réduction par utilisation de la règle 31 (filtre)
 
 
 État 112
 
-   12 instruction: CASE operande IN liste_cas . ESAC
-   25 liste_cas: liste_cas . filtre CPAR liste_instructions SEMI_CO SEMI_CO
-   27 filtre: . MOT
-   28       | . CHAINE
-   29       | . filtre CASE_OR MOT
-   30       | . filtre CASE_OR CHAINE
-   31       | . STAR
+   12 instruction: CASE operande IN liste_cas • ESAC
+   25 liste_cas: liste_cas • filtre CPAR liste_instructions SEMI_CO SEMI_CO
+   27 filtre: • MOT
+   28       | • CHAINE
+   29       | • filtre CASE_OR MOT
+   30       | • filtre CASE_OR CHAINE
+   31       | • STAR
 
     ESAC    décalage et aller à l'état 146
     MOT     décalage et aller à l'état 109
@@ -2029,9 +2019,9 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 113
 
-   26 liste_cas: filtre . CPAR liste_instructions SEMI_CO SEMI_CO
-   29 filtre: filtre . CASE_OR MOT
-   30       | filtre . CASE_OR CHAINE
+   26 liste_cas: filtre • CPAR liste_instructions SEMI_CO SEMI_CO
+   29 filtre: filtre • CASE_OR MOT
+   30       | filtre • CASE_OR CHAINE
 
     CASE_OR  décalage et aller à l'état 148
     CPAR     décalage et aller à l'état 149
@@ -2039,16 +2029,16 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 114
 
-   15 instruction: READ ID OABRA operande_entier . CABRA
+   15 instruction: READ MOT OABRA operande_entier • CABRA
 
     CABRA  décalage et aller à l'état 150
 
 
 État 115
 
-   34 liste_operandes: DOLLAR OBRA ID . OABRA STAR CABRA CBRA
-   50 operande: DOLLAR OBRA ID . CBRA
-   51         | DOLLAR OBRA ID . OABRA operande_entier CABRA CBRA
+   34 liste_operandes: DOLLAR OBRA MOT • OABRA STAR CABRA CBRA
+   50 operande: DOLLAR OBRA MOT • CBRA
+   51         | DOLLAR OBRA MOT • OABRA operande_entier CABRA CBRA
 
     CBRA   décalage et aller à l'état 144
     OABRA  décalage et aller à l'état 151
@@ -2056,29 +2046,29 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 116
 
-   79 operande_entier: OPAR somme_entiere CPAR .
+   79 operande_entier: OPAR somme_entiere CPAR •
 
     $défaut  réduction par utilisation de la règle 79 (operande_entier)
 
 
 État 117
 
-   67 somme_entiere: somme_entiere plus_ou_moins . produit_entier
-   69 produit_entier: . produit_entier fois_div_mod operande_entier
-   70               | . operande_entier
-   71 operande_entier: . DOLLAR OBRA ID CBRA
-   72                | . DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   73                | . DOLLAR ENTIER
-   74                | . plus_ou_moins DOLLAR OBRA ID CBRA
-   75                | . plus_ou_moins DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   76                | . plus_ou_moins DOLLAR ENTIER
-   77                | . ENTIER
-   78                | . plus_ou_moins ENTIER
-   79                | . OPAR somme_entiere CPAR
-   80 plus_ou_moins: . PLUS
-   81              | . MINUS
+   67 somme_entiere: somme_entiere plus_ou_moins • produit_entier
+   69 produit_entier: • produit_entier fois_div_mod operande_entier
+   70               | • operande_entier
+   71 operande_entier: • DOLLAR OBRA MOT CBRA
+   72                | • DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   73                | • DOLLAR MOT
+   74                | • plus_ou_moins DOLLAR OBRA MOT CBRA
+   75                | • plus_ou_moins DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   76                | • plus_ou_moins DOLLAR MOT
+   77                | • MOT
+   78                | • plus_ou_moins MOT
+   79                | • OPAR somme_entiere CPAR
+   80 plus_ou_moins: • PLUS
+   81              | • MINUS
 
-    ENTIER  décalage et aller à l'état 31
+    MOT     décalage et aller à l'état 31
     PLUS    décalage et aller à l'état 32
     MINUS   décalage et aller à l'état 33
     OPAR    décalage et aller à l'état 34
@@ -2091,41 +2081,41 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 118
 
-   82 fois_div_mod: STAR .
+   82 fois_div_mod: STAR •
 
     $défaut  réduction par utilisation de la règle 82 (fois_div_mod)
 
 
 État 119
 
-   83 fois_div_mod: DIVISION .
+   83 fois_div_mod: DIVISION •
 
     $défaut  réduction par utilisation de la règle 83 (fois_div_mod)
 
 
 État 120
 
-   84 fois_div_mod: MOD .
+   84 fois_div_mod: MOD •
 
     $défaut  réduction par utilisation de la règle 84 (fois_div_mod)
 
 
 État 121
 
-   69 produit_entier: produit_entier fois_div_mod . operande_entier
-   71 operande_entier: . DOLLAR OBRA ID CBRA
-   72                | . DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   73                | . DOLLAR ENTIER
-   74                | . plus_ou_moins DOLLAR OBRA ID CBRA
-   75                | . plus_ou_moins DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   76                | . plus_ou_moins DOLLAR ENTIER
-   77                | . ENTIER
-   78                | . plus_ou_moins ENTIER
-   79                | . OPAR somme_entiere CPAR
-   80 plus_ou_moins: . PLUS
-   81              | . MINUS
+   69 produit_entier: produit_entier fois_div_mod • operande_entier
+   71 operande_entier: • DOLLAR OBRA MOT CBRA
+   72                | • DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   73                | • DOLLAR MOT
+   74                | • plus_ou_moins DOLLAR OBRA MOT CBRA
+   75                | • plus_ou_moins DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   76                | • plus_ou_moins DOLLAR MOT
+   77                | • MOT
+   78                | • plus_ou_moins MOT
+   79                | • OPAR somme_entiere CPAR
+   80 plus_ou_moins: • PLUS
+   81              | • MINUS
 
-    ENTIER  décalage et aller à l'état 31
+    MOT     décalage et aller à l'état 31
     PLUS    décalage et aller à l'état 32
     MINUS   décalage et aller à l'état 33
     OPAR    décalage et aller à l'état 34
@@ -2137,8 +2127,8 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 122
 
-   71 operande_entier: DOLLAR OBRA ID . CBRA
-   72                | DOLLAR OBRA ID . OABRA operande_entier CABRA CBRA
+   71 operande_entier: DOLLAR OBRA MOT • CBRA
+   72                | DOLLAR OBRA MOT • OABRA operande_entier CABRA CBRA
 
     CBRA   décalage et aller à l'état 154
     OABRA  décalage et aller à l'état 155
@@ -2146,24 +2136,24 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 123
 
-   76 operande_entier: plus_ou_moins DOLLAR ENTIER .
+   76 operande_entier: plus_ou_moins DOLLAR MOT •
 
     $défaut  réduction par utilisation de la règle 76 (operande_entier)
 
 
 État 124
 
-   74 operande_entier: plus_ou_moins DOLLAR OBRA . ID CBRA
-   75                | plus_ou_moins DOLLAR OBRA . ID OABRA operande_entier CABRA CBRA
+   74 operande_entier: plus_ou_moins DOLLAR OBRA • MOT CBRA
+   75                | plus_ou_moins DOLLAR OBRA • MOT OABRA operande_entier CABRA CBRA
 
-    ID  décalage et aller à l'état 156
+    MOT  décalage et aller à l'état 156
 
 
 État 125
 
-   85 declaration_de_fonction: ID OPAR CPAR OBRA . decl_loc liste_instructions CBRA
-   86 decl_loc: . decl_loc LOCAL ID EQUAL concatenation SEMI_CO
-   87         | . %empty
+   85 declaration_de_fonction: MOT OPAR CPAR OBRA • decl_loc liste_instructions CBRA
+   86 decl_loc: • decl_loc LOCAL MOT EQUAL concatenation SEMI_CO
+   87         | ε •
 
     $défaut  réduction par utilisation de la règle 87 (decl_loc)
 
@@ -2172,22 +2162,22 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 126
 
-    5 instruction: ID OABRA operande_entier CABRA . EQUAL concatenation
+    5 instruction: MOT OABRA operande_entier CABRA • EQUAL concatenation
 
     EQUAL  décalage et aller à l'état 158
 
 
 État 127
 
-    6 instruction: DECLARE ID OABRA ENTIER CABRA .
+    6 instruction: DECLARE MOT OABRA MOT CABRA •
 
     $défaut  réduction par utilisation de la règle 6 (instruction)
 
 
 État 128
 
-   38 test_expr: test_expr . C_OR test_expr2
-   43 test_expr3: NOT OPAR test_expr . CPAR
+   38 test_expr: test_expr • C_OR test_expr2
+   43 test_expr3: NOT OPAR test_expr • CPAR
 
     CPAR  décalage et aller à l'état 159
     C_OR  décalage et aller à l'état 90
@@ -2195,24 +2185,24 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 129
 
-   42 test_expr3: OPAR test_expr CPAR .
+   42 test_expr3: OPAR test_expr CPAR •
 
     $défaut  réduction par utilisation de la règle 42 (test_expr3)
 
 
 État 130
 
-   35 concatenation: concatenation . operande
-   46 test_instruction: concatenation EQUAL concatenation .  [THEN, DO, CPAR, C_AND, C_OR]
-   50 operande: . DOLLAR OBRA ID CBRA
-   51         | . DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   52         | . MOT
-   53         | . DOLLAR ENTIER
-   54         | . DOLLAR STAR
-   55         | . DOLLAR STATUS
-   56         | . CHAINE
-   57         | . DOLLAR OPAR EXPR somme_entiere CPAR
-   58         | . DOLLAR OPAR appel_de_fonction CPAR
+   35 concatenation: concatenation • operande
+   46 test_instruction: concatenation EQUAL concatenation •  [THEN, DO, CPAR, C_AND, C_OR]
+   50 operande: • DOLLAR OBRA MOT CBRA
+   51         | • DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   52         | • MOT
+   53         | • DOLLAR MOT
+   54         | • DOLLAR STAR
+   55         | • DOLLAR STATUS
+   56         | • CHAINE
+   57         | • DOLLAR OPAR EXPR somme_entiere CPAR
+   58         | • DOLLAR OPAR appel_de_fonction CPAR
 
     MOT     décalage et aller à l'état 23
     CHAINE  décalage et aller à l'état 24
@@ -2225,17 +2215,17 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 131
 
-   35 concatenation: concatenation . operande
-   47 test_instruction: concatenation NOT_EQUAL concatenation .  [THEN, DO, CPAR, C_AND, C_OR]
-   50 operande: . DOLLAR OBRA ID CBRA
-   51         | . DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   52         | . MOT
-   53         | . DOLLAR ENTIER
-   54         | . DOLLAR STAR
-   55         | . DOLLAR STATUS
-   56         | . CHAINE
-   57         | . DOLLAR OPAR EXPR somme_entiere CPAR
-   58         | . DOLLAR OPAR appel_de_fonction CPAR
+   35 concatenation: concatenation • operande
+   47 test_instruction: concatenation NOT_EQUAL concatenation •  [THEN, DO, CPAR, C_AND, C_OR]
+   50 operande: • DOLLAR OBRA MOT CBRA
+   51         | • DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   52         | • MOT
+   53         | • DOLLAR MOT
+   54         | • DOLLAR STAR
+   55         | • DOLLAR STATUS
+   56         | • CHAINE
+   57         | • DOLLAR OPAR EXPR somme_entiere CPAR
+   58         | • DOLLAR OPAR appel_de_fonction CPAR
 
     MOT     décalage et aller à l'état 23
     CHAINE  décalage et aller à l'état 24
@@ -2248,8 +2238,8 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 132
 
-   38 test_expr: test_expr C_OR test_expr2 .  [THEN, DO, CPAR, C_OR]
-   40 test_expr2: test_expr2 . C_AND test_expr3
+   38 test_expr: test_expr C_OR test_expr2 •  [THEN, DO, CPAR, C_OR]
+   40 test_expr2: test_expr2 • C_AND test_expr3
 
     C_AND  décalage et aller à l'état 91
 
@@ -2258,22 +2248,22 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 133
 
-   40 test_expr2: test_expr2 C_AND test_expr3 .
+   40 test_expr2: test_expr2 C_AND test_expr3 •
 
     $défaut  réduction par utilisation de la règle 40 (test_expr2)
 
 
 État 134
 
-   49 test_instruction: operande operateur2 operande .
+   49 test_instruction: operande operateur2 operande •
 
     $défaut  réduction par utilisation de la règle 49 (test_instruction)
 
 
 État 135
 
-   22 else_part: ELIF . test_bloc THEN liste_instructions else_part
-   37 test_bloc: . TEST test_expr
+   22 else_part: ELIF • test_bloc THEN liste_instructions else_part
+   37 test_bloc: • TEST test_expr
 
     TEST  décalage et aller à l'état 18
 
@@ -2282,30 +2272,30 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 136
 
-    2 liste_instructions: . liste_instructions SEMI_CO instruction
-    3                   | . instruction
-    4 instruction: . ID EQUAL concatenation
-    5            | . ID OABRA operande_entier CABRA EQUAL concatenation
-    6            | . DECLARE ID OABRA ENTIER CABRA
-    7            | . IF test_bloc THEN liste_instructions else_part FI
-    8            | . FOR ID DO liste_instructions DONE
-    9            | . FOR ID IN liste_operandes DO liste_instructions DONE
-   10            | . WHILE test_bloc DO liste_instructions DONE
-   11            | . UNTIL test_bloc DO liste_instructions DONE
-   12            | . CASE operande IN liste_cas ESAC
-   13            | . ECHO_ liste_operandes
-   14            | . READ ID
-   15            | . READ ID OABRA operande_entier CABRA
-   16            | . declaration_de_fonction
-   17            | . appel_de_fonction
-   18            | . RETURN
-   19            | . RETURN operande_entier
-   20            | . EXIT
-   21            | . EXIT operande_entier
-   23 else_part: ELSE . liste_instructions
-   85 declaration_de_fonction: . ID OPAR CPAR OBRA decl_loc liste_instructions CBRA
-   88 appel_de_fonction: . ID liste_operandes
-   89                  | . ID
+    2 liste_instructions: • liste_instructions SEMI_CO instruction
+    3                   | • instruction
+    4 instruction: • MOT EQUAL concatenation
+    5            | • MOT OABRA operande_entier CABRA EQUAL concatenation
+    6            | • DECLARE MOT OABRA MOT CABRA
+    7            | • IF test_bloc THEN liste_instructions else_part FI
+    8            | • FOR MOT DO liste_instructions DONE
+    9            | • FOR MOT IN liste_operandes DO liste_instructions DONE
+   10            | • WHILE test_bloc DO liste_instructions DONE
+   11            | • UNTIL test_bloc DO liste_instructions DONE
+   12            | • CASE operande IN liste_cas ESAC
+   13            | • ECHO_ liste_operandes
+   14            | • READ MOT
+   15            | • READ MOT OABRA operande_entier CABRA
+   16            | • declaration_de_fonction
+   17            | • appel_de_fonction
+   18            | • RETURN
+   19            | • RETURN operande_entier
+   20            | • EXIT
+   21            | • EXIT operande_entier
+   23 else_part: ELSE • liste_instructions
+   85 declaration_de_fonction: • MOT OPAR CPAR OBRA decl_loc liste_instructions CBRA
+   88 appel_de_fonction: • MOT liste_operandes
+   89                  | • MOT
 
     DECLARE  décalage et aller à l'état 1
     IF       décalage et aller à l'état 2
@@ -2317,7 +2307,7 @@ Non-terminaux, suivis des règles où ils apparaissent
     ECHO_    décalage et aller à l'état 8
     RETURN   décalage et aller à l'état 9
     EXIT     décalage et aller à l'état 10
-    ID       décalage et aller à l'état 11
+    MOT      décalage et aller à l'état 11
 
     liste_instructions       aller à l'état 161
     instruction              aller à l'état 14
@@ -2327,37 +2317,37 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 137
 
-    7 instruction: IF test_bloc THEN liste_instructions else_part . FI
+    7 instruction: IF test_bloc THEN liste_instructions else_part • FI
 
     FI  décalage et aller à l'état 162
 
 
 État 138
 
-    2 liste_instructions: . liste_instructions SEMI_CO instruction
-    3                   | . instruction
-    4 instruction: . ID EQUAL concatenation
-    5            | . ID OABRA operande_entier CABRA EQUAL concatenation
-    6            | . DECLARE ID OABRA ENTIER CABRA
-    7            | . IF test_bloc THEN liste_instructions else_part FI
-    8            | . FOR ID DO liste_instructions DONE
-    9            | . FOR ID IN liste_operandes DO liste_instructions DONE
-    9            | FOR ID IN liste_operandes DO . liste_instructions DONE
-   10            | . WHILE test_bloc DO liste_instructions DONE
-   11            | . UNTIL test_bloc DO liste_instructions DONE
-   12            | . CASE operande IN liste_cas ESAC
-   13            | . ECHO_ liste_operandes
-   14            | . READ ID
-   15            | . READ ID OABRA operande_entier CABRA
-   16            | . declaration_de_fonction
-   17            | . appel_de_fonction
-   18            | . RETURN
-   19            | . RETURN operande_entier
-   20            | . EXIT
-   21            | . EXIT operande_entier
-   85 declaration_de_fonction: . ID OPAR CPAR OBRA decl_loc liste_instructions CBRA
-   88 appel_de_fonction: . ID liste_operandes
-   89                  | . ID
+    2 liste_instructions: • liste_instructions SEMI_CO instruction
+    3                   | • instruction
+    4 instruction: • MOT EQUAL concatenation
+    5            | • MOT OABRA operande_entier CABRA EQUAL concatenation
+    6            | • DECLARE MOT OABRA MOT CABRA
+    7            | • IF test_bloc THEN liste_instructions else_part FI
+    8            | • FOR MOT DO liste_instructions DONE
+    9            | • FOR MOT IN liste_operandes DO liste_instructions DONE
+    9            | FOR MOT IN liste_operandes DO • liste_instructions DONE
+   10            | • WHILE test_bloc DO liste_instructions DONE
+   11            | • UNTIL test_bloc DO liste_instructions DONE
+   12            | • CASE operande IN liste_cas ESAC
+   13            | • ECHO_ liste_operandes
+   14            | • READ MOT
+   15            | • READ MOT OABRA operande_entier CABRA
+   16            | • declaration_de_fonction
+   17            | • appel_de_fonction
+   18            | • RETURN
+   19            | • RETURN operande_entier
+   20            | • EXIT
+   21            | • EXIT operande_entier
+   85 declaration_de_fonction: • MOT OPAR CPAR OBRA decl_loc liste_instructions CBRA
+   88 appel_de_fonction: • MOT liste_operandes
+   89                  | • MOT
 
     DECLARE  décalage et aller à l'état 1
     IF       décalage et aller à l'état 2
@@ -2369,7 +2359,7 @@ Non-terminaux, suivis des règles où ils apparaissent
     ECHO_    décalage et aller à l'état 8
     RETURN   décalage et aller à l'état 9
     EXIT     décalage et aller à l'état 10
-    ID       décalage et aller à l'état 11
+    MOT      décalage et aller à l'état 11
 
     liste_instructions       aller à l'état 163
     instruction              aller à l'état 14
@@ -2379,31 +2369,31 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 139
 
-    8 instruction: FOR ID DO liste_instructions DONE .
+    8 instruction: FOR MOT DO liste_instructions DONE •
 
     $défaut  réduction par utilisation de la règle 8 (instruction)
 
 
 État 140
 
-   10 instruction: WHILE test_bloc DO liste_instructions DONE .
+   10 instruction: WHILE test_bloc DO liste_instructions DONE •
 
     $défaut  réduction par utilisation de la règle 10 (instruction)
 
 
 État 141
 
-   11 instruction: UNTIL test_bloc DO liste_instructions DONE .
+   11 instruction: UNTIL test_bloc DO liste_instructions DONE •
 
     $défaut  réduction par utilisation de la règle 11 (instruction)
 
 
 État 142
 
-   57 operande: DOLLAR OPAR EXPR somme_entiere . CPAR
-   67 somme_entiere: somme_entiere . plus_ou_moins produit_entier
-   80 plus_ou_moins: . PLUS
-   81              | . MINUS
+   57 operande: DOLLAR OPAR EXPR somme_entiere • CPAR
+   67 somme_entiere: somme_entiere • plus_ou_moins produit_entier
+   80 plus_ou_moins: • PLUS
+   81              | • MINUS
 
     PLUS   décalage et aller à l'état 32
     MINUS  décalage et aller à l'état 33
@@ -2414,34 +2404,34 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 143
 
-   58 operande: DOLLAR OPAR appel_de_fonction CPAR .
+   58 operande: DOLLAR OPAR appel_de_fonction CPAR •
 
     $défaut  réduction par utilisation de la règle 58 (operande)
 
 
 État 144
 
-   50 operande: DOLLAR OBRA ID CBRA .
+   50 operande: DOLLAR OBRA MOT CBRA •
 
     $défaut  réduction par utilisation de la règle 50 (operande)
 
 
 État 145
 
-   51 operande: DOLLAR OBRA ID OABRA . operande_entier CABRA CBRA
-   71 operande_entier: . DOLLAR OBRA ID CBRA
-   72                | . DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   73                | . DOLLAR ENTIER
-   74                | . plus_ou_moins DOLLAR OBRA ID CBRA
-   75                | . plus_ou_moins DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   76                | . plus_ou_moins DOLLAR ENTIER
-   77                | . ENTIER
-   78                | . plus_ou_moins ENTIER
-   79                | . OPAR somme_entiere CPAR
-   80 plus_ou_moins: . PLUS
-   81              | . MINUS
+   51 operande: DOLLAR OBRA MOT OABRA • operande_entier CABRA CBRA
+   71 operande_entier: • DOLLAR OBRA MOT CBRA
+   72                | • DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   73                | • DOLLAR MOT
+   74                | • plus_ou_moins DOLLAR OBRA MOT CBRA
+   75                | • plus_ou_moins DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   76                | • plus_ou_moins DOLLAR MOT
+   77                | • MOT
+   78                | • plus_ou_moins MOT
+   79                | • OPAR somme_entiere CPAR
+   80 plus_ou_moins: • PLUS
+   81              | • MINUS
 
-    ENTIER  décalage et aller à l'état 31
+    MOT     décalage et aller à l'état 31
     PLUS    décalage et aller à l'état 32
     MINUS   décalage et aller à l'état 33
     OPAR    décalage et aller à l'état 34
@@ -2453,16 +2443,16 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 146
 
-   12 instruction: CASE operande IN liste_cas ESAC .
+   12 instruction: CASE operande IN liste_cas ESAC •
 
     $défaut  réduction par utilisation de la règle 12 (instruction)
 
 
 État 147
 
-   25 liste_cas: liste_cas filtre . CPAR liste_instructions SEMI_CO SEMI_CO
-   29 filtre: filtre . CASE_OR MOT
-   30       | filtre . CASE_OR CHAINE
+   25 liste_cas: liste_cas filtre • CPAR liste_instructions SEMI_CO SEMI_CO
+   29 filtre: filtre • CASE_OR MOT
+   30       | filtre • CASE_OR CHAINE
 
     CASE_OR  décalage et aller à l'état 148
     CPAR     décalage et aller à l'état 166
@@ -2470,8 +2460,8 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 148
 
-   29 filtre: filtre CASE_OR . MOT
-   30       | filtre CASE_OR . CHAINE
+   29 filtre: filtre CASE_OR • MOT
+   30       | filtre CASE_OR • CHAINE
 
     MOT     décalage et aller à l'état 167
     CHAINE  décalage et aller à l'état 168
@@ -2479,30 +2469,30 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 149
 
-    2 liste_instructions: . liste_instructions SEMI_CO instruction
-    3                   | . instruction
-    4 instruction: . ID EQUAL concatenation
-    5            | . ID OABRA operande_entier CABRA EQUAL concatenation
-    6            | . DECLARE ID OABRA ENTIER CABRA
-    7            | . IF test_bloc THEN liste_instructions else_part FI
-    8            | . FOR ID DO liste_instructions DONE
-    9            | . FOR ID IN liste_operandes DO liste_instructions DONE
-   10            | . WHILE test_bloc DO liste_instructions DONE
-   11            | . UNTIL test_bloc DO liste_instructions DONE
-   12            | . CASE operande IN liste_cas ESAC
-   13            | . ECHO_ liste_operandes
-   14            | . READ ID
-   15            | . READ ID OABRA operande_entier CABRA
-   16            | . declaration_de_fonction
-   17            | . appel_de_fonction
-   18            | . RETURN
-   19            | . RETURN operande_entier
-   20            | . EXIT
-   21            | . EXIT operande_entier
-   26 liste_cas: filtre CPAR . liste_instructions SEMI_CO SEMI_CO
-   85 declaration_de_fonction: . ID OPAR CPAR OBRA decl_loc liste_instructions CBRA
-   88 appel_de_fonction: . ID liste_operandes
-   89                  | . ID
+    2 liste_instructions: • liste_instructions SEMI_CO instruction
+    3                   | • instruction
+    4 instruction: • MOT EQUAL concatenation
+    5            | • MOT OABRA operande_entier CABRA EQUAL concatenation
+    6            | • DECLARE MOT OABRA MOT CABRA
+    7            | • IF test_bloc THEN liste_instructions else_part FI
+    8            | • FOR MOT DO liste_instructions DONE
+    9            | • FOR MOT IN liste_operandes DO liste_instructions DONE
+   10            | • WHILE test_bloc DO liste_instructions DONE
+   11            | • UNTIL test_bloc DO liste_instructions DONE
+   12            | • CASE operande IN liste_cas ESAC
+   13            | • ECHO_ liste_operandes
+   14            | • READ MOT
+   15            | • READ MOT OABRA operande_entier CABRA
+   16            | • declaration_de_fonction
+   17            | • appel_de_fonction
+   18            | • RETURN
+   19            | • RETURN operande_entier
+   20            | • EXIT
+   21            | • EXIT operande_entier
+   26 liste_cas: filtre CPAR • liste_instructions SEMI_CO SEMI_CO
+   85 declaration_de_fonction: • MOT OPAR CPAR OBRA decl_loc liste_instructions CBRA
+   88 appel_de_fonction: • MOT liste_operandes
+   89                  | • MOT
 
     DECLARE  décalage et aller à l'état 1
     IF       décalage et aller à l'état 2
@@ -2514,7 +2504,7 @@ Non-terminaux, suivis des règles où ils apparaissent
     ECHO_    décalage et aller à l'état 8
     RETURN   décalage et aller à l'état 9
     EXIT     décalage et aller à l'état 10
-    ID       décalage et aller à l'état 11
+    MOT      décalage et aller à l'état 11
 
     liste_instructions       aller à l'état 169
     instruction              aller à l'état 14
@@ -2524,28 +2514,28 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 150
 
-   15 instruction: READ ID OABRA operande_entier CABRA .
+   15 instruction: READ MOT OABRA operande_entier CABRA •
 
     $défaut  réduction par utilisation de la règle 15 (instruction)
 
 
 État 151
 
-   34 liste_operandes: DOLLAR OBRA ID OABRA . STAR CABRA CBRA
-   51 operande: DOLLAR OBRA ID OABRA . operande_entier CABRA CBRA
-   71 operande_entier: . DOLLAR OBRA ID CBRA
-   72                | . DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   73                | . DOLLAR ENTIER
-   74                | . plus_ou_moins DOLLAR OBRA ID CBRA
-   75                | . plus_ou_moins DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   76                | . plus_ou_moins DOLLAR ENTIER
-   77                | . ENTIER
-   78                | . plus_ou_moins ENTIER
-   79                | . OPAR somme_entiere CPAR
-   80 plus_ou_moins: . PLUS
-   81              | . MINUS
+   34 liste_operandes: DOLLAR OBRA MOT OABRA • STAR CABRA CBRA
+   51 operande: DOLLAR OBRA MOT OABRA • operande_entier CABRA CBRA
+   71 operande_entier: • DOLLAR OBRA MOT CBRA
+   72                | • DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   73                | • DOLLAR MOT
+   74                | • plus_ou_moins DOLLAR OBRA MOT CBRA
+   75                | • plus_ou_moins DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   76                | • plus_ou_moins DOLLAR MOT
+   77                | • MOT
+   78                | • plus_ou_moins MOT
+   79                | • OPAR somme_entiere CPAR
+   80 plus_ou_moins: • PLUS
+   81              | • MINUS
 
-    ENTIER  décalage et aller à l'état 31
+    MOT     décalage et aller à l'état 31
     PLUS    décalage et aller à l'état 32
     MINUS   décalage et aller à l'état 33
     STAR    décalage et aller à l'état 170
@@ -2558,11 +2548,11 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 152
 
-   67 somme_entiere: somme_entiere plus_ou_moins produit_entier .  [PLUS, MINUS, CPAR]
-   69 produit_entier: produit_entier . fois_div_mod operande_entier
-   82 fois_div_mod: . STAR
-   83             | . DIVISION
-   84             | . MOD
+   67 somme_entiere: somme_entiere plus_ou_moins produit_entier •  [PLUS, MINUS, CPAR]
+   69 produit_entier: produit_entier • fois_div_mod operande_entier
+   82 fois_div_mod: • STAR
+   83             | • DIVISION
+   84             | • MOD
 
     STAR      décalage et aller à l'état 118
     DIVISION  décalage et aller à l'état 119
@@ -2575,34 +2565,34 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 153
 
-   69 produit_entier: produit_entier fois_div_mod operande_entier .
+   69 produit_entier: produit_entier fois_div_mod operande_entier •
 
     $défaut  réduction par utilisation de la règle 69 (produit_entier)
 
 
 État 154
 
-   71 operande_entier: DOLLAR OBRA ID CBRA .
+   71 operande_entier: DOLLAR OBRA MOT CBRA •
 
     $défaut  réduction par utilisation de la règle 71 (operande_entier)
 
 
 État 155
 
-   71 operande_entier: . DOLLAR OBRA ID CBRA
-   72                | . DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   72                | DOLLAR OBRA ID OABRA . operande_entier CABRA CBRA
-   73                | . DOLLAR ENTIER
-   74                | . plus_ou_moins DOLLAR OBRA ID CBRA
-   75                | . plus_ou_moins DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   76                | . plus_ou_moins DOLLAR ENTIER
-   77                | . ENTIER
-   78                | . plus_ou_moins ENTIER
-   79                | . OPAR somme_entiere CPAR
-   80 plus_ou_moins: . PLUS
-   81              | . MINUS
+   71 operande_entier: • DOLLAR OBRA MOT CBRA
+   72                | • DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   72                | DOLLAR OBRA MOT OABRA • operande_entier CABRA CBRA
+   73                | • DOLLAR MOT
+   74                | • plus_ou_moins DOLLAR OBRA MOT CBRA
+   75                | • plus_ou_moins DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   76                | • plus_ou_moins DOLLAR MOT
+   77                | • MOT
+   78                | • plus_ou_moins MOT
+   79                | • OPAR somme_entiere CPAR
+   80 plus_ou_moins: • PLUS
+   81              | • MINUS
 
-    ENTIER  décalage et aller à l'état 31
+    MOT     décalage et aller à l'état 31
     PLUS    décalage et aller à l'état 32
     MINUS   décalage et aller à l'état 33
     OPAR    décalage et aller à l'état 34
@@ -2614,8 +2604,8 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 156
 
-   74 operande_entier: plus_ou_moins DOLLAR OBRA ID . CBRA
-   75                | plus_ou_moins DOLLAR OBRA ID . OABRA operande_entier CABRA CBRA
+   74 operande_entier: plus_ou_moins DOLLAR OBRA MOT • CBRA
+   75                | plus_ou_moins DOLLAR OBRA MOT • OABRA operande_entier CABRA CBRA
 
     CBRA   décalage et aller à l'état 172
     OABRA  décalage et aller à l'état 173
@@ -2623,31 +2613,31 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 157
 
-    2 liste_instructions: . liste_instructions SEMI_CO instruction
-    3                   | . instruction
-    4 instruction: . ID EQUAL concatenation
-    5            | . ID OABRA operande_entier CABRA EQUAL concatenation
-    6            | . DECLARE ID OABRA ENTIER CABRA
-    7            | . IF test_bloc THEN liste_instructions else_part FI
-    8            | . FOR ID DO liste_instructions DONE
-    9            | . FOR ID IN liste_operandes DO liste_instructions DONE
-   10            | . WHILE test_bloc DO liste_instructions DONE
-   11            | . UNTIL test_bloc DO liste_instructions DONE
-   12            | . CASE operande IN liste_cas ESAC
-   13            | . ECHO_ liste_operandes
-   14            | . READ ID
-   15            | . READ ID OABRA operande_entier CABRA
-   16            | . declaration_de_fonction
-   17            | . appel_de_fonction
-   18            | . RETURN
-   19            | . RETURN operande_entier
-   20            | . EXIT
-   21            | . EXIT operande_entier
-   85 declaration_de_fonction: . ID OPAR CPAR OBRA decl_loc liste_instructions CBRA
-   85                        | ID OPAR CPAR OBRA decl_loc . liste_instructions CBRA
-   86 decl_loc: decl_loc . LOCAL ID EQUAL concatenation SEMI_CO
-   88 appel_de_fonction: . ID liste_operandes
-   89                  | . ID
+    2 liste_instructions: • liste_instructions SEMI_CO instruction
+    3                   | • instruction
+    4 instruction: • MOT EQUAL concatenation
+    5            | • MOT OABRA operande_entier CABRA EQUAL concatenation
+    6            | • DECLARE MOT OABRA MOT CABRA
+    7            | • IF test_bloc THEN liste_instructions else_part FI
+    8            | • FOR MOT DO liste_instructions DONE
+    9            | • FOR MOT IN liste_operandes DO liste_instructions DONE
+   10            | • WHILE test_bloc DO liste_instructions DONE
+   11            | • UNTIL test_bloc DO liste_instructions DONE
+   12            | • CASE operande IN liste_cas ESAC
+   13            | • ECHO_ liste_operandes
+   14            | • READ MOT
+   15            | • READ MOT OABRA operande_entier CABRA
+   16            | • declaration_de_fonction
+   17            | • appel_de_fonction
+   18            | • RETURN
+   19            | • RETURN operande_entier
+   20            | • EXIT
+   21            | • EXIT operande_entier
+   85 declaration_de_fonction: • MOT OPAR CPAR OBRA decl_loc liste_instructions CBRA
+   85                        | MOT OPAR CPAR OBRA decl_loc • liste_instructions CBRA
+   86 decl_loc: decl_loc • LOCAL MOT EQUAL concatenation SEMI_CO
+   88 appel_de_fonction: • MOT liste_operandes
+   89                  | • MOT
 
     LOCAL    décalage et aller à l'état 174
     DECLARE  décalage et aller à l'état 1
@@ -2660,7 +2650,7 @@ Non-terminaux, suivis des règles où ils apparaissent
     ECHO_    décalage et aller à l'état 8
     RETURN   décalage et aller à l'état 9
     EXIT     décalage et aller à l'état 10
-    ID       décalage et aller à l'état 11
+    MOT      décalage et aller à l'état 11
 
     liste_instructions       aller à l'état 175
     instruction              aller à l'état 14
@@ -2670,18 +2660,18 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 158
 
-    5 instruction: ID OABRA operande_entier CABRA EQUAL . concatenation
-   35 concatenation: . concatenation operande
-   36              | . operande
-   50 operande: . DOLLAR OBRA ID CBRA
-   51         | . DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   52         | . MOT
-   53         | . DOLLAR ENTIER
-   54         | . DOLLAR STAR
-   55         | . DOLLAR STATUS
-   56         | . CHAINE
-   57         | . DOLLAR OPAR EXPR somme_entiere CPAR
-   58         | . DOLLAR OPAR appel_de_fonction CPAR
+    5 instruction: MOT OABRA operande_entier CABRA EQUAL • concatenation
+   35 concatenation: • concatenation operande
+   36              | • operande
+   50 operande: • DOLLAR OBRA MOT CBRA
+   51         | • DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   52         | • MOT
+   53         | • DOLLAR MOT
+   54         | • DOLLAR STAR
+   55         | • DOLLAR STATUS
+   56         | • CHAINE
+   57         | • DOLLAR OPAR EXPR somme_entiere CPAR
+   58         | • DOLLAR OPAR appel_de_fonction CPAR
 
     MOT     décalage et aller à l'état 23
     CHAINE  décalage et aller à l'état 24
@@ -2693,22 +2683,22 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 159
 
-   43 test_expr3: NOT OPAR test_expr CPAR .
+   43 test_expr3: NOT OPAR test_expr CPAR •
 
     $défaut  réduction par utilisation de la règle 43 (test_expr3)
 
 
 État 160
 
-   22 else_part: ELIF test_bloc . THEN liste_instructions else_part
+   22 else_part: ELIF test_bloc • THEN liste_instructions else_part
 
     THEN  décalage et aller à l'état 177
 
 
 État 161
 
-    2 liste_instructions: liste_instructions . SEMI_CO instruction
-   23 else_part: ELSE liste_instructions .  [FI]
+    2 liste_instructions: liste_instructions • SEMI_CO instruction
+   23 else_part: ELSE liste_instructions •  [FI]
 
     SEMI_CO  décalage et aller à l'état 44
 
@@ -2717,15 +2707,15 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 162
 
-    7 instruction: IF test_bloc THEN liste_instructions else_part FI .
+    7 instruction: IF test_bloc THEN liste_instructions else_part FI •
 
     $défaut  réduction par utilisation de la règle 7 (instruction)
 
 
 État 163
 
-    2 liste_instructions: liste_instructions . SEMI_CO instruction
-    9 instruction: FOR ID IN liste_operandes DO liste_instructions . DONE
+    2 liste_instructions: liste_instructions • SEMI_CO instruction
+    9 instruction: FOR MOT IN liste_operandes DO liste_instructions • DONE
 
     DONE     décalage et aller à l'état 178
     SEMI_CO  décalage et aller à l'état 44
@@ -2733,44 +2723,44 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 164
 
-   57 operande: DOLLAR OPAR EXPR somme_entiere CPAR .
+   57 operande: DOLLAR OPAR EXPR somme_entiere CPAR •
 
     $défaut  réduction par utilisation de la règle 57 (operande)
 
 
 État 165
 
-   51 operande: DOLLAR OBRA ID OABRA operande_entier . CABRA CBRA
+   51 operande: DOLLAR OBRA MOT OABRA operande_entier • CABRA CBRA
 
     CABRA  décalage et aller à l'état 179
 
 
 État 166
 
-    2 liste_instructions: . liste_instructions SEMI_CO instruction
-    3                   | . instruction
-    4 instruction: . ID EQUAL concatenation
-    5            | . ID OABRA operande_entier CABRA EQUAL concatenation
-    6            | . DECLARE ID OABRA ENTIER CABRA
-    7            | . IF test_bloc THEN liste_instructions else_part FI
-    8            | . FOR ID DO liste_instructions DONE
-    9            | . FOR ID IN liste_operandes DO liste_instructions DONE
-   10            | . WHILE test_bloc DO liste_instructions DONE
-   11            | . UNTIL test_bloc DO liste_instructions DONE
-   12            | . CASE operande IN liste_cas ESAC
-   13            | . ECHO_ liste_operandes
-   14            | . READ ID
-   15            | . READ ID OABRA operande_entier CABRA
-   16            | . declaration_de_fonction
-   17            | . appel_de_fonction
-   18            | . RETURN
-   19            | . RETURN operande_entier
-   20            | . EXIT
-   21            | . EXIT operande_entier
-   25 liste_cas: liste_cas filtre CPAR . liste_instructions SEMI_CO SEMI_CO
-   85 declaration_de_fonction: . ID OPAR CPAR OBRA decl_loc liste_instructions CBRA
-   88 appel_de_fonction: . ID liste_operandes
-   89                  | . ID
+    2 liste_instructions: • liste_instructions SEMI_CO instruction
+    3                   | • instruction
+    4 instruction: • MOT EQUAL concatenation
+    5            | • MOT OABRA operande_entier CABRA EQUAL concatenation
+    6            | • DECLARE MOT OABRA MOT CABRA
+    7            | • IF test_bloc THEN liste_instructions else_part FI
+    8            | • FOR MOT DO liste_instructions DONE
+    9            | • FOR MOT IN liste_operandes DO liste_instructions DONE
+   10            | • WHILE test_bloc DO liste_instructions DONE
+   11            | • UNTIL test_bloc DO liste_instructions DONE
+   12            | • CASE operande IN liste_cas ESAC
+   13            | • ECHO_ liste_operandes
+   14            | • READ MOT
+   15            | • READ MOT OABRA operande_entier CABRA
+   16            | • declaration_de_fonction
+   17            | • appel_de_fonction
+   18            | • RETURN
+   19            | • RETURN operande_entier
+   20            | • EXIT
+   21            | • EXIT operande_entier
+   25 liste_cas: liste_cas filtre CPAR • liste_instructions SEMI_CO SEMI_CO
+   85 declaration_de_fonction: • MOT OPAR CPAR OBRA decl_loc liste_instructions CBRA
+   88 appel_de_fonction: • MOT liste_operandes
+   89                  | • MOT
 
     DECLARE  décalage et aller à l'état 1
     IF       décalage et aller à l'état 2
@@ -2782,7 +2772,7 @@ Non-terminaux, suivis des règles où ils apparaissent
     ECHO_    décalage et aller à l'état 8
     RETURN   décalage et aller à l'état 9
     EXIT     décalage et aller à l'état 10
-    ID       décalage et aller à l'état 11
+    MOT      décalage et aller à l'état 11
 
     liste_instructions       aller à l'état 180
     instruction              aller à l'état 14
@@ -2792,63 +2782,63 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 167
 
-   29 filtre: filtre CASE_OR MOT .
+   29 filtre: filtre CASE_OR MOT •
 
     $défaut  réduction par utilisation de la règle 29 (filtre)
 
 
 État 168
 
-   30 filtre: filtre CASE_OR CHAINE .
+   30 filtre: filtre CASE_OR CHAINE •
 
     $défaut  réduction par utilisation de la règle 30 (filtre)
 
 
 État 169
 
-    2 liste_instructions: liste_instructions . SEMI_CO instruction
-   26 liste_cas: filtre CPAR liste_instructions . SEMI_CO SEMI_CO
+    2 liste_instructions: liste_instructions • SEMI_CO instruction
+   26 liste_cas: filtre CPAR liste_instructions • SEMI_CO SEMI_CO
 
     SEMI_CO  décalage et aller à l'état 181
 
 
 État 170
 
-   34 liste_operandes: DOLLAR OBRA ID OABRA STAR . CABRA CBRA
+   34 liste_operandes: DOLLAR OBRA MOT OABRA STAR • CABRA CBRA
 
     CABRA  décalage et aller à l'état 182
 
 
 État 171
 
-   72 operande_entier: DOLLAR OBRA ID OABRA operande_entier . CABRA CBRA
+   72 operande_entier: DOLLAR OBRA MOT OABRA operande_entier • CABRA CBRA
 
     CABRA  décalage et aller à l'état 183
 
 
 État 172
 
-   74 operande_entier: plus_ou_moins DOLLAR OBRA ID CBRA .
+   74 operande_entier: plus_ou_moins DOLLAR OBRA MOT CBRA •
 
     $défaut  réduction par utilisation de la règle 74 (operande_entier)
 
 
 État 173
 
-   71 operande_entier: . DOLLAR OBRA ID CBRA
-   72                | . DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   73                | . DOLLAR ENTIER
-   74                | . plus_ou_moins DOLLAR OBRA ID CBRA
-   75                | . plus_ou_moins DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   75                | plus_ou_moins DOLLAR OBRA ID OABRA . operande_entier CABRA CBRA
-   76                | . plus_ou_moins DOLLAR ENTIER
-   77                | . ENTIER
-   78                | . plus_ou_moins ENTIER
-   79                | . OPAR somme_entiere CPAR
-   80 plus_ou_moins: . PLUS
-   81              | . MINUS
+   71 operande_entier: • DOLLAR OBRA MOT CBRA
+   72                | • DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   73                | • DOLLAR MOT
+   74                | • plus_ou_moins DOLLAR OBRA MOT CBRA
+   75                | • plus_ou_moins DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   75                | plus_ou_moins DOLLAR OBRA MOT OABRA • operande_entier CABRA CBRA
+   76                | • plus_ou_moins DOLLAR MOT
+   77                | • MOT
+   78                | • plus_ou_moins MOT
+   79                | • OPAR somme_entiere CPAR
+   80 plus_ou_moins: • PLUS
+   81              | • MINUS
 
-    ENTIER  décalage et aller à l'état 31
+    MOT     décalage et aller à l'état 31
     PLUS    décalage et aller à l'état 32
     MINUS   décalage et aller à l'état 33
     OPAR    décalage et aller à l'état 34
@@ -2860,15 +2850,15 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 174
 
-   86 decl_loc: decl_loc LOCAL . ID EQUAL concatenation SEMI_CO
+   86 decl_loc: decl_loc LOCAL • MOT EQUAL concatenation SEMI_CO
 
-    ID  décalage et aller à l'état 185
+    MOT  décalage et aller à l'état 185
 
 
 État 175
 
-    2 liste_instructions: liste_instructions . SEMI_CO instruction
-   85 declaration_de_fonction: ID OPAR CPAR OBRA decl_loc liste_instructions . CBRA
+    2 liste_instructions: liste_instructions • SEMI_CO instruction
+   85 declaration_de_fonction: MOT OPAR CPAR OBRA decl_loc liste_instructions • CBRA
 
     SEMI_CO  décalage et aller à l'état 44
     CBRA     décalage et aller à l'état 186
@@ -2876,17 +2866,17 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 176
 
-    5 instruction: ID OABRA operande_entier CABRA EQUAL concatenation .  [$end, ELIF, ELSE, FI, DONE, SEMI_CO, CBRA]
-   35 concatenation: concatenation . operande
-   50 operande: . DOLLAR OBRA ID CBRA
-   51         | . DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   52         | . MOT
-   53         | . DOLLAR ENTIER
-   54         | . DOLLAR STAR
-   55         | . DOLLAR STATUS
-   56         | . CHAINE
-   57         | . DOLLAR OPAR EXPR somme_entiere CPAR
-   58         | . DOLLAR OPAR appel_de_fonction CPAR
+    5 instruction: MOT OABRA operande_entier CABRA EQUAL concatenation •  [$end, ELIF, ELSE, FI, DONE, SEMI_CO, CBRA]
+   35 concatenation: concatenation • operande
+   50 operande: • DOLLAR OBRA MOT CBRA
+   51         | • DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   52         | • MOT
+   53         | • DOLLAR MOT
+   54         | • DOLLAR STAR
+   55         | • DOLLAR STATUS
+   56         | • CHAINE
+   57         | • DOLLAR OPAR EXPR somme_entiere CPAR
+   58         | • DOLLAR OPAR appel_de_fonction CPAR
 
     MOT     décalage et aller à l'état 23
     CHAINE  décalage et aller à l'état 24
@@ -2899,30 +2889,30 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 177
 
-    2 liste_instructions: . liste_instructions SEMI_CO instruction
-    3                   | . instruction
-    4 instruction: . ID EQUAL concatenation
-    5            | . ID OABRA operande_entier CABRA EQUAL concatenation
-    6            | . DECLARE ID OABRA ENTIER CABRA
-    7            | . IF test_bloc THEN liste_instructions else_part FI
-    8            | . FOR ID DO liste_instructions DONE
-    9            | . FOR ID IN liste_operandes DO liste_instructions DONE
-   10            | . WHILE test_bloc DO liste_instructions DONE
-   11            | . UNTIL test_bloc DO liste_instructions DONE
-   12            | . CASE operande IN liste_cas ESAC
-   13            | . ECHO_ liste_operandes
-   14            | . READ ID
-   15            | . READ ID OABRA operande_entier CABRA
-   16            | . declaration_de_fonction
-   17            | . appel_de_fonction
-   18            | . RETURN
-   19            | . RETURN operande_entier
-   20            | . EXIT
-   21            | . EXIT operande_entier
-   22 else_part: ELIF test_bloc THEN . liste_instructions else_part
-   85 declaration_de_fonction: . ID OPAR CPAR OBRA decl_loc liste_instructions CBRA
-   88 appel_de_fonction: . ID liste_operandes
-   89                  | . ID
+    2 liste_instructions: • liste_instructions SEMI_CO instruction
+    3                   | • instruction
+    4 instruction: • MOT EQUAL concatenation
+    5            | • MOT OABRA operande_entier CABRA EQUAL concatenation
+    6            | • DECLARE MOT OABRA MOT CABRA
+    7            | • IF test_bloc THEN liste_instructions else_part FI
+    8            | • FOR MOT DO liste_instructions DONE
+    9            | • FOR MOT IN liste_operandes DO liste_instructions DONE
+   10            | • WHILE test_bloc DO liste_instructions DONE
+   11            | • UNTIL test_bloc DO liste_instructions DONE
+   12            | • CASE operande IN liste_cas ESAC
+   13            | • ECHO_ liste_operandes
+   14            | • READ MOT
+   15            | • READ MOT OABRA operande_entier CABRA
+   16            | • declaration_de_fonction
+   17            | • appel_de_fonction
+   18            | • RETURN
+   19            | • RETURN operande_entier
+   20            | • EXIT
+   21            | • EXIT operande_entier
+   22 else_part: ELIF test_bloc THEN • liste_instructions else_part
+   85 declaration_de_fonction: • MOT OPAR CPAR OBRA decl_loc liste_instructions CBRA
+   88 appel_de_fonction: • MOT liste_operandes
+   89                  | • MOT
 
     DECLARE  décalage et aller à l'état 1
     IF       décalage et aller à l'état 2
@@ -2934,7 +2924,7 @@ Non-terminaux, suivis des règles où ils apparaissent
     ECHO_    décalage et aller à l'état 8
     RETURN   décalage et aller à l'état 9
     EXIT     décalage et aller à l'état 10
-    ID       décalage et aller à l'état 11
+    MOT      décalage et aller à l'état 11
 
     liste_instructions       aller à l'état 187
     instruction              aller à l'état 14
@@ -2944,51 +2934,51 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 178
 
-    9 instruction: FOR ID IN liste_operandes DO liste_instructions DONE .
+    9 instruction: FOR MOT IN liste_operandes DO liste_instructions DONE •
 
     $défaut  réduction par utilisation de la règle 9 (instruction)
 
 
 État 179
 
-   51 operande: DOLLAR OBRA ID OABRA operande_entier CABRA . CBRA
+   51 operande: DOLLAR OBRA MOT OABRA operande_entier CABRA • CBRA
 
     CBRA  décalage et aller à l'état 188
 
 
 État 180
 
-    2 liste_instructions: liste_instructions . SEMI_CO instruction
-   25 liste_cas: liste_cas filtre CPAR liste_instructions . SEMI_CO SEMI_CO
+    2 liste_instructions: liste_instructions • SEMI_CO instruction
+   25 liste_cas: liste_cas filtre CPAR liste_instructions • SEMI_CO SEMI_CO
 
     SEMI_CO  décalage et aller à l'état 189
 
 
 État 181
 
-    2 liste_instructions: liste_instructions SEMI_CO . instruction
-    4 instruction: . ID EQUAL concatenation
-    5            | . ID OABRA operande_entier CABRA EQUAL concatenation
-    6            | . DECLARE ID OABRA ENTIER CABRA
-    7            | . IF test_bloc THEN liste_instructions else_part FI
-    8            | . FOR ID DO liste_instructions DONE
-    9            | . FOR ID IN liste_operandes DO liste_instructions DONE
-   10            | . WHILE test_bloc DO liste_instructions DONE
-   11            | . UNTIL test_bloc DO liste_instructions DONE
-   12            | . CASE operande IN liste_cas ESAC
-   13            | . ECHO_ liste_operandes
-   14            | . READ ID
-   15            | . READ ID OABRA operande_entier CABRA
-   16            | . declaration_de_fonction
-   17            | . appel_de_fonction
-   18            | . RETURN
-   19            | . RETURN operande_entier
-   20            | . EXIT
-   21            | . EXIT operande_entier
-   26 liste_cas: filtre CPAR liste_instructions SEMI_CO . SEMI_CO
-   85 declaration_de_fonction: . ID OPAR CPAR OBRA decl_loc liste_instructions CBRA
-   88 appel_de_fonction: . ID liste_operandes
-   89                  | . ID
+    2 liste_instructions: liste_instructions SEMI_CO • instruction
+    4 instruction: • MOT EQUAL concatenation
+    5            | • MOT OABRA operande_entier CABRA EQUAL concatenation
+    6            | • DECLARE MOT OABRA MOT CABRA
+    7            | • IF test_bloc THEN liste_instructions else_part FI
+    8            | • FOR MOT DO liste_instructions DONE
+    9            | • FOR MOT IN liste_operandes DO liste_instructions DONE
+   10            | • WHILE test_bloc DO liste_instructions DONE
+   11            | • UNTIL test_bloc DO liste_instructions DONE
+   12            | • CASE operande IN liste_cas ESAC
+   13            | • ECHO_ liste_operandes
+   14            | • READ MOT
+   15            | • READ MOT OABRA operande_entier CABRA
+   16            | • declaration_de_fonction
+   17            | • appel_de_fonction
+   18            | • RETURN
+   19            | • RETURN operande_entier
+   20            | • EXIT
+   21            | • EXIT operande_entier
+   26 liste_cas: filtre CPAR liste_instructions SEMI_CO • SEMI_CO
+   85 declaration_de_fonction: • MOT OPAR CPAR OBRA decl_loc liste_instructions CBRA
+   88 appel_de_fonction: • MOT liste_operandes
+   89                  | • MOT
 
     DECLARE  décalage et aller à l'état 1
     IF       décalage et aller à l'état 2
@@ -3000,7 +2990,7 @@ Non-terminaux, suivis des règles où ils apparaissent
     ECHO_    décalage et aller à l'état 8
     RETURN   décalage et aller à l'état 9
     EXIT     décalage et aller à l'état 10
-    ID       décalage et aller à l'état 11
+    MOT      décalage et aller à l'état 11
     SEMI_CO  décalage et aller à l'état 190
 
     instruction              aller à l'état 82
@@ -3010,46 +3000,46 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 182
 
-   34 liste_operandes: DOLLAR OBRA ID OABRA STAR CABRA . CBRA
+   34 liste_operandes: DOLLAR OBRA MOT OABRA STAR CABRA • CBRA
 
     CBRA  décalage et aller à l'état 191
 
 
 État 183
 
-   72 operande_entier: DOLLAR OBRA ID OABRA operande_entier CABRA . CBRA
+   72 operande_entier: DOLLAR OBRA MOT OABRA operande_entier CABRA • CBRA
 
     CBRA  décalage et aller à l'état 192
 
 
 État 184
 
-   75 operande_entier: plus_ou_moins DOLLAR OBRA ID OABRA operande_entier . CABRA CBRA
+   75 operande_entier: plus_ou_moins DOLLAR OBRA MOT OABRA operande_entier • CABRA CBRA
 
     CABRA  décalage et aller à l'état 193
 
 
 État 185
 
-   86 decl_loc: decl_loc LOCAL ID . EQUAL concatenation SEMI_CO
+   86 decl_loc: decl_loc LOCAL MOT • EQUAL concatenation SEMI_CO
 
     EQUAL  décalage et aller à l'état 194
 
 
 État 186
 
-   85 declaration_de_fonction: ID OPAR CPAR OBRA decl_loc liste_instructions CBRA .
+   85 declaration_de_fonction: MOT OPAR CPAR OBRA decl_loc liste_instructions CBRA •
 
     $défaut  réduction par utilisation de la règle 85 (declaration_de_fonction)
 
 
 État 187
 
-    2 liste_instructions: liste_instructions . SEMI_CO instruction
-   22 else_part: . ELIF test_bloc THEN liste_instructions else_part
-   22          | ELIF test_bloc THEN liste_instructions . else_part
-   23          | . ELSE liste_instructions
-   24          | . %empty  [FI]
+    2 liste_instructions: liste_instructions • SEMI_CO instruction
+   22 else_part: • ELIF test_bloc THEN liste_instructions else_part
+   22          | ELIF test_bloc THEN liste_instructions • else_part
+   23          | • ELSE liste_instructions
+   24          | ε •  [FI]
 
     ELIF     décalage et aller à l'état 135
     ELSE     décalage et aller à l'état 136
@@ -3062,36 +3052,36 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 188
 
-   51 operande: DOLLAR OBRA ID OABRA operande_entier CABRA CBRA .
+   51 operande: DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA •
 
     $défaut  réduction par utilisation de la règle 51 (operande)
 
 
 État 189
 
-    2 liste_instructions: liste_instructions SEMI_CO . instruction
-    4 instruction: . ID EQUAL concatenation
-    5            | . ID OABRA operande_entier CABRA EQUAL concatenation
-    6            | . DECLARE ID OABRA ENTIER CABRA
-    7            | . IF test_bloc THEN liste_instructions else_part FI
-    8            | . FOR ID DO liste_instructions DONE
-    9            | . FOR ID IN liste_operandes DO liste_instructions DONE
-   10            | . WHILE test_bloc DO liste_instructions DONE
-   11            | . UNTIL test_bloc DO liste_instructions DONE
-   12            | . CASE operande IN liste_cas ESAC
-   13            | . ECHO_ liste_operandes
-   14            | . READ ID
-   15            | . READ ID OABRA operande_entier CABRA
-   16            | . declaration_de_fonction
-   17            | . appel_de_fonction
-   18            | . RETURN
-   19            | . RETURN operande_entier
-   20            | . EXIT
-   21            | . EXIT operande_entier
-   25 liste_cas: liste_cas filtre CPAR liste_instructions SEMI_CO . SEMI_CO
-   85 declaration_de_fonction: . ID OPAR CPAR OBRA decl_loc liste_instructions CBRA
-   88 appel_de_fonction: . ID liste_operandes
-   89                  | . ID
+    2 liste_instructions: liste_instructions SEMI_CO • instruction
+    4 instruction: • MOT EQUAL concatenation
+    5            | • MOT OABRA operande_entier CABRA EQUAL concatenation
+    6            | • DECLARE MOT OABRA MOT CABRA
+    7            | • IF test_bloc THEN liste_instructions else_part FI
+    8            | • FOR MOT DO liste_instructions DONE
+    9            | • FOR MOT IN liste_operandes DO liste_instructions DONE
+   10            | • WHILE test_bloc DO liste_instructions DONE
+   11            | • UNTIL test_bloc DO liste_instructions DONE
+   12            | • CASE operande IN liste_cas ESAC
+   13            | • ECHO_ liste_operandes
+   14            | • READ MOT
+   15            | • READ MOT OABRA operande_entier CABRA
+   16            | • declaration_de_fonction
+   17            | • appel_de_fonction
+   18            | • RETURN
+   19            | • RETURN operande_entier
+   20            | • EXIT
+   21            | • EXIT operande_entier
+   25 liste_cas: liste_cas filtre CPAR liste_instructions SEMI_CO • SEMI_CO
+   85 declaration_de_fonction: • MOT OPAR CPAR OBRA decl_loc liste_instructions CBRA
+   88 appel_de_fonction: • MOT liste_operandes
+   89                  | • MOT
 
     DECLARE  décalage et aller à l'état 1
     IF       décalage et aller à l'état 2
@@ -3103,7 +3093,7 @@ Non-terminaux, suivis des règles où ils apparaissent
     ECHO_    décalage et aller à l'état 8
     RETURN   décalage et aller à l'état 9
     EXIT     décalage et aller à l'état 10
-    ID       décalage et aller à l'état 11
+    MOT      décalage et aller à l'état 11
     SEMI_CO  décalage et aller à l'état 196
 
     instruction              aller à l'état 82
@@ -3113,46 +3103,46 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 190
 
-   26 liste_cas: filtre CPAR liste_instructions SEMI_CO SEMI_CO .
+   26 liste_cas: filtre CPAR liste_instructions SEMI_CO SEMI_CO •
 
     $défaut  réduction par utilisation de la règle 26 (liste_cas)
 
 
 État 191
 
-   34 liste_operandes: DOLLAR OBRA ID OABRA STAR CABRA CBRA .
+   34 liste_operandes: DOLLAR OBRA MOT OABRA STAR CABRA CBRA •
 
     $défaut  réduction par utilisation de la règle 34 (liste_operandes)
 
 
 État 192
 
-   72 operande_entier: DOLLAR OBRA ID OABRA operande_entier CABRA CBRA .
+   72 operande_entier: DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA •
 
     $défaut  réduction par utilisation de la règle 72 (operande_entier)
 
 
 État 193
 
-   75 operande_entier: plus_ou_moins DOLLAR OBRA ID OABRA operande_entier CABRA . CBRA
+   75 operande_entier: plus_ou_moins DOLLAR OBRA MOT OABRA operande_entier CABRA • CBRA
 
     CBRA  décalage et aller à l'état 197
 
 
 État 194
 
-   35 concatenation: . concatenation operande
-   36              | . operande
-   50 operande: . DOLLAR OBRA ID CBRA
-   51         | . DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   52         | . MOT
-   53         | . DOLLAR ENTIER
-   54         | . DOLLAR STAR
-   55         | . DOLLAR STATUS
-   56         | . CHAINE
-   57         | . DOLLAR OPAR EXPR somme_entiere CPAR
-   58         | . DOLLAR OPAR appel_de_fonction CPAR
-   86 decl_loc: decl_loc LOCAL ID EQUAL . concatenation SEMI_CO
+   35 concatenation: • concatenation operande
+   36              | • operande
+   50 operande: • DOLLAR OBRA MOT CBRA
+   51         | • DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   52         | • MOT
+   53         | • DOLLAR MOT
+   54         | • DOLLAR STAR
+   55         | • DOLLAR STATUS
+   56         | • CHAINE
+   57         | • DOLLAR OPAR EXPR somme_entiere CPAR
+   58         | • DOLLAR OPAR appel_de_fonction CPAR
+   86 decl_loc: decl_loc LOCAL MOT EQUAL • concatenation SEMI_CO
 
     MOT     décalage et aller à l'état 23
     CHAINE  décalage et aller à l'état 24
@@ -3164,38 +3154,38 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 195
 
-   22 else_part: ELIF test_bloc THEN liste_instructions else_part .
+   22 else_part: ELIF test_bloc THEN liste_instructions else_part •
 
     $défaut  réduction par utilisation de la règle 22 (else_part)
 
 
 État 196
 
-   25 liste_cas: liste_cas filtre CPAR liste_instructions SEMI_CO SEMI_CO .
+   25 liste_cas: liste_cas filtre CPAR liste_instructions SEMI_CO SEMI_CO •
 
     $défaut  réduction par utilisation de la règle 25 (liste_cas)
 
 
 État 197
 
-   75 operande_entier: plus_ou_moins DOLLAR OBRA ID OABRA operande_entier CABRA CBRA .
+   75 operande_entier: plus_ou_moins DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA •
 
     $défaut  réduction par utilisation de la règle 75 (operande_entier)
 
 
 État 198
 
-   35 concatenation: concatenation . operande
-   50 operande: . DOLLAR OBRA ID CBRA
-   51         | . DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
-   52         | . MOT
-   53         | . DOLLAR ENTIER
-   54         | . DOLLAR STAR
-   55         | . DOLLAR STATUS
-   56         | . CHAINE
-   57         | . DOLLAR OPAR EXPR somme_entiere CPAR
-   58         | . DOLLAR OPAR appel_de_fonction CPAR
-   86 decl_loc: decl_loc LOCAL ID EQUAL concatenation . SEMI_CO
+   35 concatenation: concatenation • operande
+   50 operande: • DOLLAR OBRA MOT CBRA
+   51         | • DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA
+   52         | • MOT
+   53         | • DOLLAR MOT
+   54         | • DOLLAR STAR
+   55         | • DOLLAR STATUS
+   56         | • CHAINE
+   57         | • DOLLAR OPAR EXPR somme_entiere CPAR
+   58         | • DOLLAR OPAR appel_de_fonction CPAR
+   86 decl_loc: decl_loc LOCAL MOT EQUAL concatenation • SEMI_CO
 
     MOT      décalage et aller à l'état 23
     CHAINE   décalage et aller à l'état 24
@@ -3207,6 +3197,6 @@ Non-terminaux, suivis des règles où ils apparaissent
 
 État 199
 
-   86 decl_loc: decl_loc LOCAL ID EQUAL concatenation SEMI_CO .
+   86 decl_loc: decl_loc LOCAL MOT EQUAL concatenation SEMI_CO •
 
     $défaut  réduction par utilisation de la règle 86 (decl_loc)

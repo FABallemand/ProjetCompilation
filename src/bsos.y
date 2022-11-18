@@ -6,10 +6,9 @@ extern int yylex();
 extern void yyerror(const char *msg);
 %}
 
-%token TEST EXPR LOCAL DECLARE IF THEN ELIF ELSE FI FOR WHILE UNTIL CASE ESAC IN DO DONE READ ECHO_ RETURN EXIT COMMENT ID MOT CHAINE ENTIER PLUS MINUS STAR DIVISION EQUAL NOT_EQUAL NOT MOD CASE_OR SEMI_CO OPAR CPAR OBRA CBRA OABRA CABRA DOLLAR STATUS T_NOT_EMPTY T_EMPTY T_EQUAL T_NOT_EQUAL T_GT T_GE T_LT T_LE C_AND C_OR
+%token TEST EXPR LOCAL DECLARE IF THEN ELIF ELSE FI FOR WHILE UNTIL CASE ESAC IN DO DONE READ ECHO_ RETURN EXIT MOT CHAINE PLUS MINUS STAR DIVISION EQUAL NOT_EQUAL NOT MOD CASE_OR SEMI_CO OPAR CPAR OBRA CBRA OABRA CABRA DOLLAR STATUS T_NOT_EMPTY T_EMPTY T_EQUAL T_NOT_EQUAL T_GT T_GE T_LT T_LE C_AND C_OR
 %left PLUS MINUS
 %left STAR DIVISION
-%left UMOINS
 
 %start programme
 
@@ -25,18 +24,18 @@ liste_instructions
 ;
 
 instruction
-: ID EQUAL concatenation {}
-| ID OABRA operande_entier CABRA EQUAL concatenation {}
-| DECLARE ID OABRA ENTIER CABRA {}
+: MOT EQUAL concatenation {} // ici check si mot est un ID
+| MOT OABRA operande_entier CABRA EQUAL concatenation {} // ici check si mot est un ID
+| DECLARE MOT OABRA MOT CABRA {} // ici check si mot est un ID et check si le deuxième mot est un ENTIER
 | IF test_bloc THEN liste_instructions else_part FI {}
-| FOR ID DO liste_instructions DONE {}
-| FOR ID IN liste_operandes DO liste_instructions DONE {}
+| FOR MOT DO liste_instructions DONE {} // ici check si mot est un ID
+| FOR MOT IN liste_operandes DO liste_instructions DONE {} // ici check si mot est un ID
 | WHILE test_bloc DO liste_instructions DONE {}
 | UNTIL test_bloc DO liste_instructions DONE {}
 | CASE operande IN liste_cas ESAC {}
 | ECHO_ liste_operandes {}
-| READ ID {}
-| READ ID OABRA operande_entier CABRA {}
+| READ MOT {} // ici check si mot est un ID
+| READ MOT OABRA operande_entier CABRA {} // ici check si mot est un ID
 | declaration_de_fonction {}
 | appel_de_fonction {}
 | RETURN {}
@@ -67,7 +66,7 @@ filtre
 liste_operandes
 : liste_operandes operande {}
 | operande {}
-| DOLLAR OBRA ID OABRA STAR CABRA CBRA {}
+| DOLLAR OBRA MOT OABRA STAR CABRA CBRA {} // ici check si mot est un ID
 ;
 
 concatenation
@@ -104,10 +103,10 @@ test_instruction
 ;
 
 operande
-: DOLLAR OBRA ID CBRA {}
-| DOLLAR OBRA ID OABRA operande_entier CABRA CBRA {}
+: DOLLAR OBRA MOT CBRA {} // ici check si mot est un ID
+| DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA {} // ici check si mot est un ID
 | MOT {}
-| DOLLAR ENTIER {}
+| DOLLAR MOT {} // ici check si mot est un ENTIER
 | DOLLAR STAR  {}
 | DOLLAR STATUS {}
 | CHAINE {}
@@ -140,14 +139,14 @@ produit_entier
 ;
 
 operande_entier
-: DOLLAR OBRA ID CBRA {}
-| DOLLAR OBRA ID OABRA operande_entier CABRA CBRA {}
-| DOLLAR ENTIER {}
-| plus_ou_moins DOLLAR OBRA ID CBRA {}
-| plus_ou_moins DOLLAR OBRA ID OABRA operande_entier CABRA CBRA {}
-| plus_ou_moins DOLLAR ENTIER {}
-| ENTIER {}
-| plus_ou_moins ENTIER {}
+: DOLLAR OBRA MOT CBRA {} // ici check si mot est un ID
+| DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA {} // ici check si mot est un ID
+| DOLLAR MOT {} //ici check si mot est un ENTIER
+| plus_ou_moins DOLLAR OBRA MOT CBRA {} // ici check si mot est un ID
+| plus_ou_moins DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA {} // ici check si mot est un ID
+| plus_ou_moins DOLLAR MOT {} //ici check si mot est un ENTIER
+| MOT {} //ici check si mot est un ENTIER
+| plus_ou_moins MOT {} //ici check si mot est un ENTIER
 | OPAR somme_entiere CPAR {}
 ;
 
@@ -163,18 +162,18 @@ fois_div_mod
 ;
 
 declaration_de_fonction
-: ID OPAR CPAR OBRA decl_loc liste_instructions CBRA {}
+: MOT OPAR CPAR OBRA decl_loc liste_instructions CBRA {} // ici check si mot est un ID
 ;
 
 
 decl_loc
-: decl_loc LOCAL ID EQUAL concatenation SEMI_CO {}
+: decl_loc LOCAL MOT EQUAL concatenation SEMI_CO {} // ici check si mot est un ID
 | %empty {}
 ;
 
 appel_de_fonction
-: ID liste_operandes {}
-| ID {}
+: MOT liste_operandes {} // ici check si mot est un ID
+| MOT {} // ici check si mot est un ID
 ;
 
 %%

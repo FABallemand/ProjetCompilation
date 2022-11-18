@@ -14,8 +14,12 @@ FLEXFILE = fsos
 BISONFILE = bsos
 CFILE = csos
 
-$(BINDIR)/$(TARGET): $(OBJDIR)/$(CFILE).o $(OBJDIR)/$(BISONFILE).tab.o $(OBJDIR)/$(FLEXFILE).yy.o
+all: create_file $(BINDIR)/$(TARGET)
+
+create_file:
 	mkdir -p $(BINDIR) $(SRCDIR) $(INCDIR) $(OBJDIR)
+
+$(BINDIR)/$(TARGET): $(OBJDIR)/$(CFILE).o $(OBJDIR)/$(BISONFILE).tab.o $(OBJDIR)/$(FLEXFILE).yy.o
 	$(CC) $(CFLAGS) $(OBJDIR)/$(CFILE).o $(OBJDIR)/$(BISONFILE).tab.o $(OBJDIR)/$(FLEXFILE).yy.o -o $(BINDIR)/$(TARGET)
 
 $(OBJDIR)/$(CFILE).o:
