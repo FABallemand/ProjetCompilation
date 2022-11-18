@@ -19,7 +19,7 @@ jobs:
         - name: Compile
           run: make
 
-  compilation:
+  test:
       needs: activate
       runs-on: ubuntu-latest
       

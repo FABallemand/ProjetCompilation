@@ -38,13 +38,13 @@ test_1()
     echo "OK"
 
     ##########################################################################
-    echo -n "Test 1.3 - commentaires........................................."
-    $PROG < $INPUT/commentaire > $OUTPUT/commentaire
-    if [ $? -ne $SUCCESS ]
-    then
-        return 1
-    fi
-    echo "OK"
+    #echo -n "Test 1.3 - commentaires........................................."
+    #$PROG < $INPUT/commentaire > $OUTPUT/commentaire
+    #if [ $? -ne $SUCCESS ]
+    #then
+    #    return 1
+    #fi
+    #echo "OK"
 
     ##########################################################################
 
