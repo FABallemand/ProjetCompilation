@@ -23,14 +23,14 @@ typedef struct quadop_t
         int cst;
         char *chaine;
     } valeur; //< Valeur de l'opérateur
-};
+} quadop_t;
 
 /**
  * \struct Quadruplet
  *
  * \brief
  */
-typedef struct quad_t
+typedef struct quad
 {
     enum
     {
@@ -39,13 +39,13 @@ typedef struct quad_t
     } type; //< Type de quadruplet
 
     struct quadop_t op1, op2, res; //< Opérandes
-};
+} quad;
 
 /**
  * \brief Constructeur de quadop_t pour les constantes
  */
 #define quadop_cst(v)                    \
-    \ (struct quadop_t)                  \
+    (struct quadop_t)                    \
     {                                    \
         .kind = QO_CST, .u = {.cst = v } \
     }
