@@ -33,13 +33,13 @@
 "|" return CASE_OR;
 "$" return DOLLAR;
 \? return STATUS;
-";" {printf("semi_co\n");return SEMI_CO;}
+";" {printf("semi_co\n");return SEMI_CO;} // SEMICO ?
 
 \( {printf("OPAR\n");return OPAR;}
 \) {printf("CPAR\n");return CPAR;}
 \{ return OBRA;
 \} return CBRA;
-\[ return OABRA;
+\[ return OABRA; // Why ABRA ? -> SBRA for Square Bracket ? BRA for Bracket and CBRA for Curly Bracket above?
 \] return CABRA;
 
 
@@ -76,13 +76,13 @@ exit return EXIT;
 
 [[:space:]] ;
 
-#[^\n]*\n ;
+#[^\n]*\n {printf("COMMENT\n");}
 
 \n ;
 
 [^[:space:]\n\\\(\)\{\}\[\]\=\!\,\;\:\$\|\*\%]+ return MOT;
 
-. printf("ah bon ?\n");
+. printf("ah bon ?\n"); // xD
 
 %%
 
