@@ -24,7 +24,7 @@ $(BINDIR)/$(TARGET): $(OBJDIR)/$(CFILE).o $(OBJDIR)/$(BISONFILE).tab.o $(OBJDIR)
 	$(CC) $(CFLAGS) $(OBJDIR)/$(CFILE).o $(OBJDIR)/$(BISONFILE).tab.o $(OBJDIR)/$(FLEXFILE).yy.o -o $(BINDIR)/$(TARGET)
 
 $(OBJDIR)/$(CFILE).o:
-	$(CC) $(CFLAGS) -c -o $(OBJDIR)/$(CFILE).o $(SRCDIR)/$(CFILE).c
+	$(CC) $(CFLAGS) -c -o $(OBJDIR)/$(CFILE).o $(SRCDIR)/$(CFILE).c -I $(INCDIR)
 
 $(SRCDIR)/$(BISONFILE).tab.c: $(SRCDIR)/$(BISONFILE).y
 	# bison -o $(SRCDIR)/$(BISONFILE).tab.c -Wcounterexamples --report=all --header=$(INCDIR)/$(BISONFILE).tab.h -t $< # Linux
@@ -42,15 +42,22 @@ $(OBJDIR)/$(FLEXFILE).yy.o: $(SRCDIR)/$(FLEXFILE).yy.c
 	$(CC) $(CFLAGS) -c -o $(OBJDIR)/$(FLEXFILE).yy.o $(SRCDIR)/$(FLEXFILE).yy.c -I $(INCDIR)
 
 graph:
+	mkdir -p $(GRAPHDIR)
 	bison --graph $(SRCDIR)/$(BISONFILE).y
-	dot -Tpdf < $(GRAPHDIR)/$(TARGET).gv > $(GRAPHDIR)/$(TARGET).pdf
+	rm -f $(BISONFILE).tab.c
+	mv $(BISONFILE).gv $(GRAPHDIR)
+	dot -Tpdf < $(GRAPHDIR)/$(BISONFILE).gv > $(GRAPHDIR)/$(TARGET).pdf
+	
 
-.PHONY: clean clean_test test
+.PHONY: clean clean_test clean_graph test
 clean:
 	rm -f $(OBJDIR)/*.o $(SRCDIR)/$(BISONFILE).tab.c $(INCDIR)/$(BISONFILE).tab.h $(SRCDIR)/$(FLEXFILE).yy.c $(BISONFILE).output $(SRCDIR)/$(BISONFILE).gv $(SRCDIR)/$(BISONFILE).dot $(SRCDIR)/$(BISONFILE).pdf $(SRCDIR)/$(CFILE) $(BINDIR)/$(TARGET) $(TESTDIR)/output/*
 
 clean_test:
 	rm -f $(TESTDIR)/output/*
+
+clean_graph:
+	rm -f $(GRAPHDIR)/*.gv $(GRAPHDIR)/*.pdf
 
 test:
 	sh ./$(TESTDIR)/test.sh

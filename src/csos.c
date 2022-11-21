@@ -44,8 +44,8 @@ int main(int argc, char **argv)
     // yydebug = 1;
     yylineno = 1;
     int r = yyparse();
-    printf("yytext :%s\n",yytext);
-    printf("yylineno : %d\n",yylineno);
+    printf("yytext :%s\n", yytext);
+    printf("yylineno : %d\n", yylineno);
     printf("-> %d\n", r);
     return r;
 }

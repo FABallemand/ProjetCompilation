@@ -6,6 +6,8 @@ include/bsos.tab.h
 bsos.output
 src/bsos.tab.c
 src/fsos.yy.c
+*.gv
+
 *.aux
 *.blg
 *.fdb_latexmk

@@ -1,20 +1,54 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
-
 #include "quad.h"
 
 extern int yylex();
 extern void yyerror(const char *msg);
-
-extern struct quadop_t;
 %}
 
 %union {
     int int_val;
     char *str_val;
+
+    /**
+    * \struct Opérande d'un quadruplet
+    *
+    * \brief
+    */
+    struct quadop
+    {
+        enum
+        {
+            QO_CST,
+            QO_CHAINE
+        } kind; //< Type de l'opérateur
+
+        union
+        {
+            int cst;
+            char *chaine;
+        } valeur; //< Valeur de l'opérateur
+    } quadop;
+
+    /**
+    * \struct Quadruplet
+    *
+    * \brief
+    */
+    struct quad
+    {
+        enum
+        {
+            Q_ADDITION,
+            Q_SOUSTRACTION
+        } kind; //< Type de quadruplet
+
+        struct quadop op1, op2, res; //< Opérandes
+    } quad;
+    
     struct {
-        struct quadop_t result;
+        struct quadop result;
     } expr_val;
 }
 
