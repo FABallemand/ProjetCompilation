@@ -3,12 +3,12 @@
 void initGlobalCode(size_t t)
 {
     global_code_size = t;
-    CHK_NULL(global_code = malloc(global_code_size * sizeof(quad_t)));
+    CHK_NULL(global_code = malloc(global_code_size * sizeof(struct quad)));
 }
 
 void increaseGlobalCodeSize()
 {
-    quad_t *tmp = realloc(global_code, global_code_size * (++global_code_scaling_factor));
+    struct quad *tmp = realloc(global_code, global_code_size * (++global_code_scaling_factor));
     CHK_NULL(tmp);
     free(global_code);
     global_code = tmp;
@@ -21,8 +21,11 @@ void freeGlobalCode()
     global_code_size = 0;
 }
 
-void gencode(quad_t q)
+void gencode(struct quad q)
 {
-    // vérifier qu'il y a de la place dans le tableau, sinon l'agrandir...
+    if (next_quad >= global_code_size)
+    {
+        increaseGlobalCodeSize();
+    }
     global_code[next_quad++] = q;
 }

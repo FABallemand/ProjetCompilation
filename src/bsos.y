@@ -22,13 +22,13 @@ extern void yyerror(const char *msg);
         enum
         {
             QO_CST,
-            QO_CHAINE
+            QO_STRING
         } kind; //< Type de l'opérateur
 
         union
         {
             int cst;
-            char *chaine;
+            char *STRING;
         } valeur; //< Valeur de l'opérateur
     } quadop;
 
@@ -56,8 +56,8 @@ extern void yyerror(const char *msg);
     } expr_val;
 }
 
-%token <str_val> CHAINE
-%token MOT TEST EXPR LOCAL DECLARE IF THEN ELIF ELSE FI FOR WHILE UNTIL CASE ESAC IN DO DONE READ ECHO_ RETURN EXIT PLUS MINUS STAR DIVISION EQUAL NOT_EQUAL NOT MOD CASE_OR SEMI_CO OPAR CPAR OBRA CBRA OABRA CABRA DOLLAR STATUS T_NOT_EMPTY T_EMPTY T_EQUAL T_NOT_EQUAL T_GT T_GE T_LT T_LE C_AND C_OR
+%token <str_val> STRING
+%token WORD TEST EXPR LOCAL DECLARE IF THEN ELIF ELSE FI FOR WHILE UNTIL CASE ESAC IN DO DONE READ ECHO_ RETURN EXIT PLUS MINUS STAR DIVISION EQUAL NOT_EQUAL NOT MOD CASE_OR SEMI_CO OPAR CPAR OBRA CBRA OABRA CABRA DOLLAR STATUS T_NOT_EMPTY T_EMPTY T_EQUAL T_NOT_EQUAL T_GT T_GE T_LT T_LE C_AND C_OR
 %left PLUS MINUS
 %left STAR DIVISION
 
@@ -75,18 +75,18 @@ liste_instructions
 ;
 
 instruction
-: MOT EQUAL concatenation {} // check si mot est un ID
-| MOT OABRA operande_entier CABRA EQUAL concatenation {} // check si mot est un ID
-| DECLARE MOT OABRA MOT CABRA {} // check si mot est un ID et check si le deuxième mot est un ENTIER
+: WORD EQUAL concatenation {} // check si WORD est un ID
+| WORD OABRA operande_entier CABRA EQUAL concatenation {} // check si WORD est un ID
+| DECLARE WORD OABRA WORD CABRA {} // check si WORD est un ID et check si le deuxième WORD est un ENTIER
 | IF test_bloc THEN liste_instructions else_part FI {}
-| FOR MOT DO liste_instructions DONE {} // check si mot est un ID
-| FOR MOT IN liste_operandes DO liste_instructions DONE {} // check si mot est un ID
+| FOR WORD DO liste_instructions DONE {} // check si WORD est un ID
+| FOR WORD IN liste_operandes DO liste_instructions DONE {} // check si WORD est un ID
 | WHILE test_bloc DO liste_instructions DONE {}
 | UNTIL test_bloc DO liste_instructions DONE {}
 | CASE operande IN liste_cas ESAC {}
 | ECHO_ liste_operandes {}
-| READ MOT {} // check si mot est un ID
-| READ MOT OABRA operande_entier CABRA {} // check si mot est un ID
+| READ WORD {} // check si WORD est un ID
+| READ WORD OABRA operande_entier CABRA {} // check si WORD est un ID
 | declaration_de_fonction {}
 | appel_de_fonction {}
 | RETURN {}
@@ -107,17 +107,17 @@ liste_cas
 ;
 
 filtre
-: MOT {}
-| CHAINE {}
-| filtre CASE_OR MOT {}
-| filtre CASE_OR CHAINE {}
+: WORD {}
+| STRING {}
+| filtre CASE_OR WORD {}
+| filtre CASE_OR STRING {}
 | STAR 
 ;
 
 liste_operandes
 : liste_operandes operande {}
 | operande {}
-| DOLLAR OBRA MOT OABRA STAR CABRA CBRA {} // check si mot est un ID
+| DOLLAR OBRA WORD OABRA STAR CABRA CBRA {} // check si WORD est un ID
 ;
 
 concatenation
@@ -130,37 +130,50 @@ test_bloc
 ;
 
 test_expr
-: test_expr C_OR test_expr2 {}
+: test_expr C_OR test_expr2 {/*complete($1.true, 1er quad de calcul après la condition);
+                             $$.true = concat($1.true, $3.true);
+                             $$.false = concat($1.false, $3.false);*/}
 | test_expr2 {}
 ;
 
 test_expr2
-: test_expr2 C_AND test_expr3 {}
+: test_expr2 C_AND test_expr3 {/*complete($1.true, 1er quad de calcul de $3);
+                               $$.true = $3.true;
+                               $$.false = concat($1.false, $3.false);*/}
 | test_expr3 {}
 ;
 
 test_expr3
-: OPAR test_expr CPAR {}
-| NOT OPAR test_expr CPAR {}
+: OPAR test_expr CPAR {/*$$.true = $2.true;
+                       $$.false = $2.false;*/}
+| NOT OPAR test_expr CPAR {/*$$.true = $3.false;
+                           $$.false = $3.true;*/}
 | test_instruction {}
-| NOT test_instruction {}
+| NOT test_instruction {/*$$.true = $2.false;
+                        $$.false = $2.true;*/}
 ;
 
 test_instruction
-: concatenation EQUAL concatenation {}
-| concatenation NOT_EQUAL concatenation {}
+: concatenation EQUAL concatenation {/*$$.true = creeListe(nextquad);
+                                     genCode(...);
+                                     $$.false = creeListe(nextquad);
+                                     genCode(...);*/}
+| concatenation NOT_EQUAL concatenation {/*$$.true = creeListe(nextquad);
+                                         genCode(...);
+                                         $$.false = creeListe(nextquad);
+                                         genCode(...);*/}
 | operateur1 concatenation {}
-| operande operateur2 operande {}
+| operande operateur2 operande {} // Faire une règle par opérateur -> supprimer operateur2??
 ;
 
 operande
-: DOLLAR OBRA MOT CBRA {} // check si mot est un ID
-| DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA {} // check si mot est un ID
-| MOT {}
-| DOLLAR MOT {} // check si mot est un ENTIER
+: DOLLAR OBRA WORD CBRA {} // check si WORD est un ID
+| DOLLAR OBRA WORD OABRA operande_entier CABRA CBRA {} // check si WORD est un ID
+| WORD {}
+| DOLLAR WORD {} // check si WORD est un ENTIER
 | DOLLAR STAR  {}
 | DOLLAR STATUS {}
-| CHAINE {}
+| STRING {}
 | DOLLAR OPAR EXPR somme_entiere CPAR {}
 | DOLLAR OPAR appel_de_fonction CPAR {}
 ;
@@ -190,14 +203,14 @@ produit_entier
 ;
 
 operande_entier
-: DOLLAR OBRA MOT CBRA {} // check si mot est un ID
-| DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA {} // check si mot est un ID
-| DOLLAR MOT {} //check si mot est un ENTIER
-| plus_ou_moins DOLLAR OBRA MOT CBRA {} // check si mot est un ID
-| plus_ou_moins DOLLAR OBRA MOT OABRA operande_entier CABRA CBRA {} // check si mot est un ID
-| plus_ou_moins DOLLAR MOT {} //check si mot est un ENTIER
-| MOT {} //check si mot est un ENTIER
-| plus_ou_moins MOT {} //check si mot est un ENTIER
+: DOLLAR OBRA WORD CBRA {} // check si WORD est un ID
+| DOLLAR OBRA WORD OABRA operande_entier CABRA CBRA {} // check si WORD est un ID
+| DOLLAR WORD {} //check si WORD est un ENTIER
+| plus_ou_moins DOLLAR OBRA WORD CBRA {} // check si WORD est un ID
+| plus_ou_moins DOLLAR OBRA WORD OABRA operande_entier CABRA CBRA {} // check si WORD est un ID
+| plus_ou_moins DOLLAR WORD {} //check si WORD est un ENTIER
+| WORD {} //check si WORD est un ENTIER
+| plus_ou_moins WORD {} //check si WORD est un ENTIER
 | OPAR somme_entiere CPAR {}
 ;
 
@@ -213,18 +226,18 @@ fois_div_mod
 ;
 
 declaration_de_fonction
-: MOT OPAR CPAR OBRA decl_loc liste_instructions CBRA {} // check si mot est un ID
+: WORD OPAR CPAR OBRA decl_loc liste_instructions CBRA {} // check si WORD est un ID
 ;
 
 
 decl_loc
-: decl_loc LOCAL MOT EQUAL concatenation SEMI_CO {} // check si mot est un ID
+: decl_loc LOCAL WORD EQUAL concatenation SEMI_CO {} // check si WORD est un ID
 | %empty {}
 ;
 
 appel_de_fonction
-: MOT liste_operandes {} // check si mot est un ID
-| MOT {} // check si mot est un ID
+: WORD liste_operandes {} // check si WORD est un ID
+| WORD {} // check si WORD est un ID
 ;
 
 %%

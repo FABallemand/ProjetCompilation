@@ -1,3 +1,8 @@
+/**
+ * \file
+ *
+ * \brief
+ */
 
 /**
  * \brief Constructeur de quadop_t pour les constantes

@@ -1,10 +1,10 @@
-#include <stdlib.h>
-
 /**
  * \file
  *
  * \brief
  */
+
+#include <stdlib.h>
 
 /**
  * \struct

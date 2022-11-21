@@ -72,7 +72,7 @@ return {printf("return !\n");return RETURN;}
 
 exit return EXIT;
 
-[\"\']([^\"\'\\]|\\.)*[\"\'] return CHAINE;
+[\"\']([^\"\'\\]|\\.)*[\"\'] return STRING;
 
 [[:space:]] ;
 
@@ -80,7 +80,7 @@ exit return EXIT;
 
 \n ;
 
-[^[:space:]\n\\\(\)\{\}\[\]\=\!\,\;\:\$\|\*\%]+ return MOT;
+[^[:space:]\n\\\(\)\{\}\[\]\=\!\,\;\:\$\|\*\%]+ return WORD;
 
 . printf("ah bon ?\n"); // xD
 
