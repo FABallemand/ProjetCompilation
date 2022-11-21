@@ -9,12 +9,13 @@ extern void yyerror(const char *msg);
 
 %union {
     int int_val;
+
     char *str_val;
 
     /**
-    * \struct Opérande d'un quadruplet
+    * \struct quadop
     *
-    * \brief
+    * \brief Opérande d'un quadruplet
     */
     struct quadop
     {
@@ -32,21 +33,24 @@ extern void yyerror(const char *msg);
     } quadop;
 
     /**
-    * \struct Quadruplet
+    * \struct quad
     *
-    * \brief
+    * \brief Quadruplet
     */
     struct quad
     {
         enum
         {
-            Q_ADDITION,
-            Q_SOUSTRACTION
+            Q_ADD,
+            Q_SUB,
+            Q_MUL,
+            Q_DIV,
+            Q_MOD
         } kind; //< Type de quadruplet
 
         struct quadop op1, op2, res; //< Opérandes
     } quad;
-    
+
     struct {
         struct quadop result;
     } expr_val;

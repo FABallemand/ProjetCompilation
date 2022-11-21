@@ -13,19 +13,15 @@ TESTDIR = test
 
 FLEXFILE = fsos
 BISONFILE = bsos
-CFILES := $(wildcard $(SRCDIR)/*.c)
-OBJFILES  := $(CFILES:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
+CFILE = csos
 
 all: create_file $(BINDIR)/$(TARGET)
 
 create_file:
 	mkdir -p $(BINDIR) $(SRCDIR) $(INCDIR) $(OBJDIR)
 
-$(BINDIR)/$(TARGET): $(OBJFILES) $(OBJDIR)/$(BISONFILE).tab.o $(OBJDIR)/$(FLEXFILE).yy.o
-	$(CC) $(CFLAGS) $(OBJFILES) $(OBJDIR)/$(BISONFILE).tab.o $(OBJDIR)/$(FLEXFILE).yy.o -o $(BINDIR)/$(TARGET)
-
-$(OBJFILES): $(OBJDIR)/%.o : $(SRCDIR)/%.c
-	$(CC) -o $@ -c $< $(CFLAGS) -I $(INCDIR)
+$(BINDIR)/$(TARGET): $(OBJDIR)/$(CFILE).o $(OBJDIR)/$(BISONFILE).tab.o $(OBJDIR)/$(FLEXFILE).yy.o
+	$(CC) $(CFLAGS) $(OBJDIR)/$(CFILE).o $(OBJDIR)/$(BISONFILE).tab.o $(OBJDIR)/$(FLEXFILE).yy.o -o $(BINDIR)/$(TARGET)
 
 $(OBJDIR)/$(CFILE).o:
 	$(CC) $(CFLAGS) -c -o $(OBJDIR)/$(CFILE).o $(SRCDIR)/$(CFILE).c -I $(INCDIR)
