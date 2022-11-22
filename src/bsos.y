@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "quad.h"
+#include "code.h"
 
 extern int yylex();
 extern void yyerror(const char *msg);

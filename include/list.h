@@ -1,10 +1,13 @@
+#ifndef __DEF_LIST_H__
+#define __DEF_LIST_H__
+
+
+
 /**
  * \file
  *
  * \brief
  */
-
-#include <stdlib.h>
 
 /**
  * \struct
@@ -53,3 +56,5 @@ liste_quad_t *concat(liste_quad_t *liste1, liste_quad_t *liste2);
  * \param quad_pos la position ou les quads doivent être finis.
  */
 void complete(liste_quad_t *liste, int quad_pos);
+
+#endif

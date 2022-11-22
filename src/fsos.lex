@@ -1,4 +1,5 @@
 %{
+    #include "quad.h"
     #include <stdio.h>
     #include "quad.h"
     #include "bsos.tab.h"
