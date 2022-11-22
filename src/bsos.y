@@ -5,51 +5,20 @@
 
 extern int yylex();
 extern void yyerror(const char *msg);
+
+/*
+Rq: -Espace avant les ";" de fin de ligne ?
+
+Actions: -Expr. arithmétiques
+         -Expr. bool
+         -Instructions (affectations en premier)
+*/
 %}
 
 %union {
     int int_val;
 
     char *str_val;
-
-    /**
-    * \struct quadop
-    *
-    * \brief Opérande d'un quadruplet
-    */
-    struct quadop
-    {
-        enum
-        {
-            QO_CST,
-            QO_STRING
-        } kind; //< Type de l'opérateur
-
-        union
-        {
-            int cst;
-            char *STRING;
-        } valeur; //< Valeur de l'opérateur
-    } quadop;
-
-    /**
-    * \struct quad
-    *
-    * \brief Quadruplet
-    */
-    struct quad
-    {
-        enum
-        {
-            Q_ADD,
-            Q_SUB,
-            Q_MUL,
-            Q_DIV,
-            Q_MOD
-        } kind; //< Type de quadruplet
-
-        struct quadop op1, op2, res; //< Opérandes
-    } quad;
 
     struct {
         struct quadop result;
@@ -132,7 +101,7 @@ test_bloc
 test_expr
 : test_expr C_OR test_expr2 {/*complete($1.true, 1er quad de calcul après la condition);
                              $$.true = concat($1.true, $3.true);
-                             $$.false = concat($1.false, $3.false);*/}
+                             $$.false = concat($1.false, $3.false);*/} // true = ltrue
 | test_expr2 {}
 ;
 

@@ -1,6 +1,8 @@
 %{
-    #include "bsos.tab.h"
     #include <stdio.h>
+    #include "quad.h"
+    #include "bsos.tab.h"
+    
 %}
 
 %option nounput
@@ -71,6 +73,7 @@ echo return ECHO_;
 return {printf("return !\n");return RETURN;}
 
 exit return EXIT;
+    
 
 [\"\']([^\"\'\\]|\\.)*[\"\'] return STRING;
 

@@ -20,6 +20,8 @@
         }                     \
     } while (0)
 
+// Dans fichier bsos.y??
+
 struct quad *global_code = NULL;       //< Tableau de quadruplets correspondants au programme
 size_t global_code_size = 0;           //< Taille du tableau de quadruplets
 size_t global_code_scaling_factor = 1; //< Facteur d'agrandissement du tableau de quadruplets
