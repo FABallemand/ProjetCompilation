@@ -53,3 +53,5 @@ struct quad
         .kind = QO_CST, .valeur = {.cst = v } \
     }
 // struct quadop quadop_cst(int v);
+
+#endif
