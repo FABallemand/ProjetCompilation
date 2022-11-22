@@ -9,8 +9,6 @@
  * \brief
  */
 
-#include <stdlib.h>
-
 /**
  * \struct
  *
