@@ -1,3 +1,7 @@
+#ifndef __DEF_CODE_H__
+#define __DEF_CODE_H__
+
+
 /**
  * \file
  *
@@ -58,3 +62,5 @@ char *newtemp();
  * \return le code en assembleur MIPS correspondant au quadruplet donné en argument
  */
 void gencode(struct quad q);
+
+#endif

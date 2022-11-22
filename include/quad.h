@@ -1,3 +1,8 @@
+#ifndef __DEF_QUAD_H__
+#define __DEF_QUAD_H__
+
+
+
 /**
  * \file
  *
@@ -13,3 +18,5 @@
         .kind = QO_CST, .valeur = {.cst = v } \
     }
 // struct quadop quadop_cst(int v);
+
+#endif
