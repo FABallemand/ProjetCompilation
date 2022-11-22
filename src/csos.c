@@ -19,7 +19,7 @@ int main(int argc, char **argv)
     //     switch (c)
     //     {
     //     case 'v':
-    //         printf("ALLEMAND Fabien\n");
+    //         printf("ALLEMAND Fabien - LEBOT Samuel\n");
     //         break;
     //     }
     // }
@@ -28,7 +28,7 @@ int main(int argc, char **argv)
     {
         if (strcmp("-version", argv[i]))
         {
-            printf("ALLEMAND Fabien\n");
+            printf("ALLEMAND Fabien - LEBOT Samuel\n");
         }
         if (strcmp("-tos", argv[i]))
         {

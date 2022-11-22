@@ -1,9 +1,9 @@
 %{
-    #include "quad.h"
     #include <stdio.h>
+    #include <string.h>
+    
     #include "quad.h"
     #include "bsos.tab.h"
-    
 %}
 
 %option nounput

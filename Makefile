@@ -13,22 +13,22 @@ TESTDIR = test
 
 FLEXFILE = fsos
 BISONFILE = bsos
-CFILES := $(wildcard $(SRCDIR)/*.c)
+CFILES := $(filter-out $(SRCDIR)/$(BISONFILE).tab.c, $(filter-out $(SRCDIR)/$(FLEXFILE).yy.c, $(wildcard $(SRCDIR)/*.c)))
 OBJFILES  := $(CFILES:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
 
-all: create_file $(BINDIR)/$(TARGET)
-
-create_file:
-	mkdir -p $(BINDIR) $(SRCDIR) $(INCDIR) $(OBJDIR)
+all: create_dir $(BINDIR)/$(TARGET)
 
 $(BINDIR)/$(TARGET): $(OBJFILES) $(OBJDIR)/$(BISONFILE).tab.o $(OBJDIR)/$(FLEXFILE).yy.o
 	$(CC) $(CFLAGS) $(OBJFILES) $(OBJDIR)/$(BISONFILE).tab.o $(OBJDIR)/$(FLEXFILE).yy.o -o $(BINDIR)/$(TARGET)
 
-$(OBJFILES): $(OBJDIR)/%.o : $(SRCDIR)/%.c
+# $(OBJFILES): $(OBJDIR)/%.o : $(SRCDIR)/%.c
+#	$(CC) -o $@ -c $< $(CFLAGS) -I $(INCDIR)
+
+$(OBJFILES): $(CFILES)
 	$(CC) -o $@ -c $< $(CFLAGS) -I $(INCDIR)
 
-$(OBJDIR)/$(CFILE).o:
-	$(CC) $(CFLAGS) -c -o $(OBJDIR)/$(CFILE).o $(SRCDIR)/$(CFILE).c -I $(INCDIR)
+# $(OBJDIR)/$(CFILE).o:
+#	$(CC) $(CFLAGS) -c -o $(OBJDIR)/$(CFILE).o $(SRCDIR)/$(CFILE).c -I $(INCDIR)
 
 $(SRCDIR)/$(BISONFILE).tab.c: $(SRCDIR)/$(BISONFILE).y
 	# bison -o $(SRCDIR)/$(BISONFILE).tab.c -Wcounterexamples --report=all --header=$(INCDIR)/$(BISONFILE).tab.h -t $< # Linux
@@ -53,7 +53,10 @@ graph:
 	dot -Tpdf < $(GRAPHDIR)/$(BISONFILE).gv > $(GRAPHDIR)/$(TARGET).pdf
 	
 
-.PHONY: clean clean_test clean_graph test
+.PHONY: create_dir clean clean_test clean_graph test
+create_dir:
+	mkdir -p $(BINDIR) $(SRCDIR) $(INCDIR) $(OBJDIR)
+
 clean:
 	rm -f $(OBJDIR)/*.o $(SRCDIR)/$(BISONFILE).tab.c $(INCDIR)/$(BISONFILE).tab.h $(SRCDIR)/$(FLEXFILE).yy.c $(SRCDIR)/$(BISONFILE).output $(SRCDIR)/$(BISONFILE).gv $(SRCDIR)/$(BISONFILE).dot $(SRCDIR)/$(BISONFILE).pdf $(BINDIR)/$(TARGET) $(TESTDIR)/output/*
 
