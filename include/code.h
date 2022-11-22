@@ -24,10 +24,6 @@
         }                     \
     } while (0)
 
-struct quad *global_code = NULL;       //< Tableau de quadruplets correspondants au programme
-size_t global_code_size = 0;           //< Taille du tableau de quadruplets
-size_t global_code_scaling_factor = 1; //< Facteur d'agrandissement du tableau de quadruplets
-size_t next_quad = 0;                  //< Indice du prochain quadruplet dans le tableau de quadruplets
 
 /**
  * \brief Initialise le tableau de quadruplets correspondant au programme
