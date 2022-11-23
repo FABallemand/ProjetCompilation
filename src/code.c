@@ -51,3 +51,9 @@ void complete(struct list* l,size_t addr)
     freeList(l);
     return;
 }
+
+void printAllQuad(){
+    for(int i = 0; i < next_quad; i++){
+        printQuad(global_code[i]);
+    }
+}

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "code.h"
 
 extern int yydebug;
 extern int yyparse(void);
@@ -42,11 +43,14 @@ int main(int argc, char **argv)
     }
 
     // yydebug = 1;
+
+    initGlobalCode(1048);
+    
     yylineno = 1;
     int r = yyparse();
-    printf("yytext :%s\n", yytext);
-    printf("yylineno : %d\n", yylineno);
-    printf("-> %d\n", r);
+
+    freeGlobalCode();
+
     return r;
 }
 

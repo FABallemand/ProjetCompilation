@@ -96,12 +96,6 @@ struct quad
         .kind = Q_ADD, .op1 = op1, .op2 = op2, .res = res \
     }
 
-#define quad_and(op1, op2, res)                           \
-    (struct quadop)                                       \
-    {                                                     \
-        .kind = Q_AND, .op1 = op1, .op2 = op2, .res = res \
-    }
-
 void printQuadop(struct quadop q);
 
 void printQuad(struct quad q);

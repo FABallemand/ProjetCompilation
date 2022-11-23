@@ -18,14 +18,67 @@ void printQuadop(struct quadop q)
 
 void printQuad(struct quad q)
 {
-    printQuadop(q.op1);
-    switch (q.kind)
+    if(q.kind == Q_GOTO)
     {
-    case Q_ADD:
-        printf(" + ");
-        break;
+        printf("goto ");
+        printQuadop(q.op1);
     }
-    printQuadop(q.op2);
-    printf(" -> ");
-    printQuadop(q.res);
+    else
+    {
+        printQuadop(q.op1);
+        switch (q.kind)
+        {
+        case Q_ADD:
+            printf(" + ");
+            break;
+        case Q_SUB:
+            printf(" - ");
+            break;
+        case Q_MUL:
+            printf(" * ");
+            break;
+        case Q_DIV:
+            printf(" / ");
+            break;
+        case Q_MOD:
+            printf(" %% ");
+            break;
+        case Q_EQUAL:
+            printf(" -eq ");
+            break;
+        case Q_NOT_EQUAL:
+            printf(" -ne ");
+            break;
+        case Q_GT:
+            printf(" -gt ");
+            break;
+        case Q_GE:
+            printf(" -ge ");
+            break;
+        case Q_LT:
+            printf(" -lt ");
+            break;
+        case Q_LE:
+            printf(" -le ");
+            break;
+        case Q_EMP:
+            printf(" -n ");
+            break;
+        case Q_N_EMP:
+            printf(" -z ");
+            break;
+        case Q_EQUAL_STRING:
+            printf(" = ");
+            break;
+        case Q_NOT_EQUAL_STRING:
+            printf(" != ");
+            break;
+        default:
+            printf(" ??? ");
+        }
+        printQuadop(q.op2);
+        printf(" -> ");
+        printQuadop(q.res);
+    }
+    printf("\n");
 }

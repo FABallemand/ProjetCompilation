@@ -67,11 +67,17 @@ char *newtemp();
 void genCode(struct quad q);
 
 /**
- * \brief COmplete une liste de quad goto
+ * \brief Complete une liste de quad goto
  * 
  * \param l list de quad goto incomplet
  * \param addr adresse d'un quad
  */
 void complete(struct list* l,size_t addr);
+
+/**
+ * \brief Affiche tous les quads jusqu'à next quad
+ * 
+ */
+void printAllQuad();
 
 #endif
