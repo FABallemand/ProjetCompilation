@@ -126,8 +126,14 @@ test_instruction
                                          genCode(...);
                                          $$.false = creeListe(nextquad);
                                          genCode(...);*/}
-| operateur1 concatenation {}
-| operande operateur2 operande {} // Faire une règle par opérateur -> supprimer operateur2??
+| T_NOT_EMPTY concatenation {}
+| T_EMPTY concatenation {}
+| operande T_EQUAL operande {} 
+| operande T_NOT_EQUAL operande {} 
+| operande T_GT operande {} 
+| operande T_GE operande {} 
+| operande T_LT operande {} 
+| operande T_LE operande {} 
 ;
 
 operande
@@ -140,20 +146,6 @@ operande
 | STRING {}
 | DOLLAR OPAR EXPR somme_entiere CPAR {}
 | DOLLAR OPAR appel_de_fonction CPAR {}
-;
-
-operateur1
-: T_NOT_EMPTY {}
-| T_EMPTY {}
-;
-
-operateur2
-: T_EQUAL {}
-| T_NOT_EQUAL {}
-| T_GT {}
-| T_GE {}
-| T_LT {}
-| T_LE {}
 ;
 
 somme_entiere
