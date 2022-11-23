@@ -1,5 +1,10 @@
 #include "code.h"
 
+struct quad *global_code;          //< Tableau de quadruplets correspondants au programme
+size_t global_code_size;           //< Taille du tableau de quadruplets
+size_t global_code_scaling_factor; //< Facteur d'agrandissement du tableau de quadruplets
+size_t next_quad;                  //< Indice du prochain quadruplet dans le tableau de quadruplets
+
 void initGlobalCode(size_t t)
 {
     global_code_size = t;

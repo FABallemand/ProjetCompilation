@@ -1,59 +1,13 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
-// #include "code.h"
+#include "code.h"
 #include "quad.h"
 #include "list.h"
 
 extern int yylex();
 extern void yyerror(const char *msg);
 
-struct quad *global_code = NULL;       //< Tableau de quadruplets correspondants au programme
-size_t global_code_size = 0;           //< Taille du tableau de quadruplets
-size_t global_code_scaling_factor = 1; //< Facteur d'agrandissement du tableau de quadruplets
-size_t next_quad = 0;                  //< Indice du prochain quadruplet dans le tableau de quadruplets
-
-/**
- * \brief Initialise le tableau de quadruplets correspondant au programme
- *
- * \param t taille initiale du tableau
- */
-void initGlobalCode(size_t t);
-
-/**
- * \brief Augmente la taille du tableau de quadruplets correspondant au programme
- *
- */
-void increaseGlobalCodeSize();
-
-/**
- * \brief Libére la mémoire occupée par le tableau correspondant au programme
- *
- */
-void freeGlobalCode();
-
-/**
- * \brief Crée une nouvelle variable temporaire
- *
- * \return un symbole "frais"
- */
-char *newtemp();
-
-/**
- * \brief Génère le code d'un quadruplet
- *
- * \param q un quadruplet
- * \return le code en assembleur MIPS correspondant au quadruplet donné en argument
- */
-void genCode(struct quad q);
-
-/*
-Rq: -Espace avant les ";" de fin de ligne ?
-
-Actions: -Expr. arithmétiques
-         -Expr. bool
-         -Instructions (affectations en premier)
-*/
 %}
 
 %union {
@@ -251,36 +205,6 @@ appel_de_fonction
 ;
 
 %%
-
-void initGlobalCode(size_t t)
-{
-    global_code_size = t;
-    CHK_NULL(global_code = malloc(global_code_size * sizeof(struct quad)));
-}
-
-void increaseGlobalCodeSize()
-{
-    struct quad *tmp = realloc(global_code, global_code_size * (++global_code_scaling_factor));
-    CHK_NULL(tmp);
-    free(global_code);
-    global_code = tmp;
-}
-
-void freeGlobalCode()
-{
-    free(global_code);
-    global_code = NULL;
-    global_code_size = 0;
-}
-
-void genCode(struct quad q)
-{
-    if (next_quad >= global_code_size)
-    {
-        increaseGlobalCodeSize();
-    }
-    global_code[next_quad++] = q;
-}
 
 void yyerror(const char *msg)
 {
