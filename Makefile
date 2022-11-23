@@ -21,11 +21,11 @@ all: create_dir $(BINDIR)/$(TARGET)
 $(BINDIR)/$(TARGET): $(OBJFILES) $(OBJDIR)/$(BISONFILE).tab.o $(OBJDIR)/$(FLEXFILE).yy.o
 	$(CC) $(CFLAGS) $(OBJFILES) $(OBJDIR)/$(BISONFILE).tab.o $(OBJDIR)/$(FLEXFILE).yy.o -o $(BINDIR)/$(TARGET)
 
-# $(OBJFILES): $(OBJDIR)/%.o : $(SRCDIR)/%.c
-#	$(CC) -o $@ -c $< $(CFLAGS) -I $(INCDIR)
-
-$(OBJFILES): $(CFILES)
+$(OBJFILES): $(OBJDIR)/%.o : $(SRCDIR)/%.c
 	$(CC) -o $@ -c $< $(CFLAGS) -I $(INCDIR)
+
+#$(OBJFILES): $(CFILES)
+#	$(CC) -o $@ -c $< $(CFLAGS) -I $(INCDIR)
 
 # $(OBJDIR)/$(CFILE).o:
 #	$(CC) $(CFLAGS) -c -o $(OBJDIR)/$(CFILE).o $(SRCDIR)/$(CFILE).c -I $(INCDIR)
