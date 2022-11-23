@@ -20,8 +20,6 @@ struct quadop
     {
         QO_CST,
         QO_STRING,
-        QO_BOOL,
-        QO_ADDR,
         QO_EMPTY,
         QO_UNKNOWN
     } kind; //< Type de l'opérateur
@@ -30,7 +28,6 @@ struct quadop
     {
         int cst;
         char *string;
-        int bool;
     } valeur; //< Valeur de l'opérateur
 
 
