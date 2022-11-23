@@ -32,6 +32,8 @@ struct quadop
         char *string;
         int bool;
     } valeur; //< Valeur de l'opérateur
+
+
 };
 
 /**
@@ -70,14 +72,22 @@ struct quad
 {
     enum
     {
-        Q_ADD,
-        Q_SUB,
-        Q_MUL,
-        Q_DIV,
-        Q_MOD,
-        Q_AND,
-        Q_OR,
-        Q_GOTO
+        Q_ADD, // addition
+        Q_SUB, // substraction
+        Q_MUL, // multiplication
+        Q_DIV, // division
+        Q_MOD, // modulo
+        Q_EQUAL, // egale entre entier
+        Q_NOT_EQUAL, // non egal entre entier
+        Q_GT, // plus grand strict entier
+        Q_GE, // plus grand entier
+        Q_LT, // plus petit strict entier
+        Q_LE, // plus petit entier
+        Q_EMP, // chaine vide
+        Q_N_EMP, // chaine non vide
+        Q_EQUAL_STRING, // egale entre chaine
+        Q_NOT_EQUAL_STRING, // non egal entre chaine
+        Q_GOTO //goto
     } kind; //< Type de quadruplet
 
     struct quadop op1, op2, res; //< Opérandes
