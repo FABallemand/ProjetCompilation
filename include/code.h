@@ -5,6 +5,7 @@
 #include <stdlib.h>
 
 #include "quad.h"
+#include "list.h"
 
 #define CHK_NULL(x)           \
     do                        \
@@ -29,7 +30,6 @@
 
 extern struct quad *global_code;          //< Tableau de quadruplets correspondants au programme
 extern size_t global_code_size;           //< Taille du tableau de quadruplets
-extern size_t global_code_scaling_factor; //< Facteur d'agrandissement du tableau de quadruplets
 extern size_t next_quad;                  //< Indice du prochain quadruplet dans le tableau de quadruplets
 
 /**
@@ -65,5 +65,13 @@ char *newtemp();
  * \return le code en assembleur MIPS correspondant au quadruplet donné en argument
  */
 void genCode(struct quad q);
+
+/**
+ * \brief COmplete une liste de quad goto
+ * 
+ * \param l list de quad goto incomplet
+ * \param addr adresse d'un quad
+ */
+void complete(struct list* l,size_t addr);
 
 #endif
