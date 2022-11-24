@@ -11,7 +11,6 @@ struct list *createList(size_t a)
 
 void freeList(struct list *l)
 {
-    //je pense que tu voulais faire une fonction recursive mais tu as oublié l'appel recursif
     if(!l)
     {
         return;
@@ -37,7 +36,6 @@ struct list *concat(struct list *l1, struct list *l2)
     }
     else
     {
-        //j'ai viré la récursion pour limiter les appels inutiles 
         struct list *temp = l1;
         while(temp->next){
             temp = temp->next;

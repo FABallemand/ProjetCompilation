@@ -19,6 +19,7 @@ struct quadop
     enum
     {
         QO_CST,
+        QO_VAR,
         QO_STRING,
         QO_EMPTY,
         QO_UNKNOWN
@@ -27,7 +28,8 @@ struct quadop
     union
     {
         int cst;
-        char string[64];
+        char *name;
+        char *string;
     } valeur; //< Valeur de l'opérateur
 
 };
@@ -39,21 +41,27 @@ struct quadop
     (struct quadop)                           \
     {                                         \
         .kind = QO_CST, .valeur = {.cst = v } \
-    }                                       
+    }              
+
+#define quadop_var(v)                            \
+    (struct quadop)                                 \
+    {                                               \
+        .kind = QO_VAR, .valeur = {.name = strdup(v) } \
+    }                         
 
 #define quadop_string(v)                            \
     (struct quadop)                                 \
     {                                               \
-        .kind = QO_STRING, .valeur = {.string = v } \
+        .kind = QO_STRING, .valeur = {.string = strdup(v) } \
     }
 
-#define quadop_unknown(v)                          \
+#define quadop_unknown()                          \
     (struct quadop)                             \
     {                                           \
         .kind = QO_UNKNOWN                      \
     }
 
-#define quadop_empty(v)  \
+#define quadop_empty()  \
     (struct quadop)      \
     {                    \
         .kind = QO_EMPTY \

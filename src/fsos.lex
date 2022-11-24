@@ -4,6 +4,9 @@
     
     #include "quad.h"
     #include "bsos.tab.h"
+
+    char *removeQuote(char *src);
+
 %}
 
 %option nounput
@@ -36,13 +39,13 @@
 "|" return CASE_OR;
 "$" return DOLLAR;
 \? return STATUS;
-";" {printf("semi_co\n");return SEMI_CO;} // SEMICO ?
+";" return SEMI_CO;
 
-\( {printf("OPAR\n");return OPAR;}
-\) {printf("CPAR\n");return CPAR;}
+\( return OPAR;
+\) return CPAR;
 \{ return OBRA;
 \} return CBRA;
-\[ return OABRA; // Why ABRA ? -> SBRA for Square Bracket ? BRA for Bracket and CBRA for Curly Bracket above?
+\[ return OABRA;
 \] return CABRA;
 
 
@@ -50,7 +53,7 @@ test return TEST;
 expr return EXPR;
 
 local return LOCAL;
-declare {printf("DECLARE\n");return DECLARE;}
+declare return DECLARE;
 
 if return IF;
 then return THEN;
@@ -71,22 +74,26 @@ done return DONE;
 read return READ;
 echo return ECHO_;
 
-return {printf("return !\n");return RETURN;}
+return return RETURN;
 
 exit return EXIT;
     
-[\"\']([^\"\'\\]|\\.)*[\"\'] return STRING;
+[\"\']([^\"\'\\]|\\.)*[\"\'] {yylval.str_val = strdup(removeQuote(yytext));return STRING;}
 
-[+-]?(([1-9][0-9]*)|0) return ENTIER;
+(([1-9][0-9]*)|0) {yylval.int_val = atoi(yytext);return INTEGER;}
 
-[a-zA-Z_][0-9a-zA-Z_]* return ID;
+[a-zA-Z_][0-9a-zA-Z_]* {yylval.str_val = strdup(yytext);return ID;}
 
 [[:space:]] ;
 
-#[^\n]*\n {printf("COMMENT\n");}
+#[^\n]*\n ;
 
 \n ;
 
 . printf("ah bon ?\n"); // xD
 
 %%
+
+char *removeQuote(char *src){
+    return src;
+}

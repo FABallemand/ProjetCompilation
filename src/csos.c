@@ -45,22 +45,19 @@ int main(int argc, char **argv)
     // yydebug = 1;
 
     initGlobalCode(1048);
+
+
+    // char *t1 = newtemp();
+    // char *t2 = newtemp();
+    // char *t3 = newtemp();
+    // char *t4 = newtemp();
+    // printf("%s %s %s %s\n",t1,t2,t3,t4);
     
     yylineno = 1;
     int r = yyparse();
     printf("yytext :%s\n", yytext);
     printf("yylineno : %d\n", yylineno);
     printf("-> %d\n", r);
-
-    //char t1[64];
-    //char t2[64];
-    //char t3[64];
-    //char t4[64];
-    //newtemp(t1);
-    //newtemp(t2);
-    //newtemp(t3);
-    //newtemp(t4);
-    //printf("%s %s %s %s\n",t1,t2,t3,t4);
 
     printAllQuad();
 

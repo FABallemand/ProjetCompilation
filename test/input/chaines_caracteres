@@ -1,2 +1,3 @@
-"une chaine"
-'une autre chaine'
+echo "une chaine";
+echo 'une autre chaine';
+exit

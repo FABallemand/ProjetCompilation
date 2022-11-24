@@ -1,19 +1,17 @@
 #include "code.h"
 
 struct quad *global_code;          //< Tableau de quadruplets correspondants au programme
-size_t global_code_size;           //< Taille du tableau de quadruplets
-size_t next_quad;                  //< Indice du prochain quadruplet dans le tableau de quadruplets
+size_t next_quad = 0;                  //< Indice du prochain quadruplet dans le tableau de quadruplets
 
-void initGlobalCode(size_t t)
+void initGlobalCode()
 {
-    global_code_size = t;
-    CHK_NULL(global_code = malloc(global_code_size * sizeof(struct quad)));
+    CHK_NULL(global_code = malloc(INITIAL_GLOBAL_CODE_SIZE * sizeof(struct quad)));
 }
 
 void increaseGlobalCodeSize()
 {
-    global_code_size *= 2; //plus simple ? quand penses tu ?
-    struct quad *tmp = realloc(global_code, global_code_size * sizeof(struct quad));
+    struct quad *tmp = realloc(global_code, (next_quad+INITIAL_GLOBAL_CODE_SIZE)*sizeof(struct quad));
+
     CHK_NULL(tmp);
     free(global_code);
     global_code = tmp;
@@ -23,26 +21,25 @@ void freeGlobalCode()
 {
     free(global_code);
     global_code = NULL;
-    global_code_size = 0;
 }
 
 void genCode(struct quad q)
 {
-    if (next_quad >= global_code_size)
+    if (next_quad != 0 && ((next_quad%INITIAL_GLOBAL_CODE_SIZE) == 0))
     {
         increaseGlobalCodeSize();
     }
     global_code[next_quad++] = q;
-    //pas complet
 }
 
-void newtemp(char * dest){
+char *newtemp(){
     static size_t next_tmp = 0;
+    char dest[20]; //avoid an useless malloc
     if(sprintf(dest,"%s%ld","%%TMP_",next_tmp) < 0){
         exit(1);
     }
     next_tmp++;
-    return;
+    return strdup(dest);
 }
 
 
@@ -64,6 +61,7 @@ void complete(struct list* l,size_t addr)
 
 void printAllQuad(){
     for(int i = 0; i < next_quad; i++){
+        printf("%d : ",i);
         printQuad(global_code[i]);
     }
 }

@@ -13,7 +13,7 @@ extern void yyerror(const char *msg);
 %union {
     int int_val;
 
-    char *str_val;
+    char *str_val; //string + id
 
     struct {
         struct quadop result;
@@ -29,18 +29,20 @@ extern void yyerror(const char *msg);
     } inst_val;
 }
 
-%token ID TEST EXPR LOCAL DECLARE IF THEN ELIF ELSE FI FOR WHILE UNTIL CASE ESAC IN DO DONE READ ECHO_ RETURN EXIT PLUS MINUS STAR DIVISION EQUAL NOT_EQUAL NOT MOD CASE_OR SEMI_CO OPAR CPAR OBRA CBRA OABRA CABRA DOLLAR STATUS T_NOT_EMPTY T_EMPTY T_EQUAL T_NOT_EQUAL T_GT T_GE T_LT T_LE C_AND C_OR
+%token TEST EXPR LOCAL DECLARE IF THEN ELIF ELSE FI FOR WHILE UNTIL CASE ESAC IN DO DONE READ ECHO_ RETURN EXIT PLUS MINUS STAR DIVISION EQUAL NOT_EQUAL NOT MOD CASE_OR SEMI_CO OPAR CPAR OBRA CBRA OABRA CABRA DOLLAR STATUS T_NOT_EMPTY T_EMPTY T_EQUAL T_NOT_EQUAL T_GT T_GE T_LT T_LE C_AND C_OR
 
-%token <int_val> ENTIER
+%token <int_val> INTEGER
 
-%token <str_val> STRING
+%token <str_val> STRING ID
 
 %type <inst_val> instruction liste_instructions
 
 %type <bool_val> test_bloc test_expr test_expr2 test_expr3 test_instruction
 
+%type <expr_val> concatenation operande
+
 %left PLUS MINUS
-%left STAR DIVISION
+%left STAR DIVISION MOD
 
 %start programme
 
@@ -56,9 +58,12 @@ liste_instructions
 ;
 
 instruction
-: ID EQUAL concatenation {}
+: ID EQUAL concatenation 
+{
+    genCode(quad_new(Q_AFFECT,$3.result,quadop_empty(),quadop_var($1)));
+}
 | ID OABRA operande_entier CABRA EQUAL concatenation {}
-| DECLARE ID OABRA ENTIER CABRA {}
+| DECLARE ID OABRA INTEGER CABRA {}
 | IF test_bloc THEN liste_instructions else_part FI {}
 | FOR ID DO liste_instructions DONE {}
 | FOR ID IN liste_operandes DO liste_instructions DONE {}
@@ -154,10 +159,10 @@ test_instruction
 operande
 : DOLLAR OBRA ID CBRA {}
 | DOLLAR OBRA ID OABRA operande_entier CABRA CBRA {}
-| DOLLAR ENTIER {}
+| DOLLAR INTEGER {}
 | DOLLAR STAR  {}
 | DOLLAR STATUS {}
-| ENTIER {}
+| INTEGER {$$.result = quadop_cst($1);}
 | STRING {}
 | DOLLAR OPAR EXPR somme_entiere CPAR {}
 | DOLLAR OPAR appel_de_fonction CPAR {}
@@ -176,12 +181,12 @@ produit_entier
 operande_entier
 : DOLLAR OBRA ID CBRA {}
 | DOLLAR OBRA ID OABRA operande_entier CABRA CBRA {}
-| DOLLAR ENTIER {}
+| DOLLAR INTEGER {}
 | plus_ou_moins DOLLAR OBRA ID CBRA {}
 | plus_ou_moins DOLLAR OBRA ID OABRA operande_entier CABRA CBRA {}
-| plus_ou_moins DOLLAR ENTIER {}
-| ENTIER {}
-| plus_ou_moins ENTIER {}
+| plus_ou_moins DOLLAR INTEGER {}
+| INTEGER {}
+| plus_ou_moins INTEGER {}
 | OPAR somme_entiere CPAR {}
 ;
 

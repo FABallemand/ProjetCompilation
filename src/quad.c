@@ -10,6 +10,9 @@ void printQuadop(struct quadop q)
     case QO_STRING:
         printf("(string) %s", q.valeur.string);
         break;
+    case QO_VAR:
+        printf("(ID) %s", q.valeur.name);
+        break;
     default:
         printf("(...) ?");
         break;

@@ -8,6 +8,8 @@
 #include "quad.h"
 #include "list.h"
 
+#define INITIAL_GLOBAL_CODE_SIZE 64
+
 #define CHK_NULL(x)           \
     do                        \
     {                         \
@@ -24,21 +26,13 @@
  * \brief Gestion de la génération de code
  */
 
-// struct quad *global_code = NULL;       //< Tableau de quadruplets correspondants au programme
-// size_t global_code_size = 0;           //< Taille du tableau de quadruplets
-// size_t global_code_scaling_factor = 1; //< Facteur d'agrandissement du tableau de quadruplets
-// size_t next_quad = 0;                  //< Indice du prochain quadruplet dans le tableau de quadruplets
-
 extern struct quad *global_code;          //< Tableau de quadruplets correspondants au programme
-extern size_t global_code_size;           //< Taille du tableau de quadruplets
 extern size_t next_quad;                  //< Indice du prochain quadruplet dans le tableau de quadruplets
 
 /**
  * \brief Initialise le tableau de quadruplets correspondant au programme
- *
- * \param t taille initiale du tableau
  */
-void initGlobalCode(size_t t);
+void initGlobalCode();
 
 /**
  * \brief Augmente la taille du tableau de quadruplets correspondant au programme
@@ -55,9 +49,10 @@ void freeGlobalCode();
 /**
  * \brief Crée une nouvelle variable temporaire
  *
+ * \param dest addr de la chaine final
  * \return un symbole "frais"
  */
-void newtemp( char * dest);
+char *newtemp();
 
 /**
  * \brief Génère le code d'un quadruplet
