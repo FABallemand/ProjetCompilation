@@ -84,6 +84,7 @@ struct quad
         Q_N_EMP, // chaine non vide
         Q_EQUAL_STRING, // egale entre chaine
         Q_NOT_EQUAL_STRING, // non egal entre chaine
+        Q_AFFECT, //AFFECTATION
         Q_GOTO //goto
     } kind; //< Type de quadruplet
 

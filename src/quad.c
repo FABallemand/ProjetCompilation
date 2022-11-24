@@ -23,6 +23,12 @@ void printQuad(struct quad q)
         printf("goto ");
         printQuadop(q.op1);
     }
+    else if (q.kind == Q_AFFECT)
+    {
+        printQuadop(q.res);
+        printf(" := ");
+        printQuadop(q.op1);
+    }
     else
     {
         printQuadop(q.op1);
