@@ -52,6 +52,18 @@ int main(int argc, char **argv)
     printf("yylineno : %d\n", yylineno);
     printf("-> %d\n", r);
 
+    //char t1[64];
+    //char t2[64];
+    //char t3[64];
+    //char t4[64];
+    //newtemp(t1);
+    //newtemp(t2);
+    //newtemp(t3);
+    //newtemp(t4);
+    //printf("%s %s %s %s\n",t1,t2,t3,t4);
+
+    printAllQuad();
+
     freeGlobalCode();
 
     return r;

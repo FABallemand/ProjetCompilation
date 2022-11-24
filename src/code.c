@@ -36,6 +36,16 @@ void genCode(struct quad q)
     //pas complet
 }
 
+void newtemp(char * dest){
+    static size_t next_tmp = 0;
+    if(sprintf(dest,"%s%ld","%%TMP_",next_tmp) < 0){
+        exit(1);
+    }
+    next_tmp++;
+    return;
+}
+
+
 void complete(struct list* l,size_t addr)
 {
     if(!l) //pas de liste

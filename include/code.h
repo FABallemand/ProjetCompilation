@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "quad.h"
 #include "list.h"
@@ -56,7 +57,7 @@ void freeGlobalCode();
  *
  * \return un symbole "frais"
  */
-char *newtemp();
+void newtemp( char * dest);
 
 /**
  * \brief Génère le code d'un quadruplet

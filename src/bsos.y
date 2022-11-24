@@ -18,10 +18,27 @@ extern void yyerror(const char *msg);
     struct {
         struct quadop result;
     } expr_val;
+
+    struct {
+        struct list* true_l;
+        struct list* false_l;
+    } bool_val;
+
+    struct {
+        struct list* next;
+    } inst_val;
 }
 
+%token ID TEST EXPR LOCAL DECLARE IF THEN ELIF ELSE FI FOR WHILE UNTIL CASE ESAC IN DO DONE READ ECHO_ RETURN EXIT PLUS MINUS STAR DIVISION EQUAL NOT_EQUAL NOT MOD CASE_OR SEMI_CO OPAR CPAR OBRA CBRA OABRA CABRA DOLLAR STATUS T_NOT_EMPTY T_EMPTY T_EQUAL T_NOT_EQUAL T_GT T_GE T_LT T_LE C_AND C_OR
+
+%token <int_val> ENTIER
+
 %token <str_val> STRING
-%token ID ENTIER TEST EXPR LOCAL DECLARE IF THEN ELIF ELSE FI FOR WHILE UNTIL CASE ESAC IN DO DONE READ ECHO_ RETURN EXIT PLUS MINUS STAR DIVISION EQUAL NOT_EQUAL NOT MOD CASE_OR SEMI_CO OPAR CPAR OBRA CBRA OABRA CABRA DOLLAR STATUS T_NOT_EMPTY T_EMPTY T_EQUAL T_NOT_EQUAL T_GT T_GE T_LT T_LE C_AND C_OR
+
+%type <inst_val> instruction liste_instructions
+
+%type <bool_val> test_bloc test_expr test_expr2 test_expr3 test_instruction
+
 %left PLUS MINUS
 %left STAR DIVISION
 
@@ -39,18 +56,18 @@ liste_instructions
 ;
 
 instruction
-: ID EQUAL concatenation {} // check si WORD est un ID
-| ID OABRA operande_entier CABRA EQUAL concatenation {} // check si WORD est un ID
-| DECLARE ID OABRA ENTIER CABRA {} // check si WORD est un ID et check si le deuxième WORD est un ENTIER
+: ID EQUAL concatenation {}
+| ID OABRA operande_entier CABRA EQUAL concatenation {}
+| DECLARE ID OABRA ENTIER CABRA {}
 | IF test_bloc THEN liste_instructions else_part FI {}
-| FOR ID DO liste_instructions DONE {} // check si WORD est un ID
-| FOR ID IN liste_operandes DO liste_instructions DONE {} // check si WORD est un ID
+| FOR ID DO liste_instructions DONE {}
+| FOR ID IN liste_operandes DO liste_instructions DONE {}
 | WHILE test_bloc DO liste_instructions DONE {}
 | UNTIL test_bloc DO liste_instructions DONE {}
 | CASE operande IN liste_cas ESAC {}
 | ECHO_ liste_operandes {}
-| READ ID {} // check si WORD est un ID
-| READ ID OABRA operande_entier CABRA {} // check si WORD est un ID
+| READ ID {}
+| READ ID OABRA operande_entier CABRA {}
 | declaration_de_fonction {}
 | appel_de_fonction {}
 | RETURN {}
@@ -79,7 +96,7 @@ filtre
 liste_operandes
 : liste_operandes operande {}
 | operande {}
-| DOLLAR OBRA ID OABRA STAR CABRA CBRA {} // check si WORD est un ID
+| DOLLAR OBRA ID OABRA STAR CABRA CBRA {}
 ;
 
 concatenation
@@ -135,9 +152,9 @@ test_instruction
 ;
 
 operande
-: DOLLAR OBRA ID CBRA {} // check si WORD est un ID
-| DOLLAR OBRA ID OABRA operande_entier CABRA CBRA {} // check si WORD est un ID
-| DOLLAR ENTIER {} // check si WORD est un ENTIER
+: DOLLAR OBRA ID CBRA {}
+| DOLLAR OBRA ID OABRA operande_entier CABRA CBRA {}
+| DOLLAR ENTIER {}
 | DOLLAR STAR  {}
 | DOLLAR STATUS {}
 | ENTIER {}
@@ -157,14 +174,14 @@ produit_entier
 ;
 
 operande_entier
-: DOLLAR OBRA ID CBRA {} // check si WORD est un ID
-| DOLLAR OBRA ID OABRA operande_entier CABRA CBRA {} // check si WORD est un ID
-| DOLLAR ENTIER {} //check si WORD est un ENTIER
-| plus_ou_moins DOLLAR OBRA ID CBRA {} // check si WORD est un ID
-| plus_ou_moins DOLLAR OBRA ID OABRA operande_entier CABRA CBRA {} // check si WORD est un ID
-| plus_ou_moins DOLLAR ENTIER {} //check si WORD est un ENTIER
-| ENTIER {} //check si WORD est un ENTIER
-| plus_ou_moins ENTIER {} //check si WORD est un ENTIER
+: DOLLAR OBRA ID CBRA {}
+| DOLLAR OBRA ID OABRA operande_entier CABRA CBRA {}
+| DOLLAR ENTIER {}
+| plus_ou_moins DOLLAR OBRA ID CBRA {}
+| plus_ou_moins DOLLAR OBRA ID OABRA operande_entier CABRA CBRA {}
+| plus_ou_moins DOLLAR ENTIER {}
+| ENTIER {}
+| plus_ou_moins ENTIER {}
 | OPAR somme_entiere CPAR {}
 ;
 
@@ -180,18 +197,18 @@ fois_div_mod
 ;
 
 declaration_de_fonction
-: ID OPAR CPAR OBRA decl_loc liste_instructions CBRA {} // check si WORD est un ID
+: ID OPAR CPAR OBRA decl_loc liste_instructions CBRA {}
 ;
 
 
 decl_loc
-: decl_loc LOCAL ID EQUAL concatenation SEMI_CO {} // check si WORD est un ID
+: decl_loc LOCAL ID EQUAL concatenation SEMI_CO {}
 | %empty {}
 ;
 
 appel_de_fonction
-: ID liste_operandes {} // check si WORD est un ID
-| ID {} // check si WORD est un ID
+: ID liste_operandes {}
+| ID {}
 ;
 
 %%

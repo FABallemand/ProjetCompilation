@@ -2,7 +2,7 @@
 #define __DEF_QUAD_H__
 
 #include <stdio.h>
-
+#define MAX_SIZE_VAR_NAME 64
 /**
  * \file quad.h
  *
@@ -27,9 +27,8 @@ struct quadop
     union
     {
         int cst;
-        char *string;
+        char string[64];
     } valeur; //< Valeur de l'opérateur
-
 
 };
 
@@ -40,18 +39,18 @@ struct quadop
     (struct quadop)                           \
     {                                         \
         .kind = QO_CST, .valeur = {.cst = v } \
+    }                                       
+
+#define quadop_string(v)                            \
+    (struct quadop)                                 \
+    {                                               \
+        .kind = QO_STRING, .valeur = {.string = v } \
     }
 
-// #define quadop_string(v)                            \
-//     (struct quadop)                                 \
-//     {                                               \
-//         .kind = QO_STRING, .valeur = {.string = v } \
-//     }
-
-#define quadop_bool(v)                          \
+#define quadop_unknown(v)                          \
     (struct quadop)                             \
     {                                           \
-        .kind = QO_BOOL, .valeur = {.bool = v } \
+        .kind = QO_UNKNOWN                      \
     }
 
 #define quadop_empty(v)  \
@@ -91,10 +90,10 @@ struct quad
     struct quadop op1, op2, res; //< Opérandes
 };
 
-#define quad_add(op1, op2, res)                           \
-    (struct quadop)                                       \
+#define quad_new(q ,qop1, qop2, qres)                           \
+    (struct quad)                                       \
     {                                                     \
-        .kind = Q_ADD, .op1 = op1, .op2 = op2, .res = res \
+        .kind = q, .op1 = (qop1), .op2 = (qop2), .res = (qres) \
     }
 
 void printQuadop(struct quadop q);

@@ -77,7 +77,7 @@ exit return EXIT;
     
 [\"\']([^\"\'\\]|\\.)*[\"\'] return STRING;
 
-(([1-9][0-9]*)|0) return ENTIER;
+[+-]?(([1-9][0-9]*)|0) return ENTIER;
 
 [a-zA-Z_][0-9a-zA-Z_]* return ID;
 
