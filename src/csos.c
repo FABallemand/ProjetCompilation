@@ -48,6 +48,9 @@ int main(int argc, char **argv)
     
     yylineno = 1;
     int r = yyparse();
+    printf("yytext :%s\n", yytext);
+    printf("yylineno : %d\n", yylineno);
+    printf("-> %d\n", r);
 
     freeGlobalCode();
 

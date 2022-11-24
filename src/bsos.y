@@ -21,7 +21,7 @@ extern void yyerror(const char *msg);
 }
 
 %token <str_val> STRING
-%token WORD TEST EXPR LOCAL DECLARE IF THEN ELIF ELSE FI FOR WHILE UNTIL CASE ESAC IN DO DONE READ ECHO_ RETURN EXIT PLUS MINUS STAR DIVISION EQUAL NOT_EQUAL NOT MOD CASE_OR SEMI_CO OPAR CPAR OBRA CBRA OABRA CABRA DOLLAR STATUS T_NOT_EMPTY T_EMPTY T_EQUAL T_NOT_EQUAL T_GT T_GE T_LT T_LE C_AND C_OR
+%token ID ENTIER TEST EXPR LOCAL DECLARE IF THEN ELIF ELSE FI FOR WHILE UNTIL CASE ESAC IN DO DONE READ ECHO_ RETURN EXIT PLUS MINUS STAR DIVISION EQUAL NOT_EQUAL NOT MOD CASE_OR SEMI_CO OPAR CPAR OBRA CBRA OABRA CABRA DOLLAR STATUS T_NOT_EMPTY T_EMPTY T_EQUAL T_NOT_EQUAL T_GT T_GE T_LT T_LE C_AND C_OR
 %left PLUS MINUS
 %left STAR DIVISION
 
@@ -39,18 +39,18 @@ liste_instructions
 ;
 
 instruction
-: WORD EQUAL concatenation {} // check si WORD est un ID
-| WORD OABRA operande_entier CABRA EQUAL concatenation {} // check si WORD est un ID
-| DECLARE WORD OABRA WORD CABRA {} // check si WORD est un ID et check si le deuxième WORD est un ENTIER
+: ID EQUAL concatenation {} // check si WORD est un ID
+| ID OABRA operande_entier CABRA EQUAL concatenation {} // check si WORD est un ID
+| DECLARE ID OABRA ENTIER CABRA {} // check si WORD est un ID et check si le deuxième WORD est un ENTIER
 | IF test_bloc THEN liste_instructions else_part FI {}
-| FOR WORD DO liste_instructions DONE {} // check si WORD est un ID
-| FOR WORD IN liste_operandes DO liste_instructions DONE {} // check si WORD est un ID
+| FOR ID DO liste_instructions DONE {} // check si WORD est un ID
+| FOR ID IN liste_operandes DO liste_instructions DONE {} // check si WORD est un ID
 | WHILE test_bloc DO liste_instructions DONE {}
 | UNTIL test_bloc DO liste_instructions DONE {}
 | CASE operande IN liste_cas ESAC {}
 | ECHO_ liste_operandes {}
-| READ WORD {} // check si WORD est un ID
-| READ WORD OABRA operande_entier CABRA {} // check si WORD est un ID
+| READ ID {} // check si WORD est un ID
+| READ ID OABRA operande_entier CABRA {} // check si WORD est un ID
 | declaration_de_fonction {}
 | appel_de_fonction {}
 | RETURN {}
@@ -71,9 +71,7 @@ liste_cas
 ;
 
 filtre
-: WORD {}
-| STRING {}
-| filtre CASE_OR WORD {}
+: STRING {}
 | filtre CASE_OR STRING {}
 | STAR 
 ;
@@ -81,7 +79,7 @@ filtre
 liste_operandes
 : liste_operandes operande {}
 | operande {}
-| DOLLAR OBRA WORD OABRA STAR CABRA CBRA {} // check si WORD est un ID
+| DOLLAR OBRA ID OABRA STAR CABRA CBRA {} // check si WORD est un ID
 ;
 
 concatenation
@@ -137,12 +135,12 @@ test_instruction
 ;
 
 operande
-: DOLLAR OBRA WORD CBRA {} // check si WORD est un ID
-| DOLLAR OBRA WORD OABRA operande_entier CABRA CBRA {} // check si WORD est un ID
-| WORD {}
-| DOLLAR WORD {} // check si WORD est un ENTIER
+: DOLLAR OBRA ID CBRA {} // check si WORD est un ID
+| DOLLAR OBRA ID OABRA operande_entier CABRA CBRA {} // check si WORD est un ID
+| DOLLAR ENTIER {} // check si WORD est un ENTIER
 | DOLLAR STAR  {}
 | DOLLAR STATUS {}
+| ENTIER {}
 | STRING {}
 | DOLLAR OPAR EXPR somme_entiere CPAR {}
 | DOLLAR OPAR appel_de_fonction CPAR {}
@@ -159,14 +157,14 @@ produit_entier
 ;
 
 operande_entier
-: DOLLAR OBRA WORD CBRA {} // check si WORD est un ID
-| DOLLAR OBRA WORD OABRA operande_entier CABRA CBRA {} // check si WORD est un ID
-| DOLLAR WORD {} //check si WORD est un ENTIER
-| plus_ou_moins DOLLAR OBRA WORD CBRA {} // check si WORD est un ID
-| plus_ou_moins DOLLAR OBRA WORD OABRA operande_entier CABRA CBRA {} // check si WORD est un ID
-| plus_ou_moins DOLLAR WORD {} //check si WORD est un ENTIER
-| WORD {} //check si WORD est un ENTIER
-| plus_ou_moins WORD {} //check si WORD est un ENTIER
+: DOLLAR OBRA ID CBRA {} // check si WORD est un ID
+| DOLLAR OBRA ID OABRA operande_entier CABRA CBRA {} // check si WORD est un ID
+| DOLLAR ENTIER {} //check si WORD est un ENTIER
+| plus_ou_moins DOLLAR OBRA ID CBRA {} // check si WORD est un ID
+| plus_ou_moins DOLLAR OBRA ID OABRA operande_entier CABRA CBRA {} // check si WORD est un ID
+| plus_ou_moins DOLLAR ENTIER {} //check si WORD est un ENTIER
+| ENTIER {} //check si WORD est un ENTIER
+| plus_ou_moins ENTIER {} //check si WORD est un ENTIER
 | OPAR somme_entiere CPAR {}
 ;
 
@@ -182,18 +180,18 @@ fois_div_mod
 ;
 
 declaration_de_fonction
-: WORD OPAR CPAR OBRA decl_loc liste_instructions CBRA {} // check si WORD est un ID
+: ID OPAR CPAR OBRA decl_loc liste_instructions CBRA {} // check si WORD est un ID
 ;
 
 
 decl_loc
-: decl_loc LOCAL WORD EQUAL concatenation SEMI_CO {} // check si WORD est un ID
+: decl_loc LOCAL ID EQUAL concatenation SEMI_CO {} // check si WORD est un ID
 | %empty {}
 ;
 
 appel_de_fonction
-: WORD liste_operandes {} // check si WORD est un ID
-| WORD {} // check si WORD est un ID
+: ID liste_operandes {} // check si WORD est un ID
+| ID {} // check si WORD est un ID
 ;
 
 %%

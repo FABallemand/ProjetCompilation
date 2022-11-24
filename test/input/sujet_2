@@ -15,8 +15,8 @@ new_phrase="";
 echo ${mots[*]}; # exemple : C'est Sabine qui gagne le concours (6 mots)
 for mot in ${mots[*]} do
     case ${mot} in
-        Anne|Corinne|Sabine|Emilie) new_phrase = ${new_phrase}" "elle;;
-        Pierre|Paul|Jacques|Albert) new_phrase = ${new_phrase}" "lui;;
+        "Anne"|"Corinne"|"Sabine"|"Emilie") new_phrase = ${new_phrase}" ""elle";;
+        "Pierre"|"Paul"|"Jacques"|"Albert") new_phrase = ${new_phrase}" ""lui";;
         *) new_phrase = ${new_phrase}" "${mot};;
     esac
 done;
