@@ -1,38 +1,38 @@
-name: ci
-on: [push]
+# name: ci
+# on: [push]
 
-jobs:
-  activate:
-    runs-on: self-ubuntu-22.04
-    if: |
-      github.repository == 'FABallemand/ProjetCompilation' &&
-      !startsWith(github.event.head_commit.message, 'Release ') &&
-      !contains(github.event.head_commit.message, 'ci skip')
-    steps:
-    - run: echo ready
+# jobs:
+#   activate:
+#     runs-on: self-ubuntu-22.04
+#     if: |
+#       github.repository == 'FABallemand/ProjetCompilation' &&
+#       !startsWith(github.event.head_commit.message, 'Release ') &&
+#       !contains(github.event.head_commit.message, 'ci skip')
+#     steps:
+#     - run: echo ready
   
-  compilation:
-      needs: activate
-      runs-on: ubuntu-latest
+#   compilation:
+#       needs: activate
+#       runs-on: ubuntu-latest
       
-      steps:
-        - name: Compile
-          run: make
+#       steps:
+#         - name: Compile
+#           run: make
 
-  test:
-      needs: activate
-      runs-on: ubuntu-latest
+#   test:
+#       needs: activate
+#       runs-on: ubuntu-latest
       
-      steps:
-        - name: Test
-          run: make test
+#       steps:
+#         - name: Test
+#           run: make test
 
-  report:
-      needs: activate
-      runs-on: ubuntu-latest
-      env:
-        DIR: report
-      steps:
-        - name: Tex compile
-          working-directory: ${{ env.DIR }}
-          run: make
+#   report:
+#       needs: activate
+#       runs-on: ubuntu-latest
+#       env:
+#         DIR: report
+#       steps:
+#         - name: Tex compile
+#           working-directory: ${{ env.DIR }}
+#           run: make
