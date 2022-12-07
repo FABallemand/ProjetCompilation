@@ -10,9 +10,7 @@ extern void yyerror(const char *msg);
 %}
 
 %union {
-    int int_val;
-
-    char *str_val; //string + id
+    char *val; //string + id + int
 
     struct {
         size_t firstquad;
@@ -29,19 +27,24 @@ extern void yyerror(const char *msg);
         size_t firstquad;
         struct list* next;
     } inst_val;
+
+    struct {
+        size_t firstquad;
+        size_t size;
+    } list_op_val;
 }
 
 %token TEST EXPR LOCAL DECLARE IF THEN ELIF ELSE FI FOR WHILE UNTIL CASE ESAC IN DO DONE READ ECHO_ RETURN EXIT PLUS MINUS STAR DIVISION EQUAL NOT_EQUAL NOT MOD CASE_OR SEMI_CO OPAR CPAR OBRA CBRA OABRA CABRA DOLLAR STATUS T_NOT_EMPTY T_EMPTY T_EQUAL T_NOT_EQUAL T_GT T_GE T_LT T_LE C_AND C_OR
 
-%token <int_val> INTEGER
+%token <val> INTEGER STRING ID
 
-%token <str_val> STRING ID
-
-%type <inst_val> instruction liste_instructions else_part g
+%type <inst_val> instruction liste_instructions else_part g decl_loc
 
 %type <bool_val> test_bloc test_expr test_expr2 test_expr3 test_instruction
 
 %type <expr_val> concatenation operande somme_entiere produit_entier operande_entier
+
+%type <list_op_val> liste_operandes
 
 %left PLUS MINUS
 %left STAR DIVISION MOD
@@ -74,9 +77,15 @@ instruction
 {
     $$.firstquad = next_quad;
     genCode(quad_new(Q_AFFECT,$3.result,quadop_empty(),quadop_var($1)));
+    $$.next = NULL;
 }
 | ID OABRA operande_entier CABRA EQUAL concatenation {}
-| DECLARE ID OABRA INTEGER CABRA {}
+| DECLARE ID OABRA INTEGER CABRA
+{
+    $$.firstquad = next_quad;
+    genCode(quad_new(Q_DECLARE, quadop_cst($4), quadop_empty(), quadop_var($2)));
+    $$.next = NULL;
+}
 | IF test_bloc THEN liste_instructions g else_part FI
 {
     $$.firstquad = $2.firstquad;
@@ -118,7 +127,11 @@ instruction
     complete($5.next, $2.firstquad);
 }
 | CASE operande IN liste_cas ESAC {}
-| ECHO_ liste_operandes {}
+| ECHO_ liste_operandes
+{
+    $$.firstquad = $2.firstquad;
+    genCode(quad_new(Q_ECHO, quadop_empty(), quadop_empty(), quadop_empty()));
+}
 | READ ID {}
 | READ ID OABRA operande_entier CABRA {}
 | declaration_de_fonction {}
@@ -172,8 +185,20 @@ filtre
 ;
 
 liste_operandes
-: liste_operandes operande {}
-| operande {}
+: liste_operandes operande
+{
+    $$.firstquad = $1.firstquad;
+    $$.size = $1.size + 1;
+    char *test;
+    sprintf(test ,"%ld", $$.size); //
+    genCode(quad_new(Q_AFFECT, $2.result, quadop_empty(), quadop_var(strdup(strcat("$", test))))); // SEGFAULT
+}
+| operande
+{
+    $$.firstquad = $1.firstquad;
+    $$.size = 1;
+    genCode(quad_new(Q_AFFECT, $1.result, quadop_empty(), quadop_var("$1")));
+}
 | DOLLAR OBRA ID OABRA STAR CABRA CBRA {}
 ;
 
@@ -182,12 +207,13 @@ concatenation
 {
     $$.firstquad = $1.firstquad;
     struct quadop result = quadop_var(newtemp());
-    genCode(quad_new(Q_ADD, $1.result, $2.result, result));
+    genCode(quad_new(Q_CONCAT, $1.result, $2.result, result));
     $$.result = result;
 }
 | operande
 {
     $$.firstquad = $1.firstquad;
+    $$.result = $1.result;
 }
 ;
 
@@ -344,13 +370,20 @@ operande
 | DOLLAR INTEGER {}
 | DOLLAR STAR  {}
 | DOLLAR STATUS {}
-| INTEGER {$$.result = quadop_cst($1);}
+| INTEGER // -INTEGER / +INTEGER
+{
+    $$.result = quadop_cst($1);
+}
 | STRING
 {
     $$.firstquad = next_quad;
     $$.result = quadop_string($1);
 }
-| DOLLAR OPAR EXPR somme_entiere CPAR {}
+| DOLLAR OPAR EXPR somme_entiere CPAR
+{
+    $$.firstquad = $4.firstquad;
+    $$.result = $4.result;
+}
 | DOLLAR OPAR appel_de_fonction CPAR {}
 ;
 
@@ -425,7 +458,7 @@ operande_entier
 }
 | MINUS INTEGER %prec UMINUS
 {
-    $$.result = quadop_cst(-$2);
+    $$.result = quadop_cst(strcat("-", $2));
 }
 | OPAR somme_entiere CPAR
 {
@@ -438,8 +471,15 @@ declaration_de_fonction
 ;
 
 decl_loc
-: decl_loc LOCAL ID EQUAL concatenation SEMI_CO {}
-| %empty {}
+: decl_loc LOCAL ID EQUAL concatenation SEMI_CO
+{
+    $$.firstquad = $1.firstquad;
+    genCode(quad_new(Q_LOCAL, $5.result, quadop_empty(), quadop_var($3)));
+}
+| %empty
+{
+    $$.firstquad = next_quad;
+}
 ;
 
 appel_de_fonction

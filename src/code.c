@@ -53,7 +53,7 @@ void complete(struct list *l, size_t addr)
     struct list *new_l = l; // clone pour itérer
     while (new_l)
     {
-        global_code[new_l->addr].op1 = quadop_cst(addr);
+        global_code[new_l->addr].op1 = quadop_addr(addr);
         new_l = new_l->next;
     }
     freeList(l);

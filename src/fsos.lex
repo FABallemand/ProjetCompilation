@@ -78,11 +78,11 @@ return return RETURN;
 
 exit return EXIT;
     
-[\"\']([^\"\'\\]|\\.)*[\"\'] {yylval.str_val = strdup(removeQuote(yytext));return STRING;}
+[\"\']([^\"\'\\]|\\.)*[\"\'] {yylval.val = strdup(removeQuote(yytext)); return STRING;}
 
-(([1-9][0-9]*)|0) {yylval.int_val = atoi(yytext);return INTEGER;}
+(([1-9][0-9]*)|0) {yylval.val = strdup(yytext); return INTEGER;}
 
-[a-zA-Z_][0-9a-zA-Z_]* {yylval.str_val = strdup(yytext);return ID;}
+[a-zA-Z_][0-9a-zA-Z_]* {yylval.val = strdup(yytext); return ID;}
 
 [[:space:]] ;
 

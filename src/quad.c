@@ -5,13 +5,16 @@ void printQuadop(struct quadop q)
     switch (q.kind)
     {
     case QO_CST:
-        printf("(cst) %d", q.valeur.cst);
+        printf("(cst) %s", q.qval.value);
         break;
     case QO_STRING:
-        printf("(string) %s", q.valeur.string);
+        printf("(string) %s", q.qval.value);
         break;
     case QO_VAR:
-        printf("(ID) %s", q.valeur.name);
+        printf("(ID) %s", q.qval.value);
+        break;
+    case QO_ADDR:
+        printf("(ADDR) %ld", q.qval.addr);
         break;
     default:
         printf("(...) ?");
@@ -21,7 +24,7 @@ void printQuadop(struct quadop q)
 
 void printQuad(struct quad q)
 {
-    if(q.kind == Q_GOTO)
+    if (q.kind == Q_GOTO)
     {
         printf("goto ");
         printQuadop(q.op1);
@@ -32,11 +35,34 @@ void printQuad(struct quad q)
         printf(" := ");
         printQuadop(q.op1);
     }
+    else if (q.kind == Q_DECLARE)
+    {
+        printf("declare ");
+        printQuadop(q.res);
+        printf("[");
+        printQuadop(q.op1);
+        printf("]");
+    }
+    else if (q.kind == Q_LOCAL)
+    {
+        printf("local ");
+        printQuadop(q.res);
+        printf(" := ");
+        printQuadop(q.op1);
+    }
+    else if (q.kind == Q_ECHO)
+    {
+        printf("echo ");
+        printQuadop(q.op1);
+    }
     else
     {
         printQuadop(q.op1);
         switch (q.kind)
         {
+        case Q_CONCAT:
+            printf(" concat ");
+            break;
         case Q_ADD:
             printf(" + ");
             break;

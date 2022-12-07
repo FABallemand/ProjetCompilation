@@ -21,16 +21,16 @@ struct quadop
         QO_CST,
         QO_VAR,
         QO_STRING,
+        QO_ADDR,
         QO_EMPTY,
         QO_UNKNOWN
     } kind; //< Type de l'opérateur
 
     union
     {
-        int cst;
-        char *name;
-        char *string;
-    } valeur; //< Valeur de l'opérateur
+        size_t addr; //< Valeur d'adresse (pour goto)
+        char *value; //< Valeur de l'opérateur (valuer ou nom pour un id)
+    } qval;
 };
 
 /**
@@ -39,22 +39,28 @@ struct quadop
 #define quadop_cst(v)                         \
     (struct quadop)                           \
     {                                         \
-        .kind = QO_CST, .valeur = {.cst = v } \
+        .kind = QO_CST, .qval = {.value = v } \
     }
 
-#define quadop_var(v)                          \
-    (struct quadop)                            \
-    {                                          \
-        .kind = QO_VAR, .valeur = {.name = v } \
+#define quadop_var(v)                         \
+    (struct quadop)                           \
+    {                                         \
+        .kind = QO_VAR, .qval = {.value = v } \
     }
 // strdup??
 
-#define quadop_string(v)                            \
-    (struct quadop)                                 \
-    {                                               \
-        .kind = QO_STRING, .valeur = {.string = v } \
+#define quadop_string(v)                         \
+    (struct quadop)                              \
+    {                                            \
+        .kind = QO_STRING, .qval = {.value = v } \
     }
 // strdup??
+
+#define quadop_addr(v)                        \
+    (struct quadop)                           \
+    {                                         \
+        .kind = QO_ADDR, .qval = {.addr = v } \
+    }
 
 #define quadop_unknown()   \
     (struct quadop)        \
@@ -77,6 +83,7 @@ struct quad
 {
     enum
     {
+        Q_CONCAT,           // concaténation
         Q_ADD,              // addition
         Q_SUB,              // substraction
         Q_MUL,              // multiplication
@@ -93,7 +100,10 @@ struct quad
         Q_EQUAL_STRING,     // egale entre chaine
         Q_NOT_EQUAL_STRING, // non egal entre chaine
         Q_AFFECT,           // AFFECTATION
-        Q_GOTO              // goto
+        Q_GOTO,             // goto
+        Q_DECLARE,          // declare
+        Q_LOCAL,            // local
+        Q_ECHO              // echo
     } kind;                 //< Type de quadruplet
 
     struct quadop op1, op2, res; //< Opérandes
