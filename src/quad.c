@@ -27,7 +27,7 @@ void printQuad(struct quad q)
     if (q.kind == Q_GOTO)
     {
         printf("goto ");
-        printQuadop(q.op1);
+        printQuadop(q.res);
     }
     else if (q.kind == Q_AFFECT)
     {
@@ -53,6 +53,23 @@ void printQuad(struct quad q)
     else if (q.kind == Q_ECHO)
     {
         printf("echo ");
+    }
+    else if (q.kind == Q_EXIT)
+    {
+        printf("exit");
+    }
+    else if (q.kind == Q_EXIT_VAL)
+    {
+        printf("exit ");
+        printQuadop(q.op1);
+    }
+    else if (q.kind == Q_RETURN)
+    {
+        printf("return");
+    }
+    else if (q.kind == Q_RETURN_VAL)
+    {
+        printf("return ");
         printQuadop(q.op1);
     }
     else
@@ -117,3 +134,5 @@ void printQuad(struct quad q)
     }
     printf("\n");
 }
+
+// ajouter différents cas (goto dans les test et monovariable)

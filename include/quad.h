@@ -62,10 +62,10 @@ struct quadop
         .kind = QO_ADDR, .qval = {.addr = v } \
     }
 
-#define quadop_unknown()   \
-    (struct quadop)        \
-    {                      \
-        .kind = QO_UNKNOWN \
+#define quadop_unknown()                         \
+    (struct quadop)                              \
+    {                                            \
+        .kind = QO_UNKNOWN, .qval = {.addr = 0 } \
     }
 
 #define quadop_empty()   \
@@ -103,7 +103,11 @@ struct quad
         Q_GOTO,             // goto
         Q_DECLARE,          // declare
         Q_LOCAL,            // local
-        Q_ECHO              // echo
+        Q_ECHO,              // echo
+        Q_RETURN,
+        Q_RETURN_VAL,
+        Q_EXIT,
+        Q_EXIT_VAL
     } kind;                 //< Type de quadruplet
 
     struct quadop op1, op2, res; //< Opérandes

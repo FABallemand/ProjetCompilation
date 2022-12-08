@@ -90,17 +90,17 @@ instruction
 {
     $$.firstquad = $2.firstquad;
     complete($2.ltrue, $4.firstquad);
-    if ($5.next != NULL)
+    if ($6.next != NULL) // else_part
     {
         complete($2.lfalse, $6.firstquad);
-        $$.next = concat($4.next, $5.next);
     }
-    else
+    else // pas de else_part
     {
-        $$.next = concat($2.lfalse, $4.next);
+        $$.next = concat($$.next, $2.lfalse);
     }
-    $$.next = concat($$.next, $6.next);
-    // à vérifier
+    $$.next = concat($$.next, $4.next);
+    $$.next = concat($$.next, $5.next);
+    $$.next = concat($$.next, $6.next); // n'a d'effet que quand il y a une else_part
 }
 | FOR ID DO liste_instructions DONE
 {
@@ -108,13 +108,15 @@ instruction
 }
 | FOR ID IN liste_operandes DO liste_instructions DONE
 {
-    
+    // $$firstquad = 
 }
 | WHILE test_bloc DO liste_instructions g DONE
 {
-    $$.firstquad = $2.firstquad; // A FAIRE PARTOUT
+    $$.firstquad = $2.firstquad;
+    // test_bloc (true/false)
     complete($2.ltrue, $4.firstquad);
     $$.next = $2.lfalse;
+    // fin de liste_instructions*
     complete($4.next, $2.firstquad);
     complete($5.next, $2.firstquad);
 }
@@ -136,10 +138,26 @@ instruction
 | READ ID OABRA operande_entier CABRA {}
 | declaration_de_fonction {}
 | appel_de_fonction {}
-| RETURN {}
-| RETURN operande_entier {}
-| EXIT {}
-| EXIT operande_entier {}
+| RETURN
+{
+    $$.firstquad = next_quad;
+    genCode(quad_new(Q_RETURN, quadop_empty(), quadop_empty(), quadop_empty()));
+}
+| RETURN operande_entier
+{
+    $$.firstquad = $2.firstquad;
+    genCode(quad_new(Q_RETURN_VAL, $2.result, quadop_empty(), quadop_empty()));
+}
+| EXIT
+{
+    $$.firstquad = next_quad;
+    genCode(quad_new(Q_EXIT, quadop_empty(), quadop_empty(), quadop_empty()));
+}
+| EXIT operande_entier
+{
+    $$.firstquad = $2.firstquad;
+    genCode(quad_new(Q_EXIT_VAL, $2.result, quadop_empty(), quadop_empty()));
+}
 ;
 
 else_part
@@ -147,17 +165,17 @@ else_part
 {
     $$.firstquad = $2.firstquad;
     complete($2.ltrue, $4.firstquad);
-    if ($5.next != NULL)
+    if ($6.next != NULL) // else_part
     {
         complete($2.lfalse, $6.firstquad);
-        $$.next = concat($4.next, $5.next);
     }
-    else
+    else // pas de else_part
     {
-        $$.next = concat($2.lfalse, $4.next);
+        $$.next = concat($$.next, $2.lfalse);
     }
-    $$.next = concat($$.next, $6.next);
-    // à vérifier
+    $$.next = concat($$.next, $4.next);
+    $$.next = concat($$.next, $5.next);
+    $$.next = concat($$.next, $6.next); // n'a d'effet que quand il y a une else_part
 }
 | ELSE liste_instructions
 {
@@ -189,17 +207,18 @@ liste_operandes
 {
     $$.firstquad = $1.firstquad;
     $$.size = $1.size + 1;
-    char *test;
-    sprintf(test ,"%ld", $$.size); //
-    genCode(quad_new(Q_AFFECT, $2.result, quadop_empty(), quadop_var(strdup(strcat("$", test))))); // SEGFAULT
+    char test[3];
+    sprintf(test, "%ld", $$.size);
+    genCode(quad_new(Q_AFFECT, $2.result, quadop_empty(), quadop_var(strdup(test)))); // conflit dans la table des symboles??
 }
 | operande
 {
     $$.firstquad = $1.firstquad;
     $$.size = 1;
-    genCode(quad_new(Q_AFFECT, $1.result, quadop_empty(), quadop_var("$1")));
+    genCode(quad_new(Q_AFFECT, $1.result, quadop_empty(), quadop_var("1")));
 }
-| DOLLAR OBRA ID OABRA STAR CABRA CBRA {}
+| DOLLAR OBRA ID OABRA STAR CABRA CBRA
+{}
 ;
 
 concatenation
@@ -220,7 +239,9 @@ concatenation
 test_bloc
 : TEST test_expr
 {
-    $$ = $2;
+    $$.firstquad = $2.firstquad;
+    $$.ltrue = $2.ltrue;
+    $$.lfalse = $2.lfalse;
 }
 ;
 
@@ -235,7 +256,8 @@ test_expr
 | test_expr2
 {
     $$.firstquad = $1.firstquad;
-    $$ = $1;
+    $$.ltrue = $1.ltrue;
+    $$.lfalse = $1.lfalse;
 }
 ;
 
@@ -250,7 +272,8 @@ test_expr2
 | test_expr3
 {
     $$.firstquad = $1.firstquad;
-    $$ = $1;
+    $$.ltrue = $1.ltrue;
+    $$.lfalse = $1.lfalse;
 }
 ;
 
@@ -288,7 +311,7 @@ test_instruction
     $$.ltrue = createList(next_quad);
     genCode(quad_new(Q_EQUAL_STRING, $1.result, $3.result, quadop_unknown()));
     $$.lfalse = createList(next_quad);
-    genCode(quad_new(Q_GOTO, quadop_unknown(), quadop_empty(), quadop_empty()));
+    genCode(quad_new(Q_GOTO, quadop_empty(), quadop_empty(), quadop_unknown()));
 }
 | concatenation NOT_EQUAL concatenation
 {
@@ -296,7 +319,7 @@ test_instruction
     $$.ltrue = createList(next_quad);
     genCode(quad_new(Q_NOT_EQUAL_STRING, $1.result, $3.result, quadop_unknown()));
     $$.lfalse = createList(next_quad);
-    genCode(quad_new(Q_GOTO, quadop_unknown(), quadop_empty(), quadop_empty()));
+    genCode(quad_new(Q_GOTO, quadop_empty(), quadop_empty(), quadop_unknown()));
 }
 | T_NOT_EMPTY concatenation
 {
@@ -304,7 +327,7 @@ test_instruction
     $$.ltrue = createList(next_quad);
     genCode(quad_new(Q_N_EMP, $2.result, quadop_empty(), quadop_unknown()));
     $$.lfalse = createList(next_quad);
-    genCode(quad_new(Q_GOTO, quadop_unknown(), quadop_empty(), quadop_empty()));
+    genCode(quad_new(Q_GOTO, quadop_empty(), quadop_empty(), quadop_unknown()));
 }
 | T_EMPTY concatenation
 {
@@ -312,7 +335,7 @@ test_instruction
     $$.ltrue = createList(next_quad);
     genCode(quad_new(Q_EMP, $2.result, quadop_empty(), quadop_unknown()));
     $$.lfalse = createList(next_quad);
-    genCode(quad_new(Q_GOTO, quadop_unknown(), quadop_empty(), quadop_empty()));
+    genCode(quad_new(Q_GOTO, quadop_empty(), quadop_empty(), quadop_unknown()));
 }
 | operande T_EQUAL operande
 {
@@ -320,7 +343,7 @@ test_instruction
     $$.ltrue = createList(next_quad);
     genCode(quad_new(Q_EQUAL, $1.result, $3.result, quadop_unknown()));
     $$.lfalse = createList(next_quad);
-    genCode(quad_new(Q_GOTO, quadop_unknown(), quadop_empty(), quadop_empty()));
+    genCode(quad_new(Q_GOTO, quadop_empty(), quadop_empty(), quadop_unknown()));
 }
 | operande T_NOT_EQUAL operande
 {
@@ -328,7 +351,7 @@ test_instruction
     $$.ltrue = createList(next_quad);
     genCode(quad_new(Q_NOT_EQUAL, $1.result, $3.result, quadop_unknown()));
     $$.lfalse = createList(next_quad);
-    genCode(quad_new(Q_GOTO, quadop_unknown(), quadop_empty(), quadop_empty()));
+    genCode(quad_new(Q_GOTO, quadop_empty(), quadop_empty(), quadop_unknown()));
 }
 | operande T_GT operande
 {
@@ -336,7 +359,7 @@ test_instruction
     $$.ltrue = createList(next_quad);
     genCode(quad_new(Q_GT, $1.result, $3.result, quadop_unknown()));
     $$.lfalse = createList(next_quad);
-    genCode(quad_new(Q_GOTO, quadop_unknown(), quadop_empty(), quadop_empty()));
+    genCode(quad_new(Q_GOTO, quadop_empty(), quadop_empty(), quadop_unknown()));
 }
 | operande T_GE operande
 {
@@ -344,7 +367,7 @@ test_instruction
     $$.ltrue = createList(next_quad);
     genCode(quad_new(Q_GE, $1.result, $3.result, quadop_unknown()));
     $$.lfalse = createList(next_quad);
-    genCode(quad_new(Q_GOTO, quadop_unknown(), quadop_empty(), quadop_empty()));
+    genCode(quad_new(Q_GOTO, quadop_empty(), quadop_empty(), quadop_unknown()));
 }
 | operande T_LT operande
 {
@@ -352,7 +375,7 @@ test_instruction
     $$.ltrue = createList(next_quad);
     genCode(quad_new(Q_LT, $1.result, $3.result, quadop_unknown()));
     $$.lfalse = createList(next_quad);
-    genCode(quad_new(Q_GOTO, quadop_unknown(), quadop_empty(), quadop_empty()));
+    genCode(quad_new(Q_GOTO, quadop_empty(), quadop_empty(), quadop_unknown()));
 }
 | operande T_LE operande
 {
@@ -360,18 +383,34 @@ test_instruction
     $$.ltrue = createList(next_quad);
     genCode(quad_new(Q_LE, $1.result, $3.result, quadop_unknown()));
     $$.lfalse = createList(next_quad);
-    genCode(quad_new(Q_GOTO, quadop_unknown(), quadop_empty(), quadop_empty()));
+    genCode(quad_new(Q_GOTO, quadop_empty(), quadop_empty(), quadop_unknown()));
 }
 ;
 
 operande
-: DOLLAR OBRA ID CBRA {}
-| DOLLAR OBRA ID OABRA operande_entier CABRA CBRA {}
-| DOLLAR INTEGER {}
-| DOLLAR STAR  {}
-| DOLLAR STATUS {}
+: DOLLAR OBRA ID CBRA
+{
+    $$.firstquad = next_quad;
+}
+| DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
+{
+    $$.firstquad = next_quad;
+}
+| DOLLAR INTEGER
+{
+    $$.firstquad = next_quad;
+}
+| DOLLAR STAR
+{
+    $$.firstquad = next_quad;
+}
+| DOLLAR STATUS
+{
+    $$.firstquad = next_quad;
+}
 | INTEGER // -INTEGER / +INTEGER
 {
+    $$.firstquad = next_quad;
     $$.result = quadop_cst($1);
 }
 | STRING
@@ -384,7 +423,10 @@ operande
     $$.firstquad = $4.firstquad;
     $$.result = $4.result;
 }
-| DOLLAR OPAR appel_de_fonction CPAR {}
+| DOLLAR OPAR appel_de_fonction CPAR
+{
+    $$.firstquad = next_quad;
+}
 ;
 
 somme_entiere
@@ -462,7 +504,8 @@ operande_entier
 }
 | OPAR somme_entiere CPAR
 {
-    $$ = $2;
+    $$.firstquad = $2.firstquad;
+    //
 }
 ;
 
@@ -491,7 +534,7 @@ g
 : %empty
 {
     $$.next = createList(next_quad);
-    genCode(quad_new(Q_GOTO, quadop_unknown(), quadop_empty(), quadop_empty()));
+    genCode(quad_new(Q_GOTO, quadop_empty(), quadop_empty(), quadop_unknown()));
 }
 ;
 

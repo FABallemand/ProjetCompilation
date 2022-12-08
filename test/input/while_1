@@ -1,0 +1,7 @@
+declare tab[4];
+
+while test 1 -gt 2 do
+    echo "bonjour" "test" "salut";
+    tab[0] = $( expr 1 + 2)
+done;
+exit
