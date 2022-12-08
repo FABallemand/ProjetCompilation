@@ -1,0 +1,19 @@
+declare tab[4];
+
+if test 4 -gt 3 then
+    echo "bonjour" "test" "salut";
+    if test 1 -gt 1 then
+        echo "boucle 2";
+        tab[1] = $( expr 1 + 2)
+    fi;
+    tab[0] = $( expr 1 + 2);
+    if test 1 -gt 1 then
+        echo "boucle 3";
+        tab[2] = $( expr 1 + 2);
+        if test 2 -gt 2 then
+            echo "boucle 4";
+            tab[3] = $( expr 1 + 2)
+        fi
+    fi
+fi;
+exit

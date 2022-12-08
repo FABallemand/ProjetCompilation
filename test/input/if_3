@@ -1,0 +1,12 @@
+declare tab[4];
+
+if test 4 -gt 3 then
+    echo "test" 1;
+    tab[0] = $( expr 1 + 2)
+elif test 3 -lt 2 then
+    echo "test" 2;
+    tab[0] = $( expr 1 + 2)
+else
+    echo "test" 2
+fi;
+exit

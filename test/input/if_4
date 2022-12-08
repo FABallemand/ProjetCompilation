@@ -1,0 +1,16 @@
+declare tab[4];
+
+if test 4 -gt 3 then
+    echo "test" 1;
+    tab[0] = $( expr 1 + 2)
+elif test 3 -lt 2 then
+    echo "test" 2;
+    if test 0 -gt 5 then
+        echo "test" 25;
+        tab[1] = $( expr 1 + 2)
+    fi;
+    tab[(2 + 2)] = $( expr 1 + 2)
+else
+    echo "test" 3
+fi;
+exit

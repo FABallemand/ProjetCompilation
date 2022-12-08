@@ -75,13 +75,20 @@ liste_instructions
 instruction
 : ID EQUAL concatenation 
 {
-    $$.firstquad = next_quad;
+    $$.firstquad = $3.firstquad;
     genCode(quad_new(Q_AFFECT,$3.result,quadop_empty(),quadop_var($1)));
     $$.next = NULL;
 }
-| ID OABRA operande_entier CABRA EQUAL concatenation {}
+| ID OABRA operande_entier CABRA EQUAL concatenation 
+{
+    $$.firstquad = $3.firstquad;
+    // a fix ! c'est temporaire
+    genCode(quad_new(Q_AFFECT,$6.result,quadop_empty(),quadop_var($1)));
+    $$.next = NULL;
+}
 | DECLARE ID OABRA INTEGER CABRA
 {
+    //au final ça ne produira pas de quad (car pas d'instruction MIPS généré) -> a faire avec la table des symboles
     $$.firstquad = next_quad;
     genCode(quad_new(Q_DECLARE, quadop_cst($4), quadop_empty(), quadop_var($2)));
     $$.next = NULL;
@@ -128,7 +135,10 @@ instruction
     complete($4.next, $2.firstquad);
     complete($5.next, $2.firstquad);
 }
-| CASE operande IN liste_cas ESAC {}
+| CASE operande IN liste_cas ESAC
+{
+
+}
 | ECHO_ liste_operandes
 {
     $$.firstquad = $2.firstquad;
@@ -177,10 +187,10 @@ else_part
     $$.next = concat($$.next, $5.next);
     $$.next = concat($$.next, $6.next); // n'a d'effet que quand il y a une else_part
 }
-| ELSE liste_instructions
+| ELSE liste_instructions g
 {
     $$.firstquad = $2.firstquad;
-    $$.next = $2.next;
+    $$.next = concat($2.next,$3.next);
 }
 | %empty 
 {
@@ -189,8 +199,14 @@ else_part
 ;
 
 liste_cas
-: liste_cas filtre CPAR liste_instructions SEMI_CO SEMI_CO {}
-| filtre CPAR liste_instructions SEMI_CO SEMI_CO {}
+: liste_cas filtre CPAR liste_instructions SEMI_CO SEMI_CO
+{
+
+}
+| filtre CPAR liste_instructions SEMI_CO SEMI_CO
+{
+
+}
 ;
 
 filtre
@@ -198,8 +214,14 @@ filtre
 {
 
 }
-| filtre CASE_OR STRING {}
-| STAR 
+| filtre CASE_OR STRING
+{
+
+}
+| STAR
+{
+
+}
 ;
 
 liste_operandes
@@ -492,14 +514,17 @@ operande_entier
 | MINUS DOLLAR INTEGER %prec UMINUS{}
 | INTEGER
 {
+    $$.firstquad = next_quad;
     $$.result = quadop_cst($1);
 }
 | PLUS INTEGER
 {
+    $$.firstquad = next_quad;
     $$.result = quadop_cst($2);
 }
 | MINUS INTEGER %prec UMINUS
 {
+    $$.firstquad = next_quad;
     $$.result = quadop_cst(strcat("-", $2));
 }
 | OPAR somme_entiere CPAR
@@ -516,6 +541,7 @@ declaration_de_fonction
 decl_loc
 : decl_loc LOCAL ID EQUAL concatenation SEMI_CO
 {
+    //au final ça ne produira pas de quad (car pas d'instruction MIPS généré) -> a faire avec la table des symboles
     $$.firstquad = $1.firstquad;
     genCode(quad_new(Q_LOCAL, $5.result, quadop_empty(), quadop_var($3)));
 }
