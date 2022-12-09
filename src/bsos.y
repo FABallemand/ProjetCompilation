@@ -4,6 +4,7 @@
 #include "code.h"
 #include "quad.h"
 #include "list.h"
+#include "symbol_table.h"
 
 extern int yylex();
 extern void yyerror(const char *msg);
@@ -76,21 +77,49 @@ instruction
 : ID EQUAL concatenation 
 {
     $$.firstquad = $3.firstquad;
-    genCode(quad_new(Q_AFFECT,$3.result,quadop_empty(),quadop_var($1)));
+    struct symbol *id = lookUp(S_AUTO, $1);
+    if(id == NULL)
+    {
+        newName(S_GLOBAL, $1, VAR, 0);
+    }
+    genCode(quad_new(Q_AFFECT, $3.result, quadop_empty(), quadop_var($1)));
     $$.next = NULL;
 }
 | ID OABRA operande_entier CABRA EQUAL concatenation 
 {
     $$.firstquad = $3.firstquad;
-    // a fix ! c'est temporaire
+    struct symbol *id = lookUp(S_GLOBAL, $1);
+    if(id == NULL) // Variable pas définie
+    {
+        // Fonction d'erreur (faire mieux)
+        exit(1);
+    }
+    else if(id->type != TAB) // Variable n'est pas un tableau
+    {
+        // Fonction d'erreur (faire mieux)
+        exit(1);
+    }
+    else if($3.result.kind == QO_CST && id->size <= atoi($3.result.qval.value)) // Accès interdit avec valeur constante (si c'est une variable on ne peut pas vérifier à la compilation)
+    {
+        // Fonction d'erreur (faire mieux)
+        exit(1);
+    }
     genCode(quad_new(Q_AFFECT,$6.result,quadop_empty(),quadop_var($1)));
     $$.next = NULL;
 }
 | DECLARE ID OABRA INTEGER CABRA
 {
-    //au final ça ne produira pas de quad (car pas d'instruction MIPS généré) -> a faire avec la table des symboles
     $$.firstquad = next_quad;
-    genCode(quad_new(Q_DECLARE, quadop_cst($4), quadop_empty(), quadop_var($2)));
+    if(lookUp(S_GLOBAL, $2)) // Variable déjà utilisée dans le contexte S_GLOBAL
+    {
+        // Fonction d'erreur (faire mieux)
+        exit(1);
+    }
+    else // Création d'un nouveau tableau dans le contexte S_GLOBAL
+    {
+        newName(S_GLOBAL, $2, TAB, atoi($4));
+    }
+    // genCode(quad_new(Q_DECLARE, quadop_cst($4), quadop_empty(), quadop_var($2)));
     $$.next = NULL;
 }
 | IF test_bloc THEN liste_instructions g else_part FI
@@ -111,11 +140,21 @@ instruction
 }
 | FOR ID DO liste_instructions DONE
 {
-    
+    // $$.firstquad = $.firstquad;
+    struct symbol *id = lookUp(S_AUTO, $2);
+    if(id == NULL)
+    {
+        newName(S_GLOBAL, $2, VAR, 0);
+    }
 }
 | FOR ID IN liste_operandes DO liste_instructions DONE
 {
-    // $$firstquad = 
+    // $$.firstquad = $.firstquad;
+    struct symbol *id = lookUp(S_AUTO, $2);
+    if(id == NULL)
+    {
+        newName(S_GLOBAL, $2, VAR, 0);
+    }
 }
 | WHILE test_bloc DO liste_instructions g DONE
 {
@@ -144,8 +183,37 @@ instruction
     $$.firstquad = $2.firstquad;
     genCode(quad_new(Q_ECHO, quadop_empty(), quadop_empty(), quadop_empty()));
 }
-| READ ID {}
-| READ ID OABRA operande_entier CABRA {}
+| READ ID
+{
+    struct symbol *id = lookUp(S_AUTO, $2);
+    if(id == NULL)
+    {
+        newName(S_GLOBAL, $2, VAR, 0);
+    }
+
+    // FAIRE READ
+}
+| READ ID OABRA operande_entier CABRA
+{
+    struct symbol *id = lookUp(S_GLOBAL, $2);
+    if(id == NULL) // Variable pas définie
+    {
+        // Fonction d'erreur (faire mieux)
+        exit(1);
+    }
+    else if(id->type != TAB) // Variable n'est pas un tableau
+    {
+        // Fonction d'erreur (faire mieux)
+        exit(1);
+    }
+    else if($4.result.kind == QO_CST && id->size <= atoi($4.result.qval.value)) // Accès interdit avec valeur constante (si c'est une variable on ne peut pas vérifier à la compilation)
+    {
+        // Fonction d'erreur (faire mieux)
+        exit(1);
+    }
+
+    // FAIRE READ
+}
 | declaration_de_fonction {}
 | appel_de_fonction {}
 | RETURN
@@ -413,10 +481,36 @@ operande
 : DOLLAR OBRA ID CBRA
 {
     $$.firstquad = next_quad;
+    struct symbol *id = lookUp(S_AUTO, $3);
+    if(id == NULL)
+    {
+        // Fonction d'erreur (faire mieux)
+        exit(1);
+    }
+
+    // FAIRE ACTION
 }
 | DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
 {
     $$.firstquad = next_quad;
+    struct symbol *id = lookUp(S_GLOBAL, $3);
+    if(id == NULL) // Variable pas définie
+    {
+        // Fonction d'erreur (faire mieux)
+        exit(1);
+    }
+    else if(id->type != TAB) // Variable n'est pas un tableau
+    {
+        // Fonction d'erreur (faire mieux)
+        exit(1);
+    }
+    else if($5.result.kind == QO_CST && id->size <= atoi($5.result.qval.value)) // Accès interdit avec valeur constante (si c'est une variable on ne peut pas vérifier à la compilation)
+    {
+        // Fonction d'erreur (faire mieux)
+        exit(1);
+    }
+
+    // FAIRE ACTION
 }
 | DOLLAR INTEGER
 {
@@ -503,13 +597,109 @@ produit_entier
 ;
 
 operande_entier
-: DOLLAR OBRA ID CBRA {}
-| DOLLAR OBRA ID OABRA operande_entier CABRA CBRA {}
+: DOLLAR OBRA ID CBRA
+{
+    $$.firstquad = next_quad;
+    struct symbol *id = lookUp(S_AUTO, $3);
+    if(id == NULL)
+    {
+        // Fonction d'erreur (faire mieux)
+        exit(1);
+    }
+
+    // FAIRE ACTION
+}
+| DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
+{
+    $$.firstquad = next_quad;
+    struct symbol *id = lookUp(S_GLOBAL, $3);
+    if(id == NULL) // Variable pas définie
+    {
+        // Fonction d'erreur (faire mieux)
+        exit(1);
+    }
+    else if(id->type != TAB) // Variable n'est pas un tableau
+    {
+        // Fonction d'erreur (faire mieux)
+        exit(1);
+    }
+    else if($5.result.kind == QO_CST && id->size <= atoi($5.result.qval.value)) // Accès interdit avec valeur constante (si c'est une variable on ne peut pas vérifier à la compilation)
+    {
+        // Fonction d'erreur (faire mieux)
+        exit(1);
+    }
+
+    // FAIRE ACTION
+}
 | DOLLAR INTEGER {}
-| PLUS DOLLAR OBRA ID CBRA {}
-| MINUS DOLLAR OBRA ID CBRA %prec UMINUS{}
-| PLUS DOLLAR OBRA ID OABRA operande_entier CABRA CBRA {}
-| MINUS DOLLAR OBRA ID OABRA operande_entier CABRA CBRA %prec UMINUS {}
+| PLUS DOLLAR OBRA ID CBRA
+{
+    $$.firstquad = next_quad;
+    struct symbol *id = lookUp(S_AUTO, $4);
+    if(id == NULL)
+    {
+        // Fonction d'erreur (faire mieux)
+        exit(1);
+    }
+
+    // FAIRE ACTION
+}
+| MINUS DOLLAR OBRA ID CBRA %prec UMINUS
+{
+    $$.firstquad = next_quad;
+    struct symbol *id = lookUp(S_AUTO, $4);
+    if(id == NULL)
+    {
+        // Fonction d'erreur (faire mieux)
+        exit(1);
+    }
+
+    // FAIRE ACTION
+}
+| PLUS DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
+{
+    $$.firstquad = next_quad;
+    struct symbol *id = lookUp(S_GLOBAL, $4);
+    if(id == NULL) // Variable pas définie
+    {
+        // Fonction d'erreur (faire mieux)
+        exit(1);
+    }
+    else if(id->type != TAB) // Variable n'est pas un tableau
+    {
+        // Fonction d'erreur (faire mieux)
+        exit(1);
+    }
+    else if($6.result.kind == QO_CST && id->size <= atoi($6.result.qval.value)) // Accès interdit avec valeur constante (si c'est une variable on ne peut pas vérifier à la compilation)
+    {
+        // Fonction d'erreur (faire mieux)
+        exit(1);
+    }
+
+    // FAIRE ACTION
+}
+| MINUS DOLLAR OBRA ID OABRA operande_entier CABRA CBRA %prec UMINUS
+{
+    $$.firstquad = next_quad;
+    struct symbol *id = lookUp(S_GLOBAL, $4);
+    if(id == NULL) // Variable pas définie
+    {
+        // Fonction d'erreur (faire mieux)
+        exit(1);
+    }
+    else if(id->type != TAB) // Variable n'est pas un tableau
+    {
+        // Fonction d'erreur (faire mieux)
+        exit(1);
+    }
+    else if($6.result.kind == QO_CST && id->size <= atoi($6.result.qval.value)) // Accès interdit avec valeur constante (si c'est une variable on ne peut pas vérifier à la compilation)
+    {
+        // Fonction d'erreur (faire mieux)
+        exit(1);
+    }
+
+    // FAIRE ACTION
+}
 | PLUS DOLLAR INTEGER {}
 | MINUS DOLLAR INTEGER %prec UMINUS{}
 | INTEGER
@@ -543,7 +733,7 @@ decl_loc
 {
     //au final ça ne produira pas de quad (car pas d'instruction MIPS généré) -> a faire avec la table des symboles
     $$.firstquad = $1.firstquad;
-    genCode(quad_new(Q_LOCAL, $5.result, quadop_empty(), quadop_var($3)));
+    // genCode(quad_new(Q_LOCAL, $5.result, quadop_empty(), quadop_var($3)));
 }
 | %empty
 {

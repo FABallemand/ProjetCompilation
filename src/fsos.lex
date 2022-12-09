@@ -84,11 +84,9 @@ exit return EXIT;
 
 [a-zA-Z_][0-9a-zA-Z_]* {yylval.val = strdup(yytext); return ID;}
 
-[[:space:]] ;
-
 #[^\n]*\n ;
 
-\n ;
+[[:space:]] ;
 
 . printf("ah bon ?\n"); // xD
 

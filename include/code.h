@@ -42,7 +42,6 @@ void increaseGlobalCodeSize();
 
 /**
  * \brief Libére la mémoire occupée par le tableau correspondant au programme
- *
  */
 void freeGlobalCode();
 
@@ -72,7 +71,6 @@ void complete(struct list* l,size_t addr);
 
 /**
  * \brief Affiche tous les quads jusqu'à next quad
- * 
  */
 void printAllQuad();
 

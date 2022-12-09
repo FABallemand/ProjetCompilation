@@ -101,14 +101,14 @@ struct quad
         Q_NOT_EQUAL_STRING, // non egal entre chaine
         Q_AFFECT,           // AFFECTATION
         Q_GOTO,             // goto
-        Q_DECLARE,          // declare
-        Q_LOCAL,            // local
-        Q_ECHO,              // echo
+        Q_DECLARE,          // declare (inutile?)
+        Q_LOCAL,            // local (inutile?)
+        Q_ECHO,             // echo
         Q_RETURN,
         Q_RETURN_VAL,
         Q_EXIT,
         Q_EXIT_VAL
-    } kind;                 //< Type de quadruplet
+    } kind; //< Type de quadruplet
 
     struct quadop op1, op2, res; //< Opérandes
 };
