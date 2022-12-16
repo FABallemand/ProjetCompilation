@@ -36,14 +36,15 @@ enum sym_type
 {
     VAR,
     TAB,
-    FUN
+    FUN,
+    ARG
 };
 
 struct symbol
 {
     char *name;         //< Nom du symbole (identifiant)
     enum sym_type type; //< Type de variables
-    size_t size;        //< Taille du tableau SoS (0 si le symbole est une variable SoS et >0 si le symbole est un tableau SoS)
+    ssize_t size;       //< Taille du tableau SoS (0 si le symbole est une variable SoS et >0 si le symbole est un tableau SoS)
 };
 
 /**
@@ -65,8 +66,10 @@ void pushContext();
 
 struct stack *popContext();
 
-struct symbol *newName(enum scope s, char *name, enum sym_type type, size_t size);
+struct symbol *newName(enum scope s, char *name, enum sym_type type, ssize_t size);
 
 struct symbol *lookUp(enum scope s, char *name);
+
+size_t countArg();
 
 #endif

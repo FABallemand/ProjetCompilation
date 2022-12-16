@@ -39,11 +39,11 @@ extern void yyerror(const char *msg);
 
 %token <val> INTEGER STRING ID
 
-%type <inst_val> instruction liste_instructions else_part g decl_loc
+%type <inst_val> instruction liste_instructions else_part g decl_loc declaration_de_fonction
 
 %type <bool_val> test_bloc test_expr test_expr2 test_expr3 test_instruction
 
-%type <expr_val> concatenation operande somme_entiere produit_entier operande_entier
+%type <expr_val> concatenation operande somme_entiere produit_entier operande_entier appel_de_fonction
 
 %type <list_op_val> liste_operandes
 
@@ -56,7 +56,13 @@ extern void yyerror(const char *msg);
 %%
 
 programme
-: liste_instructions {}
+: {
+    pushContext();
+}
+liste_instructions
+{
+    popContext();
+}
 ;
 
 liste_instructions
@@ -214,8 +220,14 @@ instruction
 
     // FAIRE READ
 }
-| declaration_de_fonction {}
-| appel_de_fonction {}
+| declaration_de_fonction
+{
+
+}
+| appel_de_fonction
+{
+
+}
 | RETURN
 {
     $$.firstquad = next_quad;
@@ -515,6 +527,12 @@ operande
 | DOLLAR INTEGER
 {
     $$.firstquad = next_quad;
+    struct symbol *id = lookUp(S_LOCAL, $2);
+    if(id == NULL)
+    {
+        newName(S_LOCAL, $2, ARG, 0);
+    }
+    // Faire quadop
 }
 | DOLLAR STAR
 {
@@ -631,7 +649,16 @@ operande_entier
 
     // FAIRE ACTION
 }
-| DOLLAR INTEGER {}
+| DOLLAR INTEGER
+{
+    $$.firstquad = next_quad;
+    struct symbol *id = lookUp(S_LOCAL, $2);
+    if(id == NULL)
+    {
+        newName(S_LOCAL, $2, ARG, 0);
+    }
+    // Faire quadop
+}
 | PLUS DOLLAR OBRA ID CBRA
 {
     $$.firstquad = next_quad;
@@ -700,13 +727,32 @@ operande_entier
 
     // FAIRE ACTION
 }
-| PLUS DOLLAR INTEGER {}
-| MINUS DOLLAR INTEGER %prec UMINUS{}
+| PLUS DOLLAR INTEGER
+{
+    $$.firstquad = next_quad;
+    struct symbol *id = lookUp(S_LOCAL, $3);
+    if(id == NULL)
+    {
+        newName(S_LOCAL, $3, ARG, 0);
+    }
+    // Faire quadop
+}
+| MINUS DOLLAR INTEGER %prec UMINUS
+{
+    $$.firstquad = next_quad;
+    struct symbol *id = lookUp(S_LOCAL, $3);
+    if(id == NULL)
+    {
+        newName(S_LOCAL, $3, ARG, 0);
+    }
+    // Faire quadop, attention au signe (créer variable temporaire et vérifier entier)
+}
 | INTEGER
 {
     $$.firstquad = next_quad;
     $$.result = quadop_cst($1);
 }
+
 | PLUS INTEGER
 {
     $$.firstquad = next_quad;
@@ -725,7 +771,28 @@ operande_entier
 ;
 
 declaration_de_fonction
-: ID OPAR CPAR OBRA decl_loc liste_instructions CBRA {}
+: ID
+    {
+        struct symbol *id = lookUp(S_GLOBAL, $1);
+        if(id != NULL) // Fonction déjà définie
+        {
+            // Fonction d'erreur (faire mieux)
+            exit(1);
+        }
+        newName(S_GLOBAL, $1, FUN, -1);
+        pushContext();
+    }
+OPAR CPAR OBRA decl_loc liste_instructions CBRA
+{
+    struct symbol *id = lookUp(S_GLOBAL, $1);
+    if(id == NULL) // ERREUR TRES GRAVE
+    {
+        // Fonction d'erreur (faire mieux)
+        exit(1); 
+    }
+    id->size = countArg();
+    removeCallList(id); // Pour les fonctions rec :)
+}
 ;
 
 decl_loc
@@ -733,7 +800,14 @@ decl_loc
 {
     //au final ça ne produira pas de quad (car pas d'instruction MIPS généré) -> a faire avec la table des symboles
     $$.firstquad = $1.firstquad;
-    // genCode(quad_new(Q_LOCAL, $5.result, quadop_empty(), quadop_var($3)));
+    struct symbol *id = lookUp(S_LOCAL, $3);
+    if(id != NULL) // Variable locale déjà définie
+    {
+        // Fonction d'erreur (faire mieux)
+            exit(1);
+    }
+    newName(S_LOCAL, $3, VAR, 0);
+    genCode(quad_new(Q_AFFECT, $5.result, quadop_empty(), quadop_var($3)));
 }
 | %empty
 {
@@ -742,8 +816,54 @@ decl_loc
 ;
 
 appel_de_fonction
-: ID liste_operandes {}
-| ID {}
+: ID liste_operandes
+{
+    $$.firstquad = next_quad;
+    struct symbol *id = lookUp(S_GLOBAL, $1);
+    if(id == NULL) // Fonction pas définie
+    {
+        // Fonction d'erreur (faire mieux)
+        exit(1);
+    }
+    else if(id->type != FUN) // Fonction n'est pas une fonction
+    {
+        // Fonction d'erreur (faire mieux)
+        exit(1);
+    }
+    else if (id->size == -1) // Appel de fonction non résolu (il faut vérifier le nombre d'arguments)
+    {
+        addCallList($2.size, id);
+    }
+    else if ($2.size != id->size) // Nombre d'arguments invalide
+    {
+        // Fonction d'erreur (faire mieux)
+        exit(1);
+    }
+}
+| ID
+{
+    $$.firstquad = next_quad;
+    struct symbol *id = lookUp(S_GLOBAL, $1);
+    if(id == NULL) // Fonction pas définie
+    {
+        // Fonction d'erreur (faire mieux)
+        exit(1);
+    }
+    else if(id->type != FUN) // Fonction n'est pas une fonction
+    {
+        // Fonction d'erreur (faire mieux)
+        exit(1);
+    }
+    else if (id->size == -1) // Appel de fonction non résolu (il faut vérifier le nombre d'arguments)
+    {
+        addCallList(0, id);
+    }
+    else if (0 != id->size) // Nombre d'arguments invalide
+    {
+        // Fonction d'erreur (faire mieux)
+        exit(1);
+    }
+}
 ;
 
 g

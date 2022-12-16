@@ -41,7 +41,9 @@ char *newtemp()
         exit(1);
     }
     next_tmp++;
-    return strdup(dest);
+    char * dest_bis = strdup(dest);
+    newName(S_GLOBAL, dest_bis, VAR, 0);
+    return dest_bis;
 }
 
 void complete(struct list *l, size_t addr)

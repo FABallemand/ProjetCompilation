@@ -7,6 +7,7 @@
 
 #include "quad.h"
 #include "list.h"
+#include "symbol_table.h"
 
 #define INITIAL_GLOBAL_CODE_SIZE 64
 

@@ -1,5 +1,7 @@
 #include "list.h"
 
+struct call_list *not_finished_call = NULL;
+
 struct list *createList(size_t a)
 {
     struct list *l;
@@ -11,15 +13,16 @@ struct list *createList(size_t a)
 
 void freeList(struct list *l)
 {
-    if(!l)
+    if (!l)
     {
         return;
     }
     struct list *temp = l->next;
-    while(temp){
+    while (temp)
+    {
         struct list *tmp = temp->next;
         free(temp);
-        temp=tmp;
+        temp = tmp;
     }
     free(l);
 }
@@ -37,10 +40,68 @@ struct list *concat(struct list *l1, struct list *l2)
     else
     {
         struct list *temp = l1;
-        while(temp->next){
+        while (temp->next)
+        {
             temp = temp->next;
         }
         temp->next = l2;
         return l1;
     }
+}
+
+void addCallList(size_t nb_arg, struct symbol *fun)
+{
+    struct call_list *l;
+    CHK_NULL(l = malloc(sizeof(struct call_list)));
+    l->nb_arg = nb_arg;
+    l->fun = fun;
+    l->next = not_finished_call;
+    not_finished_call = l;
+}
+
+void removeCallList(struct symbol *fun)
+{
+    struct call_list *copy = not_finished_call;
+    struct call_list *prev = NULL;
+    while (copy) // Tant qu'il y a des appels de fonctions non résolus à analyser
+    {
+        if (copy->fun == fun && copy->nb_arg == fun->size) // Appel valide (il faut supprimer l'élément)
+        {
+            if (prev) // Pas début de liste
+            {
+                prev->next = copy->next;
+                free(copy);
+            }
+            else // En début de liste
+            {
+                not_finished_call = copy->next;
+                free(copy);
+                copy = not_finished_call;
+                continue; // Si on supprime le premier élément, "on recommence du début"
+            }
+        }
+        else if (copy->fun == fun && copy->nb_arg != fun->size) // Appel invalide !!
+        {
+            // Faire fonction erreur
+            exit(1);
+        }
+        prev = copy;
+        copy = copy->next;
+    }
+}
+
+void freeCallList(struct call_list *l)
+{
+    if (!l)
+    {
+        return;
+    }
+    struct call_list *temp = l->next;
+    while (temp)
+    {
+        struct call_list *tmp = temp->next;
+        free(temp);
+        temp = tmp;
+    }
+    free(l);
 }

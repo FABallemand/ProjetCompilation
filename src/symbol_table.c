@@ -36,7 +36,7 @@ struct stack *popContext()
     return tmp; // Question concernant free?
 }
 
-struct symbol *newName(enum scope s, char *name, enum sym_type type, size_t size)
+struct symbol *newName(enum scope s, char *name, enum sym_type type, ssize_t size)
 {
     // Se placer dans le bon contexte
     struct stack *ctx = S_GLOBAL_stack;
@@ -113,3 +113,20 @@ struct symbol *lookUp(enum scope s, char *name)
 //     }
 //     return NULL;
 // }
+
+size_t countArg()
+{
+    size_t count = 0;
+    // Se placer dans le contexte S_LOCAL
+    struct stack *ctx = S_GLOBAL_stack;
+
+    // Compter les arguments
+    for (int i = 0; i < ctx->current_symb; i++)
+    {
+        if(ctx->context[i].type == ARG)
+        {
+            count++;
+        }
+    }
+    return count;
+}
