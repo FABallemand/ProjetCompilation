@@ -36,7 +36,7 @@ struct stack *popContext()
     return tmp; // Question concernant free?
 }
 
-struct symbol *newName(enum scope s, char *name, enum sym_type type, ssize_t size)
+void newName(enum scope s, char *name, enum sym_type type, ssize_t size)
 {
     // Se placer dans le bon contexte
     struct stack *ctx = S_GLOBAL_stack;

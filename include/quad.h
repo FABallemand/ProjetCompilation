@@ -2,11 +2,12 @@
 #define __DEF_QUAD_H__
 
 #include <stdio.h>
-#define MAX_SIZE_VAR_NAME 64
+#define MAX_SIZE_VAR_NAME 64 //< Taille maximale en nombre de caractère du nom d'une variable
+
 /**
  * \file quad.h
  *
- * \brief Gestion des quadruplets
+ * \brief Gestion des quadruplets constituants le code intermédiaire
  */
 
 /**
@@ -24,17 +25,17 @@ struct quadop
         QO_ADDR,
         QO_EMPTY,
         QO_UNKNOWN
-    } kind; //< Type de l'opérateur
+    } kind; //< Type de l'opérande
 
     union
     {
         size_t addr; //< Valeur d'adresse (pour goto)
-        char *value; //< Valeur de l'opérateur (valuer ou nom pour un id)
-    } qval;
+        char *value; //< Valeur de l'opérande (chaîne de caractères correspondant à sa valeur ou a son nom)
+    } qval;          //< Valeur de l'opérande
 };
 
 /**
- * \brief Constructeur de quadop_t pour les constantes
+ * \brief Construit un quadop pour une constante
  */
 #define quadop_cst(v)                         \
     (struct quadop)                           \
@@ -42,6 +43,9 @@ struct quadop
         .kind = QO_CST, .qval = {.value = v } \
     }
 
+/**
+ * \brief Construit un quadop pour une variable
+ */
 #define quadop_var(v)                         \
     (struct quadop)                           \
     {                                         \
@@ -49,25 +53,38 @@ struct quadop
     }
 // strdup??
 
+/**
+ * \brief Construit un quadop pour une chaîne de caractère
+ */
 #define quadop_string(v)                         \
     (struct quadop)                              \
     {                                            \
         .kind = QO_STRING, .qval = {.value = v } \
     }
+// useless??
 // strdup??
 
+/**
+ * \brief Construit un quadop pour une adresse
+ */
 #define quadop_addr(v)                        \
     (struct quadop)                           \
     {                                         \
         .kind = QO_ADDR, .qval = {.addr = v } \
     }
 
+/**
+ * \brief Construit un quadop pour une opérande inconnue
+ */
 #define quadop_unknown()                         \
     (struct quadop)                              \
     {                                            \
         .kind = QO_UNKNOWN, .qval = {.addr = 0 } \
     }
 
+/**
+ * \brief Construit un quadop vide
+ */
 #define quadop_empty()   \
     (struct quadop)      \
     {                    \
@@ -77,33 +94,33 @@ struct quadop
 /**
  * \struct quad
  *
- * \brief Quadruplet
+ * \brief Quadruplet constituant le code intermédiaire
  */
 struct quad
 {
-    enum
+    enum // vérifier l'utilité de chacun
     {
-        Q_CONCAT,           // concaténation
-        Q_ADD,              // addition
-        Q_SUB,              // substraction
-        Q_MUL,              // multiplication
-        Q_DIV,              // division
-        Q_MOD,              // modulo
-        Q_EQUAL,            // egalité entre entier
-        Q_NOT_EQUAL,        // non egal entre entier
-        Q_GT,               // plus grand strict entier
-        Q_GE,               // plus grand entier
-        Q_LT,               // plus petit strict entier
-        Q_LE,               // plus petit entier
-        Q_EMP,              // chaine vide
-        Q_N_EMP,            // chaine non vide
-        Q_EQUAL_STRING,     // egale entre chaine
-        Q_NOT_EQUAL_STRING, // non egal entre chaine
-        Q_AFFECT,           // AFFECTATION
-        Q_GOTO,             // goto
-        Q_DECLARE,          // declare (inutile?)
-        Q_LOCAL,            // local (inutile?)
-        Q_ECHO,             // echo
+        Q_CONCAT,
+        Q_ADD,
+        Q_SUB,
+        Q_MUL,
+        Q_DIV,
+        Q_MOD,
+        Q_EQUAL,
+        Q_NOT_EQUAL,
+        Q_GT,
+        Q_GE,
+        Q_LT,
+        Q_LE,
+        Q_EMP,
+        Q_N_EMP,
+        Q_EQUAL_STRING,
+        Q_NOT_EQUAL_STRING,
+        Q_AFFECT,
+        Q_GOTO,
+        Q_DECLARE,
+        Q_LOCAL,
+        Q_ECHO,
         Q_RETURN,
         Q_RETURN_VAL,
         Q_EXIT,
@@ -113,14 +130,27 @@ struct quad
     struct quadop op1, op2, res; //< Opérandes
 };
 
+/**
+ * \brief Construit un quad
+ */
 #define quad_new(q, qop1, qop2, qres)                          \
     (struct quad)                                              \
     {                                                          \
         .kind = q, .op1 = (qop1), .op2 = (qop2), .res = (qres) \
     }
 
+/**
+ * \brief Affiche un opérateur de quadruplet
+ * 
+ * \param q Opérateur de quadruplet
+ */
 void printQuadop(struct quadop q);
 
+/**
+ * \brief Affiche un quadruplet
+ * 
+ * \param q Quadruplet
+ */
 void printQuad(struct quad q);
 
 #endif
