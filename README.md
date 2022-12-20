@@ -24,24 +24,20 @@
 
 SOS
 
-**NAME**
+**NAME**  
     sos - compilateur pour la langage SoS
 
-**SYNOPSIS**
->    sos [OPTION]...
->    ./bin/sos [OPTION]...
+**SYNOPSIS**  
+>    sos [OPTION]...  
+>    ./bin/sos [OPTION]...  
 
-**DESCRIPTION**
+**DESCRIPTION**  
     Compile un programme écrit en langage SoS en code MIPS. Sos est un langage impératif simple qui utilise une syntaxe et des fonctionnalités issues d'un sous-ensemble de langage shell unix (Sous-Shell).
 
-    **-h**    Affiche cette aide et arrête le programme
-
-    **-version**    Indique les membres de l'équipe de développement
-
-    **-tos**    Affiche la table des symboles
-
-    **-i**    Permet d'indiquer le fichier à compiler
-
-    **-o**    Permet d'indiquer le fichier résultat de la compilation
+    -h          Affiche cette aide et arrête le programme  
+    -version    Indique les membres de l'équipe de développement  
+    -tos        Affiche la table des symboles  
+    -i          Permet d'indiquer le fichier à compiler  
+    -o          Permet d'indiquer le fichier résultat de la compilation  
 
 ## Remarques:
