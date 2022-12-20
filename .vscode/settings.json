@@ -6,6 +6,12 @@
         "*.mot": "modelica",
         "*.unt": "modelica",
         "*.lex": "lex",
-        "print_util.C": "cpp"
+        "print_util.C": "cpp",
+        "system_error": "c",
+        "array": "c",
+        "functional": "c",
+        "tuple": "c",
+        "type_traits": "c",
+        "utility": "c"
     }
 }

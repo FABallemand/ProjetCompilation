@@ -24,8 +24,7 @@ int main(int argc, char **argv)
     {
         if (strcmp("-h", argv[i]) == 0)
         {
-            // execlp("cat", "cat", "help.md", NULL);
-            execlp("echo", "echo", "-e", "$(< help)", NULL);
+            execlp("cat", "cat", "help", NULL);
             exit(1);
         }
         if (strcmp("-version", argv[i]) == 0)

@@ -27,6 +27,7 @@ extern void yyerror(const char *msg);
     struct {
         size_t firstquad;
         struct list* next;
+        // int return_value; //< Vrai si la liste d'instruction contient un return <operande entier>
     } inst_val;
 
     struct {
@@ -58,6 +59,8 @@ extern void yyerror(const char *msg);
 programme
 : {
     pushContext();
+    newName(S_GLOBAL, "?", VAR, 0);
+    genCode(quad_new(Q_AFFECT, quadop_cst(0), quadop_empty(), quadop_var("?")));
 }
 liste_instructions
 {
@@ -231,12 +234,14 @@ instruction
 | RETURN
 {
     $$.firstquad = next_quad;
+    // $$.return_value = 0; // A faire partout ailleurs
     genCode(quad_new(Q_RETURN, quadop_empty(), quadop_empty(), quadop_empty()));
 }
 | RETURN operande_entier
 {
     $$.firstquad = $2.firstquad;
-    genCode(quad_new(Q_RETURN_VAL, $2.result, quadop_empty(), quadop_empty()));
+    // $$.return_value = 1;
+    genCode(quad_new(Q_RETURN_VAL, $2.result, quadop_empty(), quadop_empty())); // Mettre "?" à $2.result
 }
 | EXIT
 {
@@ -500,7 +505,7 @@ operande
         exit(1);
     }
 
-    // FAIRE ACTION
+    $$.result = quadop_var($3);
 }
 | DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
 {
@@ -521,8 +526,9 @@ operande
         // Fonction d'erreur (faire mieux)
         exit(1);
     }
-
-    // FAIRE ACTION
+    struct quadop res = quadop_var(newtemp());
+    genCode(quad_new(Q_ARRAY_GET, quadop_var($3), $5.result, res));
+    $$.result = res;
 }
 | DOLLAR INTEGER
 {
@@ -532,7 +538,7 @@ operande
     {
         newName(S_LOCAL, $2, ARG, 0);
     }
-    // Faire quadop
+    $$.result = quadop_var($2);
 }
 | DOLLAR STAR
 {
@@ -646,8 +652,9 @@ operande_entier
         // Fonction d'erreur (faire mieux)
         exit(1);
     }
-
-    // FAIRE ACTION
+    struct quadop res = quadop_var(newtemp());
+    genCode(quad_new(Q_ARRAY_GET, quadop_var($3), $5.result, res));
+    $$.result = res;
 }
 | DOLLAR INTEGER
 {
@@ -790,8 +797,16 @@ OPAR CPAR OBRA decl_loc liste_instructions CBRA
         // Fonction d'erreur (faire mieux)
         exit(1); 
     }
+
+    // GEstion des arguments de la fonction
     id->size = countArg();
     removeCallList(id); // Pour les fonctions rec :)
+
+    // Gestion du retour de la fonction
+    // if($7.return_value)
+    // {
+    //     id->type = FUN;
+    // }
 }
 ;
 

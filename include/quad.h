@@ -30,9 +30,9 @@ struct quadop
 
     union
     {
-        size_t addr; //< Valeur d'adresse (pour goto)
-        char *value; //< Valeur de l'opérande (chaîne de caractères correspondant à sa valeur ou a son nom)
-    } qval;          //< Valeur de l'opérande
+        size_t addr;                     //< Valeur d'adresse (pour goto)
+        char *value;                     //< Valeur de l'opérande (chaîne de caractères correspondant à sa valeur ou a son nom)
+    } qval;                              //< Valeur de l'opérande
 };
 
 /**
@@ -52,7 +52,6 @@ struct quadop
     {                                         \
         .kind = QO_VAR, .qval = {.value = v } \
     }
-// strdup??
 
 /**
  * \brief Construit un quadop pour une chaîne de caractère
@@ -62,8 +61,6 @@ struct quadop
     {                                            \
         .kind = QO_STRING, .qval = {.value = v } \
     }
-// useless??
-// strdup??
 
 /**
  * \brief Construit un quadop pour une adresse
@@ -125,7 +122,8 @@ struct quad
         Q_RETURN,
         Q_RETURN_VAL,
         Q_EXIT,
-        Q_EXIT_VAL
+        Q_EXIT_VAL,
+        Q_ARRAY_GET
     } kind; //< Type de quadruplet
 
     struct quadop op1, op2, res; //< Opérandes
@@ -142,14 +140,14 @@ struct quad
 
 /**
  * \brief Affiche un opérateur de quadruplet
- * 
+ *
  * \param q Opérateur de quadruplet
  */
 void printQuadop(struct quadop q);
 
 /**
  * \brief Affiche un quadruplet
- * 
+ *
  * \param q Quadruplet
  */
 void printQuad(struct quad q);

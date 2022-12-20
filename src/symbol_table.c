@@ -96,23 +96,6 @@ struct symbol *lookUp(enum scope s, char *name)
     return NULL;
 }
 
-// struct symbol *lookUp(enum scope s, char *name)
-// {
-//     // Parcourir les contextes en partant du haut
-//     struct stack *ctx = S_GLOBAL_stack;
-//     while (ctx)
-//     {
-//         // Parcourir les entrées du contexte
-//         for (int i = 0; i < ctx->current_symb; i++)
-//         {
-//             if (strcmp(name, ctx->context[i].name) == 0)
-//             {
-//                 return &(ctx->context[i]);
-//             }
-//         }
-//     }
-//     return NULL;
-// }
 
 size_t countArg()
 {

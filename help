@@ -1,24 +1,24 @@
-SOS\n
-\n
-\033[1;37m NAME \e[0m\n
-    sos - compilateur pour la langage SoS \n
-\n
-\033[1;37m SYNOPSIS \e[0m \n
-    sos [OPTION]...\n
-    ./bin/sos [OPTION]...\n
-\n
-\033[1;37m DESCRIPTION \e[0m\n
-    Compile un programme écrit en langage SoS en code MIPS.\nSos est un langage impératif simple qui utilise une syntaxe et des fonctionnalités\nissues d'un sous-ensemble de langage shell unix (Sous-Shell).\n
-\n
-    \033[1;37m -h \e[0m    Affiche cette aide et arrête le programme\n
-\n
-    \033[1;37m -version \e[0m    Indique les membres de l'équipe de développement\n
-\n
-    \033[1;37m -tos \e[0m    Affiche la table des symboles\n
-\n
-    \033[1;37m -i \e[0m    Permet d'indiquer le fichier à compiler\n
-\n
-    \033[1;37m -o \e[0m    Permet d'indiquer le fichier résultat de la compilation\n
-\n
-\033[1;37m AUTHEURS \e[0m\n
-    Written by Samuel Lebot et Fabien Allemand\n
+SOS
+
+NAME
+    sos - compilateur pour la langage SoS 
+
+SYNOPSIS 
+    sos [OPTION]...
+    ./bin/sos [OPTION]...
+
+DESCRIPTION
+    Compile un programme écrit en langage SoS en code MIPS.Sos est un langage impératif simple qui utilise une syntaxe et des fonctionnalitésissues d'un sous-ensemble de langage shell unix (Sous-Shell).
+
+    -h    Affiche cette aide et arrête le programme
+
+    -version    Indique les membres de l'équipe de développement
+
+    -tos    Affiche la table des symboles
+
+    -i    Permet d'indiquer le fichier à compiler
+
+    -o    Permet d'indiquer le fichier résultat de la compilation
+
+AUTHEURS
+    Written by Samuel Lebot et Fabien Allemand

@@ -30,8 +30,10 @@ enum sym_type
 {
     VAR,
     TAB,
+    // METHOD, // Fonction qui ne renvoie pas de valeur de status
     FUN,
-    ARG
+    ARG,
+    UNDEFINED
 };
 
 /**
