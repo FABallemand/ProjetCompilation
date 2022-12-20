@@ -2,6 +2,7 @@
 #define __DEF_ERROR_HANDLING_H__
 
 #include <stdio.h>
+#include <stdarg.h>
 
 #define RED "\033[1;31m"   // BOLD
 #define GREEN "\033[1;32m" // BOLD
@@ -26,11 +27,11 @@
 /**
  * \brief Affiche un message d'erreur dans la sortie d'erreur
  */
-void printError(char *msg);
+void printError(char *msg, ...);
 
 /**
  * \brief Affiche un message d'avertissement dans la sortie d'erreur
  */
-void printWarning(char *msg);
+void printWarning(char *msg, ...);
 
 #endif

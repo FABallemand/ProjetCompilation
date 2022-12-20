@@ -1,6 +1,9 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
+
+#include "error_handling.h"
+
 #include "code.h"
 #include "quad.h"
 #include "list.h"
@@ -100,17 +103,17 @@ instruction
     struct symbol *id = lookUp(S_GLOBAL, $1);
     if(id == NULL) // Variable pas définie
     {
-        // Fonction d'erreur (faire mieux)
+        printError("Variable %s non définie", $1);
         exit(1);
     }
     else if(id->type != TAB) // Variable n'est pas un tableau
     {
-        // Fonction d'erreur (faire mieux)
+        printError("Symbole %s n'est pas un tableau", $1);
         exit(1);
     }
     else if($3.result.kind == QO_CST && id->size <= atoi($3.result.qval.value)) // Accès interdit avec valeur constante (si c'est une variable on ne peut pas vérifier à la compilation)
     {
-        // Fonction d'erreur (faire mieux)
+        printError("Accès interdit (indice %ld en dehors du tableau %s)", atoi($3.result.qval.value), $1);
         exit(1);
     }
     genCode(quad_new(Q_AFFECT,$6.result,quadop_empty(),quadop_var($1)));
@@ -121,7 +124,7 @@ instruction
     $$.firstquad = next_quad;
     if(lookUp(S_GLOBAL, $2)) // Variable déjà utilisée dans le contexte S_GLOBAL
     {
-        // Fonction d'erreur (faire mieux)
+        printError("Variable %s déjà utilisée dans le contexte global", $2);
         exit(1);
     }
     else // Création d'un nouveau tableau dans le contexte S_GLOBAL
@@ -207,17 +210,17 @@ instruction
     struct symbol *id = lookUp(S_GLOBAL, $2);
     if(id == NULL) // Variable pas définie
     {
-        // Fonction d'erreur (faire mieux)
+        printError("Variable %s non-définie", $2);
         exit(1);
     }
     else if(id->type != TAB) // Variable n'est pas un tableau
     {
-        // Fonction d'erreur (faire mieux)
+        printError("Symbole %s n'est pas un tableau", $2);
         exit(1);
     }
     else if($4.result.kind == QO_CST && id->size <= atoi($4.result.qval.value)) // Accès interdit avec valeur constante (si c'est une variable on ne peut pas vérifier à la compilation)
     {
-        // Fonction d'erreur (faire mieux)
+        printError("Accès interdit (indice %ld en dehors du tableau)", atoi($4.result.qval.value));
         exit(1);
     }
 
@@ -501,7 +504,7 @@ operande
     struct symbol *id = lookUp(S_AUTO, $3);
     if(id == NULL)
     {
-        // Fonction d'erreur (faire mieux)
+        printError("Variable %s non définie", $3);
         exit(1);
     }
 
@@ -513,17 +516,17 @@ operande
     struct symbol *id = lookUp(S_GLOBAL, $3);
     if(id == NULL) // Variable pas définie
     {
-        // Fonction d'erreur (faire mieux)
+        printError("Variable %s non définie", $3);
         exit(1);
     }
     else if(id->type != TAB) // Variable n'est pas un tableau
     {
-        // Fonction d'erreur (faire mieux)
+        printError("Symbole %s n'est pas un tableau", $3);
         exit(1);
     }
     else if($5.result.kind == QO_CST && id->size <= atoi($5.result.qval.value)) // Accès interdit avec valeur constante (si c'est une variable on ne peut pas vérifier à la compilation)
     {
-        // Fonction d'erreur (faire mieux)
+        printError("Accès interdit (indice %ld en dehors du tableau %s)", atoi($5.result.qval.value), $3);
         exit(1);
     }
     struct quadop res = quadop_var(newtemp());
@@ -627,7 +630,7 @@ operande_entier
     struct symbol *id = lookUp(S_AUTO, $3);
     if(id == NULL)
     {
-        // Fonction d'erreur (faire mieux)
+        printError("Variable %s non définie", $3);
         exit(1);
     }
 
@@ -639,17 +642,17 @@ operande_entier
     struct symbol *id = lookUp(S_GLOBAL, $3);
     if(id == NULL) // Variable pas définie
     {
-        // Fonction d'erreur (faire mieux)
+        printError("Variable %s non définie", $3);
         exit(1);
     }
     else if(id->type != TAB) // Variable n'est pas un tableau
     {
-        // Fonction d'erreur (faire mieux)
+        printError("Symbole %s n'est pas un tableau", $3);
         exit(1);
     }
     else if($5.result.kind == QO_CST && id->size <= atoi($5.result.qval.value)) // Accès interdit avec valeur constante (si c'est une variable on ne peut pas vérifier à la compilation)
     {
-        // Fonction d'erreur (faire mieux)
+        printError("Accès interdit (indice %ld en dehors du tableau %s)", atoi($5.result.qval.value), $3);
         exit(1);
     }
     struct quadop res = quadop_var(newtemp());
@@ -672,7 +675,7 @@ operande_entier
     struct symbol *id = lookUp(S_AUTO, $4);
     if(id == NULL)
     {
-        // Fonction d'erreur (faire mieux)
+        printError("Variable %s non définie", $4);
         exit(1);
     }
 
@@ -684,7 +687,7 @@ operande_entier
     struct symbol *id = lookUp(S_AUTO, $4);
     if(id == NULL)
     {
-        // Fonction d'erreur (faire mieux)
+        printError("Variable %s non définie", $4);
         exit(1);
     }
 
@@ -696,17 +699,17 @@ operande_entier
     struct symbol *id = lookUp(S_GLOBAL, $4);
     if(id == NULL) // Variable pas définie
     {
-        // Fonction d'erreur (faire mieux)
+        printError("Variable %s non définie", $4);
         exit(1);
     }
     else if(id->type != TAB) // Variable n'est pas un tableau
     {
-        // Fonction d'erreur (faire mieux)
+        printError("Symbole %s n'est pas un tableau", $4);
         exit(1);
     }
     else if($6.result.kind == QO_CST && id->size <= atoi($6.result.qval.value)) // Accès interdit avec valeur constante (si c'est une variable on ne peut pas vérifier à la compilation)
     {
-        // Fonction d'erreur (faire mieux)
+        printError("Accès interdit (indice %ld en dehors du tableau %s)", atoi($6.result.qval.value), $4);
         exit(1);
     }
 
@@ -718,17 +721,17 @@ operande_entier
     struct symbol *id = lookUp(S_GLOBAL, $4);
     if(id == NULL) // Variable pas définie
     {
-        // Fonction d'erreur (faire mieux)
+        printError("Variable %s non définie", $4);
         exit(1);
     }
     else if(id->type != TAB) // Variable n'est pas un tableau
     {
-        // Fonction d'erreur (faire mieux)
+        printError("Symbole %s n'est pas un tableau", $4);
         exit(1);
     }
     else if($6.result.kind == QO_CST && id->size <= atoi($6.result.qval.value)) // Accès interdit avec valeur constante (si c'est une variable on ne peut pas vérifier à la compilation)
     {
-        // Fonction d'erreur (faire mieux)
+        printError("Accès interdit (indice %ld en dehors du tableau %s)", atoi($6.result.qval.value), $4);
         exit(1);
     }
 
@@ -783,7 +786,7 @@ declaration_de_fonction
         struct symbol *id = lookUp(S_GLOBAL, $1);
         if(id != NULL) // Fonction déjà définie
         {
-            // Fonction d'erreur (faire mieux)
+            printError("Fonction %s déjà définie", $1);
             exit(1);
         }
         newName(S_GLOBAL, $1, FUN, -1);
@@ -794,7 +797,7 @@ OPAR CPAR OBRA decl_loc liste_instructions CBRA
     struct symbol *id = lookUp(S_GLOBAL, $1);
     if(id == NULL) // ERREUR TRES GRAVE
     {
-        // Fonction d'erreur (faire mieux)
+        printError("Fonction %s non définie (ERREUR TRES GRAVE)", $1);
         exit(1); 
     }
 
@@ -818,8 +821,8 @@ decl_loc
     struct symbol *id = lookUp(S_LOCAL, $3);
     if(id != NULL) // Variable locale déjà définie
     {
-        // Fonction d'erreur (faire mieux)
-            exit(1);
+        printError("Variable locale %s déjà définie", $3);
+        exit(1);
     }
     newName(S_LOCAL, $3, VAR, 0);
     genCode(quad_new(Q_AFFECT, $5.result, quadop_empty(), quadop_var($3)));
@@ -837,12 +840,12 @@ appel_de_fonction
     struct symbol *id = lookUp(S_GLOBAL, $1);
     if(id == NULL) // Fonction pas définie
     {
-        // Fonction d'erreur (faire mieux)
+        printError("Fonciton %s non définie", $1);
         exit(1);
     }
     else if(id->type != FUN) // Fonction n'est pas une fonction
     {
-        // Fonction d'erreur (faire mieux)
+        printError("Symbole %s n'est pas une fonction", $1);
         exit(1);
     }
     else if (id->size == -1) // Appel de fonction non résolu (il faut vérifier le nombre d'arguments)
@@ -851,7 +854,7 @@ appel_de_fonction
     }
     else if ($2.size != id->size) // Nombre d'arguments invalide
     {
-        // Fonction d'erreur (faire mieux)
+        printError("Appel de fonction %s invalide (nombre d'arguments incorrect)", $1);
         exit(1);
     }
 }
@@ -861,12 +864,12 @@ appel_de_fonction
     struct symbol *id = lookUp(S_GLOBAL, $1);
     if(id == NULL) // Fonction pas définie
     {
-        // Fonction d'erreur (faire mieux)
+        printError("Fonciton %s non définie", $1);
         exit(1);
     }
     else if(id->type != FUN) // Fonction n'est pas une fonction
     {
-        // Fonction d'erreur (faire mieux)
+        printError("Symbole %s n'est pas une fonction", $1);
         exit(1);
     }
     else if (id->size == -1) // Appel de fonction non résolu (il faut vérifier le nombre d'arguments)
@@ -875,7 +878,7 @@ appel_de_fonction
     }
     else if (0 != id->size) // Nombre d'arguments invalide
     {
-        // Fonction d'erreur (faire mieux)
+        printError("Appel de fonction %s invalide (nombre d'arguments incorrect)", $1);
         exit(1);
     }
 }
