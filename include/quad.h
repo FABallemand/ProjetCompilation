@@ -2,6 +2,7 @@
 #define __DEF_QUAD_H__
 
 #include <stdio.h>
+
 #define MAX_SIZE_VAR_NAME 64 //< Taille maximale en nombre de caractère du nom d'une variable
 
 /**

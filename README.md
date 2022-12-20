@@ -9,22 +9,39 @@
 
 1. Compiler le projet
 > make
-2. Nettoyer l'espace de travail
-> make clean
-3. Créer le graphe de la grammaire dans le dossier graph
+3. Créer le graphe de la grammaire dans le dossier *graph*
 > make graph
-4. Lancer les test automatiquement
+4. Lancer les tests automatiquement
 > make test
-5. Nettoyer l'espace de travail relatif aux tests
+5. Nettoyer l'espace de travail
+> make clean
+6. Nettoyer l'espace de travail relatif au graphe
+> make clean_graph
+7. Nettoyer l'espace de travail relatif aux tests
 > make clean_test
 
 ## Utilisation:
 
-> ./bin/sos [...]
+SOS
 
-Faire manuel d'utilisation
+**NAME**
+    sos - compilateur pour la langage SoS
 
-## Remarques: 
+**SYNOPSIS**
+>    sos [OPTION]...
+>    ./bin/sos [OPTION]...
 
-- on a un petit problème la : si j'écris 1+2 le compile reconnais le mot "1+2" et pas l'addiction ENTIER + ENTIER (je sais pas comment fix ça)
-- il faut réecrire les regex pour mot et chaine à partir de la def de caractère du sujet)  
+**DESCRIPTION**
+    Compile un programme écrit en langage SoS en code MIPS. Sos est un langage impératif simple qui utilise une syntaxe et des fonctionnalités issues d'un sous-ensemble de langage shell unix (Sous-Shell).
+
+    **-h**    Affiche cette aide et arrête le programme
+
+    **-version**    Indique les membres de l'équipe de développement
+
+    **-tos**    Affiche la table des symboles
+
+    **-i**    Permet d'indiquer le fichier à compiler
+
+    **-o**    Permet d'indiquer le fichier résultat de la compilation
+
+## Remarques:

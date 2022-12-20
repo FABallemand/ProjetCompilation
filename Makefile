@@ -45,26 +45,26 @@ $(SRCDIR)/$(FLEXFILE).yy.c: $(SRCDIR)/$(FLEXFILE).lex $(SRCDIR)/$(BISONFILE).tab
 $(OBJDIR)/$(FLEXFILE).yy.o: $(SRCDIR)/$(FLEXFILE).yy.c
 	$(CC) $(CFLAGS) -c -o $(OBJDIR)/$(FLEXFILE).yy.o $(SRCDIR)/$(FLEXFILE).yy.c -I $(INCDIR)
 
+.PHONY: create_dir clean clean_test clean_graph test
+create_dir:
+	mkdir -p $(BINDIR) $(SRCDIR) $(INCDIR) $(OBJDIR)
+
 graph:
 	mkdir -p $(GRAPHDIR)
 	bison --graph $(SRCDIR)/$(BISONFILE).y
 	rm -f $(BISONFILE).tab.c
 	mv $(BISONFILE).gv $(GRAPHDIR)
 	dot -Tpdf < $(GRAPHDIR)/$(BISONFILE).gv > $(GRAPHDIR)/$(TARGET).pdf
-	
 
-.PHONY: create_dir clean clean_test clean_graph test
-create_dir:
-	mkdir -p $(BINDIR) $(SRCDIR) $(INCDIR) $(OBJDIR)
+test:
+	sh ./$(TESTDIR)/test.sh
 
 clean:
 	rm -f $(OBJDIR)/*.o $(SRCDIR)/$(BISONFILE).tab.c $(INCDIR)/$(BISONFILE).tab.h $(SRCDIR)/$(FLEXFILE).yy.c $(SRCDIR)/$(BISONFILE).output $(SRCDIR)/$(BISONFILE).gv $(SRCDIR)/$(BISONFILE).dot $(SRCDIR)/$(BISONFILE).pdf $(BINDIR)/$(TARGET) $(TESTDIR)/output/*
 
+clean_graph:
+	rm -r $(GRAPHDIR)
+	# rm -f $(GRAPHDIR)/*.gv $(GRAPHDIR)/*.pdf
+
 clean_test:
 	rm -f $(TESTDIR)/output/*
-
-clean_graph:
-	rm -f $(GRAPHDIR)/*.gv $(GRAPHDIR)/*.pdf
-
-test:
-	sh ./$(TESTDIR)/test.sh

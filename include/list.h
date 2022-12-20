@@ -4,17 +4,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "symbol_table.h"
+#include "error_handling.h"
 
-#define CHK_NULL(x)           \
-    do                        \
-    {                         \
-        if ((x) == NULL)      \
-        {                     \
-            printf("NULL\n"); \
-            exit(1);          \
-        }                     \
-    } while (0)
+#include "symbol_table.h"
 
 /**
  * \file list.h

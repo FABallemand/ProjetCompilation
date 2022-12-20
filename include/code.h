@@ -5,21 +5,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "error_handling.h"
+
 #include "quad.h"
 #include "list.h"
 #include "symbol_table.h"
 
 #define INITIAL_GLOBAL_CODE_SIZE 64 //< Taille initiale du tableau de quadruplets constituant le code intermédiaire du programme
-
-#define CHK_NULL(x)           \
-    do                        \
-    {                         \
-        if ((x) == NULL)      \
-        {                     \
-            printf("NULL\n"); \
-            exit(1);          \
-        }                     \
-    } while (0)
 
 /**
  * \file code.h

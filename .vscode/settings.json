@@ -1,0 +1,11 @@
+{
+    "files.associations": {
+        "*.fs": "c",
+        "*.vs": "c",
+        "*.mo": "modelica",
+        "*.mot": "modelica",
+        "*.unt": "modelica",
+        "*.lex": "lex",
+        "print_util.C": "cpp"
+    }
+}

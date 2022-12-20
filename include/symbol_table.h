@@ -5,17 +5,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define INITIAL_CONTEXT_SIZE 64 //< Taille initiale d'un contexte
+#include "error_handling.h"
 
-#define CHK_NULL(x)           \
-    do                        \
-    {                         \
-        if ((x) == NULL)      \
-        {                     \
-            printf("NULL\n"); \
-            exit(1);          \
-        }                     \
-    } while (0)
+#define INITIAL_CONTEXT_SIZE 64 //< Taille initiale d'un contexte
 
 /**
  * \enum scope
