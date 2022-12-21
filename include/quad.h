@@ -120,7 +120,6 @@ struct quad
         Q_LOCAL,
         Q_ECHO,
         Q_RETURN,
-        Q_RETURN_VAL,
         Q_EXIT,
         Q_EXIT_VAL,
         Q_ARRAY_GET

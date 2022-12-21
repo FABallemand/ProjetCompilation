@@ -3,6 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "error_handling.h"
 #include "code.h"
 
 extern int yydebug;
@@ -38,13 +39,13 @@ int main(int argc, char **argv)
         if (strcmp("-i", argv[i]) == 0)
         {
             input_file = 1;
-            printf("Compiling programm located at %s\n", argv[i + 1]);
+            printInfo("Compiling programm located at %s\n", argv[i + 1]);
             yyin = fopen(argv[i + 1], "r");
         }
         if (strcmp("-o", argv[i]) == 0)
         {
             output_file = 1;
-            printf("Output will be saved in %s\n", argv[i + 1]);
+            printInfo("Output will be saved in %s\n", argv[i + 1]);
             yyout = fopen(argv[i + 1], "w");
         }
     }

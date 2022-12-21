@@ -4,6 +4,8 @@ struct call_list *not_finished_call = NULL;
 
 struct list *createList(size_t a)
 {
+    if(DEBUG)
+        printCall("createList");
     struct list *l;
     CHK_NULL(l = malloc(sizeof(struct list)));
     l->addr = a;
@@ -13,6 +15,8 @@ struct list *createList(size_t a)
 
 void freeList(struct list *l)
 {
+     if(DEBUG)
+        printCall("freeList");
     if (!l)
     {
         return;
@@ -29,6 +33,8 @@ void freeList(struct list *l)
 
 struct list *concat(struct list *l1, struct list *l2)
 {
+    if(DEBUG)
+        printCall("concat");
     if (l1 == NULL)
     {
         return l2;
@@ -51,6 +57,8 @@ struct list *concat(struct list *l1, struct list *l2)
 
 void addCallList(size_t nb_arg, struct symbol *fun)
 {
+    if(DEBUG)
+        printCall("addCallList");
     struct call_list *l;
     CHK_NULL(l = malloc(sizeof(struct call_list)));
     l->nb_arg = nb_arg;
@@ -61,6 +69,8 @@ void addCallList(size_t nb_arg, struct symbol *fun)
 
 void removeCallList(struct symbol *fun)
 {
+    if(DEBUG)
+        printCall("removeCallList");
     struct call_list *copy = not_finished_call;
     struct call_list *prev = NULL;
     while (copy) // Tant qu'il y a des appels de fonctions non résolus à analyser
@@ -92,6 +102,8 @@ void removeCallList(struct symbol *fun)
 
 void freeCallList(struct call_list *l)
 {
+    if(DEBUG)
+        printCall("freeCallList");
     if (!l)
     {
         return;

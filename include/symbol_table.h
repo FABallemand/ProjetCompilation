@@ -8,10 +8,12 @@
 #include "error_handling.h"
 
 #define INITIAL_CONTEXT_SIZE 64 //< Taille initiale d'un contexte
+#define NB_MAX_STACK_FRAME 32   //< Nombre maximal de stack frame
+#define SIZE_MIPS_WORD 4        //< Taille d'un mot MIPS
 
 /**
  * \enum scope
- * 
+ *
  * \brief Décrit un niveau de contexte ou la portée d'une variable
  */
 enum scope
@@ -23,22 +25,20 @@ enum scope
 
 /**
  * \enum sym_type
- * 
+ *
  * \brief Décrit le type d'un symbole
  */
 enum sym_type
 {
     VAR,
     TAB,
-    // METHOD, // Fonction qui ne renvoie pas de valeur de status
     FUN,
-    ARG,
-    UNDEFINED
+    ARG
 };
 
 /**
  * \struct symbol
- * 
+ *
  * \brief Décrit un symbole dans la table des symboles
  */
 struct symbol
@@ -62,8 +62,21 @@ struct stack
 };
 
 /**
+ * \struct stack_frame
+ *
+ * \brief
+ */
+struct stack_frame
+{
+    char *context_name;      //< Nom du contexte (ie: nom de la fonction)
+    struct symbol *context; //< Contexte
+    size_t nb_symb;          //< Nombre de symboles dans le contexte
+    size_t stack_frame_size; //< Taille du contexte
+};
+
+/**
  * \brief Augmente la taille du contexte passé en argument
- * 
+ *
  * \param s Contexte
  */
 void increaseContextSize(struct stack *s);
@@ -75,14 +88,14 @@ void pushContext();
 
 /**
  * \brief Retire un contexte de la pile des contextes
- * 
+ *
  * \return struct stack* Pointeur vers le contexte dépilée
  */
 struct stack *popContext();
 
 /**
  * \brief Crée un nouveau symbole dans la table des symboles
- * 
+ *
  * \param s Portée du symbole
  * \param name Nom du symbole
  * \param type Type du symbole
@@ -92,7 +105,7 @@ void newName(enum scope s, char *name, enum sym_type type, ssize_t size);
 
 /**
  * \brief Recherche un symbole dans la table des symbole (à préciser)
- * 
+ *
  * \param s Niveau de contexte
  * \param name Nom du symbole
  * \return struct symbol* Symbole correspondant à la recherche ou NULL si le symbole recherché n'existe pas dans le contexte
@@ -101,9 +114,24 @@ struct symbol *lookUp(enum scope s, char *name);
 
 /**
  * \brief Compte le nombre d'arguments d'une fonctions (ie: compte les symboles non locaux rencontrés dans le contexte de la fonction, à savoir le contexte au sommet de la pile)
- * 
+ *
  * \return size_t Nombre d'arguments
  */
 size_t countArg();
+
+/**
+ * \brief Vérifie si on est dans le contexte global ou le contexte d'une fonction (utile pour l'utilisation des return)
+ *
+ * \return int 0 uniquement si on est dans le contxte global
+ */
+int checkInsideFunction();
+
+/**
+ * \brief Crée un nouveau stack frame dans stack_frame_list
+ *
+ * \param name
+ * \param stack
+ */
+void createNewStackFrame(char *name, struct stack *stack);
 
 #endif

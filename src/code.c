@@ -5,11 +5,15 @@ size_t next_quad = 0;     //< Indice du prochain quadruplet dans le tableau de q
 
 void initGlobalCode()
 {
+    if(DEBUG)
+        printCall("initGlobalCode");
     CHK_NULL(global_code = malloc(INITIAL_GLOBAL_CODE_SIZE * sizeof(struct quad)));
 }
 
 void increaseGlobalCodeSize()
 {
+    if(DEBUG)
+        printCall("increaseGlobalCodeSize");
     struct quad *tmp = realloc(global_code, (next_quad + INITIAL_GLOBAL_CODE_SIZE) * sizeof(struct quad));
 
     CHK_NULL(tmp);
@@ -19,12 +23,16 @@ void increaseGlobalCodeSize()
 
 void freeGlobalCode()
 {
+    if(DEBUG)
+        printCall("freeGlobalCode");
     free(global_code);
     global_code = NULL;
 }
 
 void genCode(struct quad q)
 {
+    if(DEBUG)
+        printCall("genCode");
     if (next_quad != 0 && ((next_quad % INITIAL_GLOBAL_CODE_SIZE) == 0))
     {
         increaseGlobalCodeSize();
@@ -34,6 +42,8 @@ void genCode(struct quad q)
 
 char *newtemp()
 {
+    if(DEBUG)
+        printCall("newTemp");
     static size_t next_tmp = 0;
     char dest[20]; // avoid an useless malloc
     if (sprintf(dest, "%s%ld", "%%TMP_", next_tmp) < 0)
@@ -48,6 +58,8 @@ char *newtemp()
 
 void complete(struct list *l, size_t addr)
 {
+    if(DEBUG)
+        printCall("complete");
     if (l) // si liste non vide
     {
         struct list *new_l = l; // clone pour itérer
@@ -62,6 +74,8 @@ void complete(struct list *l, size_t addr)
 
 void printAllQuad()
 {
+    if(DEBUG)
+        printCall("printAllQuad");
     for (int i = 0; i < next_quad; i++)
     {
         printf("%d : ", i);

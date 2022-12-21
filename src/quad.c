@@ -67,11 +67,6 @@ void printQuad(struct quad q)
     {
         printf("return");
     }
-    else if (q.kind == Q_RETURN_VAL)
-    {
-        printf("return ");
-        printQuadop(q.op1);
-    }
     else
     {
         printQuadop(q.op1);
