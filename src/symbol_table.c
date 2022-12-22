@@ -6,7 +6,7 @@ size_t nb_stack_frame = 0;                               //< Nombre de stack fra
 
 void increaseContextSize(struct stack *s)
 {
-    if(DEBUG)
+    if (DEBUG)
         printCall("increaseContextSize");
 
     s->size *= 2;
@@ -16,7 +16,7 @@ void increaseContextSize(struct stack *s)
 
 void pushContext()
 {
-    if(DEBUG)
+    if (DEBUG)
         printCall("pushContext");
 
     struct stack *new = malloc(sizeof(struct stack));
@@ -39,7 +39,7 @@ void pushContext()
 
 struct stack *popContext()
 {
-    if(DEBUG)
+    if (DEBUG)
         printCall("popContext");
 
     struct stack *tmp = S_GLOBAL_stack;
@@ -49,7 +49,7 @@ struct stack *popContext()
 
 void newName(enum scope s, char *name, enum sym_type type, ssize_t size)
 {
-    if(DEBUG)
+    if (DEBUG)
         printCall("newName");
 
     // Se placer dans le bon contexte
@@ -77,7 +77,7 @@ void newName(enum scope s, char *name, enum sym_type type, ssize_t size)
 
 struct symbol *lookUp(enum scope s, char *name)
 {
-    if(DEBUG)
+    if (DEBUG)
         printCall("lookUp");
 
     // Appel récursif pour chercher dans le contexte S_LOCAL ou S_GLOBAL (on nen cherhce pas dans les contextes intermédiares car les fonctions sont S_GLOBALes)
@@ -115,7 +115,7 @@ struct symbol *lookUp(enum scope s, char *name)
 
 size_t countArg()
 {
-    if(DEBUG)
+    if (DEBUG)
         printCall("countArg");
 
     size_t count = 0;
@@ -136,7 +136,7 @@ size_t countArg()
 
 int checkInsideFunction()
 {
-    if(DEBUG)
+    if (DEBUG)
         printCall("checkInsideFunction");
     // Si on a pas de contexte ou que le context est global alors faux sinon vrai.
     if (S_GLOBAL_stack == NULL || S_GLOBAL_stack->prev == NULL)
@@ -148,7 +148,7 @@ int checkInsideFunction()
 
 void createNewStackFrame(char *name, struct stack *stack)
 {
-    if(DEBUG)
+    if (DEBUG)
         printCall("createNewStackFrame");
 
     // Gestion d'erreur
@@ -164,7 +164,6 @@ void createNewStackFrame(char *name, struct stack *stack)
     size_t temp_size = 0;
     for (size_t i = 0; i < stack->current_symb; i++)
     {
-        printf("%ld\n", i);
         if (stack->context[i].type == TAB)
         {
             temp_size += stack->context[i].size * SIZE_MIPS_WORD;
@@ -177,4 +176,48 @@ void createNewStackFrame(char *name, struct stack *stack)
     stack_frame_list[nb_stack_frame].stack_frame_size = temp_size;
     free(stack); // Free la stack mais pas le context
     nb_stack_frame++;
+}
+
+void printStackFrame(struct stack_frame sf)
+{
+    printf("Stack Frame : %s\n", sf.context_name);
+    for (int i = 0; i < sf.nb_symb; i++)
+    {
+        printf("\t");
+        printSymbol(sf.context[i]);
+    }
+}
+
+void printAllStackFrame()
+{
+    for (int i = 0; i < nb_stack_frame; i++)
+    {
+        printStackFrame(stack_frame_list[i]);
+    }
+}
+
+void printSymbol(struct symbol s)
+{
+    printf("name : %s\t", s.name);
+    printf("type : ");
+    switch (s.type)
+    {
+    case VAR:
+        printf("VAR\n");
+        break;
+    case FUN:
+        printf("FUN\t");
+        printf("nb_arg : %ld\n", s.size);
+        break;
+    case ARG:
+        printf("ARG\n");
+        break;
+    case TAB:
+        printf("TAB\t");
+        printf("nb_entry : %ld\n", s.size);
+        break;
+    default:
+        printError("Type non défini");
+        exit(1);
+    }
 }

@@ -30,9 +30,9 @@ struct quadop
 
     union
     {
-        size_t addr;                     //< Valeur d'adresse (pour goto)
-        char *value;                     //< Valeur de l'opérande (chaîne de caractères correspondant à sa valeur ou a son nom)
-    } qval;                              //< Valeur de l'opérande
+        size_t addr; //< Valeur d'adresse (pour goto)
+        char *value; //< Valeur de l'opérande (chaîne de caractères correspondant à sa valeur ou a son nom)
+    } qval;          //< Valeur de l'opérande
 };
 
 /**

@@ -65,8 +65,11 @@ void complete(struct list *l, size_t addr)
         struct list *new_l = l; // clone pour itérer
         while (new_l)
         {
+            printf("test\n");
             global_code[new_l->addr].res = quadop_addr(addr);
+            printf("test\n");
             new_l = new_l->next;
+            printf("test\n");
         }
         freeList(l);
     }

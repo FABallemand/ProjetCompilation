@@ -80,7 +80,7 @@ int main(int argc, char **argv)
     }
     if (symbol_table)
     {
-        // Afficher la table des symboles ici
+        printAllStackFrame();
     }
 
     return r;

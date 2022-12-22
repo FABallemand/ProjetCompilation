@@ -69,7 +69,7 @@ struct stack
 struct stack_frame
 {
     char *context_name;      //< Nom du contexte (ie: nom de la fonction)
-    struct symbol *context; //< Contexte
+    struct symbol *context;  //< Contexte
     size_t nb_symb;          //< Nombre de symboles dans le contexte
     size_t stack_frame_size; //< Taille du contexte
 };
@@ -133,5 +133,11 @@ int checkInsideFunction();
  * \param stack
  */
 void createNewStackFrame(char *name, struct stack *stack);
+
+void printStackFrame(struct stack_frame sf);
+
+void printAllStackFrame();
+
+void printSymbol(struct symbol s);
 
 #endif

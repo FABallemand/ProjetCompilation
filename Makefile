@@ -24,15 +24,9 @@ $(BINDIR)/$(TARGET): $(OBJFILES) $(OBJDIR)/$(BISONFILE).tab.o $(OBJDIR)/$(FLEXFI
 $(OBJFILES): $(OBJDIR)/%.o : $(SRCDIR)/%.c
 	$(CC) -o $@ -c $< $(CFLAGS) -I $(INCDIR)
 
-#$(OBJFILES): $(CFILES)
-#	$(CC) -o $@ -c $< $(CFLAGS) -I $(INCDIR)
-
-# $(OBJDIR)/$(CFILE).o:
-#	$(CC) $(CFLAGS) -c -o $(OBJDIR)/$(CFILE).o $(SRCDIR)/$(CFILE).c -I $(INCDIR)
-
 $(SRCDIR)/$(BISONFILE).tab.c: $(SRCDIR)/$(BISONFILE).y
 	# bison -o $(SRCDIR)/$(BISONFILE).tab.c -Wmidrule-value -Wcounterexamples --report=all --header=$(INCDIR)/$(BISONFILE).tab.h -t $< # Linux
-	bison --report=all -d -t -Wmidrule-value $<
+	bison -d -t -Wmidrule-value -Wcounterexamples --report=all $<
 	mv $(BISONFILE).tab.c $(SRCDIR)
 	mv $(BISONFILE).tab.h $(INCDIR)
 

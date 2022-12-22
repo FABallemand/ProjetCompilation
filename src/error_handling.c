@@ -47,5 +47,5 @@ void printInfo(char *msg, ...)
     va_start(args, msg);
     vsnprintf(buffer, sizeof(buffer), msg, args);
     va_end(args);
-    fprintf(stdout, PURPLE "Rule: %s\n" RESET, buffer);
+    fprintf(stdout, PURPLE "Info: %s\n" RESET, buffer);
 }

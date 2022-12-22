@@ -11,6 +11,10 @@
 
 extern int yylex();
 extern void yyerror(const char *msg);
+
+char name_global[7] = "global";
+char status[2] = "?";
+char zero[2] = "0";
 %}
 
 %union {
@@ -59,28 +63,24 @@ extern void yyerror(const char *msg);
 %%
 
 programme
-: {
-    if(DEBUG)
-        printRule("programme");
-        printInfo("Begin mid-rule");
-    pushContext();
-    char status[2] = "?";
-    newName(S_GLOBAL, strdup(status), VAR, 0);
-    char zero[2] = "0";
-    genCode(quad_new(Q_AFFECT, quadop_cst(strdup(zero)), quadop_empty(), quadop_var(strdup(status))));
-    if(DEBUG)
-        printInfo("End mid-rule");
-}
-liste_instructions
+: 
+initialisation liste_instructions
 {
     if(DEBUG)
-        printRule("programme fin");
-        printInfo("Begin rule");
-    popContext();
-    if(DEBUG)
-        printInfo("End rule");
+        printRule("initialisation liste_instructions");
+    createNewStackFrame(name_global, popContext());
 }
 ;
+
+initialisation 
+: %empty
+{
+    if(DEBUG)
+        printRule("empty");
+    pushContext();
+    newName(S_GLOBAL, status, VAR, 0);
+    genCode(quad_new(Q_AFFECT, quadop_cst(zero), quadop_empty(), quadop_var(status)));
+}
 
 liste_instructions
 : liste_instructions SEMI_CO instruction
@@ -228,6 +228,7 @@ instruction
         printRule("ECHO_ liste_operandes");
     $$.firstquad = $2.firstquad;
     genCode(quad_new(Q_ECHO, quadop_empty(), quadop_empty(), quadop_empty()));
+    $$.next = NULL;
 }
 | READ ID
 {
@@ -246,21 +247,27 @@ instruction
     if(DEBUG)
         printRule("READ ID OABRA operande_entier CABRA");
     struct symbol *id = lookUp(S_GLOBAL, $2);
+    printf("ICI %d\n", atoi($4.result.qval.value));
+    printf("test1\n");
     if(id == NULL) // Variable pas définie
     {
+        printf("test2\n");
         printError("Variable %s non-définie", $2);
         exit(1);
     }
     else if(id->type != TAB) // Variable n'est pas un tableau
     {
+        printf("test3\n");
         printError("Symbole %s n'est pas un tableau", $2);
         exit(1);
     }
     else if($4.result.kind == QO_CST && id->size <= atoi($4.result.qval.value)) // Accès interdit avec valeur constante (si c'est une variable on ne peut pas vérifier à la compilation)
     {
+        printf("test4\n");
         printError("Accès interdit (indice %ld en dehors du tableau)", atoi($4.result.qval.value));
         exit(1);
     }
+    printf("test5\n");
 
     // FAIRE READ
 }
@@ -268,26 +275,29 @@ instruction
 {
     if(DEBUG)
         printRule("declaration_de_fonction");
+    // $$.firstquad = ;
+    // $$.next = 
 }
 | appel_de_fonction
 {
     if(DEBUG)
         printRule("appel_de_fonction");
+    $$.firstquad = $1.firstquad;
+    $$.next = NULL;
 }
 | RETURN
 {   
     if(DEBUG)
         printRule("RETURN");
-    // si on n'est pas dans une fonction pas de return
+    // Si on n'est pas dans une fonction pas de return
     if(!checkInsideFunction())
     {
         printError("Return en dehors de fonction");
         exit(1);
     }
     $$.firstquad = next_quad;
-    char status[2] = "?";
-    char zero[2] = "0";
-    genCode(quad_new(Q_AFFECT, quadop_cst(strdup(zero)), quadop_empty(), quadop_var(strdup(status))));
+    $$.next = NULL;
+    genCode(quad_new(Q_AFFECT, quadop_cst(zero), quadop_empty(), quadop_var(status)));
     genCode(quad_new(Q_RETURN, quadop_empty(), quadop_empty(), quadop_empty()));
 }
 | RETURN operande_entier
@@ -301,8 +311,8 @@ instruction
         exit(1);
     }
     $$.firstquad = $2.firstquad;
-    char status[2] = "?";
-    genCode(quad_new(Q_AFFECT, $2.result, quadop_empty(), quadop_var(strdup(status))));
+    $$.next = NULL;
+    genCode(quad_new(Q_AFFECT, $2.result, quadop_empty(), quadop_var(status)));
     genCode(quad_new(Q_RETURN, quadop_empty(), quadop_empty(), quadop_empty()));
 }
 | EXIT
@@ -311,6 +321,7 @@ instruction
         printRule("EXIT");
     $$.firstquad = next_quad;
     genCode(quad_new(Q_EXIT, quadop_empty(), quadop_empty(), quadop_empty()));
+    $$.next = NULL;
 }
 | EXIT operande_entier
 {
@@ -318,6 +329,7 @@ instruction
         printRule("EXIT opreande_entier");
     $$.firstquad = $2.firstquad;
     genCode(quad_new(Q_EXIT_VAL, $2.result, quadop_empty(), quadop_empty()));
+    $$.next = NULL;
 }
 ;
 
@@ -683,12 +695,26 @@ operande
         printRule("DOLLAR STATUS");
     $$.firstquad = next_quad;
 }
-| INTEGER // -INTEGER / +INTEGER
+| INTEGER 
 {
     if(DEBUG)
         printRule("INTEGER");
     $$.firstquad = next_quad;
     $$.result = quadop_cst($1);
+}
+| PLUS INTEGER
+{
+    if(DEBUG)
+        printRule("PLUS INTEGER");
+    $$.firstquad = next_quad;
+    $$.result = quadop_cst($2);
+}
+| MINUS INTEGER %prec UMINUS
+{
+    if(DEBUG)
+        printRule("MINUS INTEGER %prec UMINUS");
+    $$.firstquad = next_quad;
+    $$.result = quadop_cst(strcat("-", $2));
 }
 | STRING
 {
@@ -709,6 +735,7 @@ operande
     if(DEBUG)
         printRule("DOLLAR OPAR appel_de_fonction CPAR");
     $$.firstquad = next_quad;
+    $$.result = $3.result;
 }
 ;
 
@@ -789,8 +816,7 @@ operande_entier
         printError("Variable %s non définie", $3);
         exit(1);
     }
-
-    // FAIRE ACTION
+    $$.result = quadop_var($3);
 }
 | DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
 {
@@ -827,7 +853,7 @@ operande_entier
     {
         newName(S_LOCAL, $2, ARG, 0);
     }
-    // Faire quadop
+    $$.result = quadop_var($3);
 }
 | PLUS DOLLAR OBRA ID CBRA
 {
@@ -840,8 +866,7 @@ operande_entier
         printError("Variable %s non définie", $4);
         exit(1);
     }
-
-    // FAIRE ACTION
+    $$.result = quadop_var($4);
 }
 | MINUS DOLLAR OBRA ID CBRA %prec UMINUS
 {
@@ -854,8 +879,9 @@ operande_entier
         printError("Variable %s non définie", $4);
         exit(1);
     }
-
-    // FAIRE ACTION
+    struct quadop res = quadop_var(newtemp());
+    genCode(quad_new(Q_SUB, quadop_cst(zero), quadop_var($4), res));
+    $$.result = res;
 }
 | PLUS DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
 {
@@ -878,8 +904,9 @@ operande_entier
         printError("Accès interdit (indice %ld en dehors du tableau %s)", atoi($6.result.qval.value), $4);
         exit(1);
     }
-
-    // FAIRE ACTION
+    struct quadop res = quadop_var(newtemp());
+    genCode(quad_new(Q_ARRAY_GET, quadop_var($4), $6.result, res));
+    $$.result = res;
 }
 | MINUS DOLLAR OBRA ID OABRA operande_entier CABRA CBRA %prec UMINUS
 {
@@ -902,8 +929,10 @@ operande_entier
         printError("Accès interdit (indice %ld en dehors du tableau %s)", atoi($6.result.qval.value), $4);
         exit(1);
     }
-
-    // FAIRE ACTION
+    struct quadop res = quadop_var(newtemp());
+    genCode(quad_new(Q_ARRAY_GET, quadop_var($4), $6.result, res));
+    genCode(quad_new(Q_SUB, quadop_cst(zero), res, res));
+    $$.result = res;
 }
 | PLUS DOLLAR INTEGER
 {
@@ -915,7 +944,8 @@ operande_entier
     {
         newName(S_LOCAL, $3, ARG, 0);
     }
-    // Faire quadop
+    // verifier qu'on est bien dans une fonction car pas d'argument au programme...
+    $$.result = quadop_var($3);
 }
 | MINUS DOLLAR INTEGER %prec UMINUS
 {
@@ -927,7 +957,10 @@ operande_entier
     {
         newName(S_LOCAL, $3, ARG, 0);
     }
-    // Faire quadop, attention au signe (créer variable temporaire et vérifier entier)
+    // verifier qu'on est bien dans une fonction car pas d'argument au programme...
+    struct quadop res = quadop_var(newtemp());
+    genCode(quad_new(Q_SUB, quadop_cst(zero), quadop_var($3), res));
+    $$.result = res;
 }
 | INTEGER
 {
@@ -955,7 +988,6 @@ operande_entier
     if(DEBUG)
         printRule("OPAR somme_entiere CPAR");
     $$.firstquad = $2.firstquad;
-    //
 }
 ;
 
@@ -985,7 +1017,7 @@ OPAR CPAR OBRA decl_loc liste_instructions CBRA
     // Gestion des arguments de la fonction
     id->size = countArg();
     removeCallList(id); // Pour les fonctions rec :)
-    popContext();
+    createNewStackFrame($1, popContext());
 }
 ;
 
@@ -1017,7 +1049,7 @@ appel_de_fonction
     if(DEBUG)
         printRule("ID liste_operandes");
     // Verifier que la fonction existe
-    $<expr_val>$.firstquad = next_quad;
+    // $<expr_val>$.firstquad = next_quad;
     struct symbol *id = lookUp(S_GLOBAL, $1);
     if(id == NULL) // Fonction pas définie
     {
@@ -1033,7 +1065,7 @@ appel_de_fonction
 }
 liste_operandes // ici on créé le code pour affecter les variables
 {
-    $$.firstquad = $<expr_val>2.firstquad;
+    $$.firstquad = $3.firstquad;
     // Verifier que l'utilisateur a mis le bon nombre d'argument
     struct symbol *id = lookUp(S_GLOBAL, $1);
     if (id->size == -1) // Appel de fonction non résolu (il faut vérifier le nombre d'arguments)
@@ -1046,6 +1078,7 @@ liste_operandes // ici on créé le code pour affecter les variables
         exit(1);
     }
     genCode(quad_new(Q_GOTO, quadop_empty(), quadop_empty(), quadop_var($1))); // mettre l'adresse de la fonction dans la variable globale associé
+    $$.result = quadop_var(status);
 }
 | ID
 {
@@ -1055,7 +1088,7 @@ liste_operandes // ici on créé le code pour affecter les variables
     struct symbol *id = lookUp(S_GLOBAL, $1);
     if(id == NULL) // Fonction pas définie
     {
-        printError("Fonciton %s non définie", $1);
+        printError("Fonction %s non définie", $1);
         exit(1);
     }
     else if(id->type != FUN) // Fonction n'est pas une fonction
@@ -1074,6 +1107,7 @@ liste_operandes // ici on créé le code pour affecter les variables
     }
     // Agrandir la stack
     genCode(quad_new(Q_GOTO, quadop_empty(), quadop_empty(), quadop_var($1))); //mettre l'adresse de la fonction dans la variable global associé
+    $$.result = quadop_var(status);
 }
 ;
 
@@ -1081,7 +1115,7 @@ g
 : %empty
 {
     if(DEBUG)
-        printRule("g");
+        printRule("empty");
     $$.next = createList(next_quad);
     genCode(quad_new(Q_GOTO, quadop_empty(), quadop_empty(), quadop_unknown()));
 }
@@ -1091,101 +1125,5 @@ g
 
 void yyerror(const char *msg)
 {
-    fprintf(stderr, "Erreur syntaxique : %s\n", msg);
+    printError("Erreur syntaxique : %s", msg);
 }
-
-/* declaration_de_fonction
-: ID
-{
-    if(DEBUG)
-        printRule("ID OPAR CPAR OBRA decl_loc liste_instructions CBRA");
-    struct symbol *id = lookUp(S_GLOBAL, $1);
-    if(id != NULL) // Fonction déjà définie
-    {
-        printError("Fonction %s déjà définie", $1);
-        exit(1);
-    }
-    newName(S_GLOBAL, $1, FUN, -1);
-    pushContext();
-}
-OPAR CPAR OBRA decl_loc liste_instructions CBRA
-{
-    struct symbol *id = lookUp(S_GLOBAL, $1);
-    if(id == NULL) // ERREUR TRES GRAVE
-    {
-        printError("Fonction %s non définie (ERREUR TRES GRAVE)", $1);
-        exit(1); 
-    }
-
-    // Gestion des arguments de la fonction
-    id->size = countArg();
-    removeCallList(id); // Pour les fonctions rec :)
-    popContext();
-}
-; */
-
-/* appel_de_fonction
-: ID 
-{
-    if(DEBUG)
-        printRule("ID liste_operandes");
-    // Verifier que la fonction existe
-    $<expr_val>$.firstquad = next_quad;
-    struct symbol *id = lookUp(S_GLOBAL, $1);
-    if(id == NULL) // Fonction pas définie
-    {
-        printError("Fonciton %s non définie", $1);
-        exit(1);
-    }
-    else if(id->type != FUN) // Fonction n'est pas une fonction
-    {
-        printError("Symbole %s n'est pas une fonction", $1);
-        exit(1);
-    }
-    // Agrandir la stack
-}
-liste_operandes // ici on créé le code pour affecter les variables
-{
-    $$.firstquad = $<expr_val>2.firstquad;
-    // Verifier que l'utilisateur a mis le bon nombre d'argument
-    struct symbol *id = lookUp(S_GLOBAL, $1);
-    if (id->size == -1) // Appel de fonction non résolu (il faut vérifier le nombre d'arguments)
-    {
-        addCallList($3.size, id);
-    }
-    else if ($3.size != id->size) // Nombre d'arguments invalide
-    {
-        printError("Appel de fonction %s invalide (nombre d'arguments incorrect)", $1);
-        exit(1);
-    }
-    genCode(quad_new(Q_GOTO, quadop_empty(), quadop_empty(), quadop_var($1))); // mettre l'adresse de la fonction dans la variable globale associé
-}
-| ID
-{
-    if(DEBUG)
-        printRule("ID");
-    $$.firstquad = next_quad;
-    struct symbol *id = lookUp(S_GLOBAL, $1);
-    if(id == NULL) // Fonction pas définie
-    {
-        printError("Fonciton %s non définie", $1);
-        exit(1);
-    }
-    else if(id->type != FUN) // Fonction n'est pas une fonction
-    {
-        printError("Symbole %s n'est pas une fonction", $1);
-        exit(1);
-    }
-    else if (id->size == -1) // Appel de fonction non résolu (il faut vérifier le nombre d'arguments)
-    {
-        addCallList(0, id);
-    }
-    else if (0 != id->size) // Nombre d'arguments invalide
-    {
-        printError("Appel de fonction %s invalide (nombre d'arguments incorrect)", $1);
-        exit(1);
-    }
-    // Agrandir la stack
-    genCode(quad_new(Q_GOTO, quadop_empty(), quadop_empty(), quadop_var($1))); //mettre l'adresse de la fonction dans la variable global associé
-}
-; */
