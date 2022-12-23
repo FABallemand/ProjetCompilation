@@ -853,7 +853,7 @@ operande_entier
     {
         newName(S_LOCAL, $2, ARG, 0);
     }
-    $$.result = quadop_var($3);
+    $$.result = quadop_var($2);
 }
 | PLUS DOLLAR OBRA ID CBRA
 {

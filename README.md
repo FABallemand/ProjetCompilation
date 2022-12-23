@@ -27,8 +27,7 @@ SOS
 **NAME**  
     sos - compilateur pour la langage SoS
 
-**SYNOPSIS**  
->    sos [OPTION]...  
+**SYNOPSIS**   
 >    ./bin/sos [OPTION]...  
 
 **DESCRIPTION**  

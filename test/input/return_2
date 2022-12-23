@@ -1,0 +1,4 @@
+fonction ()
+{
+    return 1
+};
