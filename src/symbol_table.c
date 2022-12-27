@@ -3,6 +3,7 @@
 struct stack *S_GLOBAL_stack = NULL;                     //< Pile des contextes (nom à changer)
 struct stack_frame stack_frame_list[NB_MAX_STACK_FRAME]; //< Liste de stack frame déjà calculés
 size_t nb_stack_frame = 0;                               //< Nombre de stack frame déjà calculés
+size_t nb_arg_programme = 0;                           //< Nombre d'argument global du programme
 
 void increaseContextSize(struct stack *s)
 {
@@ -126,9 +127,9 @@ size_t countArg()
     for (int i = 0; i < ctx->current_symb; i++)
     {
         printf("%d\n", i);
-        if (ctx->context[i].type == ARG)
+        if (ctx->context[i].type == ARG && count < atoi(ctx->context[i].name)) // le nombre d'argument d'une fonction c'est le plus haut numéro d'argument.
         {
-            count++;
+            count = atoi(ctx->context[i].name);
         }
     }
     return count;
@@ -176,6 +177,10 @@ void createNewStackFrame(char *name, struct stack *stack)
     stack_frame_list[nb_stack_frame].stack_frame_size = temp_size;
     free(stack); // Free la stack mais pas le context
     nb_stack_frame++;
+}
+
+void setNbArgProgramme(size_t nb){
+    nb_arg_programme = nb;
 }
 
 void printStackFrame(struct stack_frame sf)

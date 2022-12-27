@@ -68,6 +68,7 @@ initialisation liste_instructions
 {
     if(DEBUG)
         printRule("initialisation liste_instructions");
+    setNbArgProgramme(countArg());
     createNewStackFrame(name_global, popContext());
 }
 ;
@@ -633,7 +634,7 @@ test_instruction
 ;
 
 operande
-: DOLLAR OBRA ID CBRA
+: DOLLAR OBRA ID CBRA //fait
 {
     if(DEBUG)
         printRule("DOLLAR OBRA ID CBRA");
@@ -646,7 +647,7 @@ operande
     }
     $$.result = quadop_var($3);
 }
-| DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
+| DOLLAR OBRA ID OABRA operande_entier CABRA CBRA //fait
 {
     if(DEBUG)
         printRule("DOLLAR OBRA ID OABRA operande_entier CABRA CBRA");
@@ -671,66 +672,77 @@ operande
     genCode(quad_new(Q_ARRAY_GET, quadop_var($3), $5.result, res));
     $$.result = res;
 }
-| DOLLAR INTEGER
+| DOLLAR INTEGER //fait
 {
     if(DEBUG)
         printRule("DOLLAR INTEGER");
     $$.firstquad = next_quad;
-    struct symbol *id = lookUp(S_LOCAL, $2);
-    if(id == NULL)
+    if(checkInsideFunction() == 1) // si on est dans une fonction alors on regarde uniquement dans le contexte local
+    {   
+        struct symbol *id = lookUp(S_LOCAL, $2);
+        if(id == NULL)
+        {
+            newName(S_LOCAL, $2, ARG, 0);
+        }
+    }
+    else // si on est dans le  global alors on regarde uniquemeent dans le context global
     {
-        newName(S_LOCAL, $2, ARG, 0);
+        struct symbol *id = lookUp(S_GLOBAL, $2);
+        if(id == NULL)
+        {
+            newName(S_GLOBAL, $2, ARG, 0);
+        }
     }
     $$.result = quadop_var($2);
 }
-| DOLLAR STAR
+| DOLLAR STAR //pas encore fini
 {
     if(DEBUG)
         printRule("DOLLAR STAR");
     $$.firstquad = next_quad;
 }
-| DOLLAR STATUS
+| DOLLAR STATUS //pas encore fini
 {
     if(DEBUG)
         printRule("DOLLAR STATUS");
     $$.firstquad = next_quad;
 }
-| INTEGER 
+| INTEGER //fait
 {
     if(DEBUG)
         printRule("INTEGER");
     $$.firstquad = next_quad;
     $$.result = quadop_cst($1);
 }
-| PLUS INTEGER
+| PLUS INTEGER //fait
 {
     if(DEBUG)
         printRule("PLUS INTEGER");
     $$.firstquad = next_quad;
     $$.result = quadop_cst($2);
 }
-| MINUS INTEGER %prec UMINUS
+| MINUS INTEGER %prec UMINUS //fait
 {
     if(DEBUG)
         printRule("MINUS INTEGER %prec UMINUS");
     $$.firstquad = next_quad;
     $$.result = quadop_cst(strcat("-", $2));
 }
-| STRING
+| STRING //fait
 {
     if(DEBUG)
         printRule("STRING");
     $$.firstquad = next_quad;
     $$.result = quadop_string($1);
 }
-| DOLLAR OPAR EXPR somme_entiere CPAR
+| DOLLAR OPAR EXPR somme_entiere CPAR //fait
 {
     if(DEBUG)
         printRule("DOLLAR OPAR EXPR somme_entiere CPAR");
     $$.firstquad = $4.firstquad;
     $$.result = $4.result;
 }
-| DOLLAR OPAR appel_de_fonction CPAR
+| DOLLAR OPAR appel_de_fonction CPAR //fait
 {
     if(DEBUG)
         printRule("DOLLAR OPAR appel_de_fonction CPAR");
@@ -805,7 +817,7 @@ produit_entier
 ;
 
 operande_entier
-: DOLLAR OBRA ID CBRA
+: DOLLAR OBRA ID CBRA //fait
 {
     if(DEBUG)
         printRule("DOLLAR OBRA ID CBRA");
@@ -818,7 +830,7 @@ operande_entier
     }
     $$.result = quadop_var($3);
 }
-| DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
+| DOLLAR OBRA ID OABRA operande_entier CABRA CBRA //fait
 {
     if(DEBUG)
         printRule("DOLLAR OBRA ID OABRA operande_entier CABRA CBRA");
@@ -843,19 +855,30 @@ operande_entier
     genCode(quad_new(Q_ARRAY_GET, quadop_var($3), $5.result, res));
     $$.result = res;
 }
-| DOLLAR INTEGER
+| DOLLAR INTEGER //fait
 {
     if(DEBUG)
         printRule("DOLLAR INTEGER");
     $$.firstquad = next_quad;
-    struct symbol *id = lookUp(S_LOCAL, $2);
-    if(id == NULL)
+    if(checkInsideFunction() == 1) // si on est dans une fonction alors on regarde uniquement dans le contexte local
+    {   
+        struct symbol *id = lookUp(S_LOCAL, $2);
+        if(id == NULL)
+        {
+            newName(S_LOCAL, $2, ARG, 0);
+        }
+    }
+    else // si on est dans le  global alors on regarde uniquemeent dans le context global
     {
-        newName(S_LOCAL, $2, ARG, 0);
+        struct symbol *id = lookUp(S_GLOBAL, $2);
+        if(id == NULL)
+        {
+            newName(S_GLOBAL, $2, ARG, 0);
+        }
     }
     $$.result = quadop_var($2);
 }
-| PLUS DOLLAR OBRA ID CBRA
+| PLUS DOLLAR OBRA ID CBRA //Fait
 {
     if(DEBUG)
         printRule("PLUS DOLLAR OBRA ID CBRA");
@@ -868,7 +891,7 @@ operande_entier
     }
     $$.result = quadop_var($4);
 }
-| MINUS DOLLAR OBRA ID CBRA %prec UMINUS
+| MINUS DOLLAR OBRA ID CBRA %prec UMINUS //fait
 {
     if(DEBUG)
         printRule("MINUS DOLLAR OBRA ID CBRA %prec UMINUS");
@@ -883,7 +906,7 @@ operande_entier
     genCode(quad_new(Q_SUB, quadop_cst(zero), quadop_var($4), res));
     $$.result = res;
 }
-| PLUS DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
+| PLUS DOLLAR OBRA ID OABRA operande_entier CABRA CBRA //Fait
 {
     if(DEBUG)
         printRule("PLUS DOLLAR OBRA ID OABRA operande_entier CABRA CBRA");
@@ -908,7 +931,7 @@ operande_entier
     genCode(quad_new(Q_ARRAY_GET, quadop_var($4), $6.result, res));
     $$.result = res;
 }
-| MINUS DOLLAR OBRA ID OABRA operande_entier CABRA CBRA %prec UMINUS
+| MINUS DOLLAR OBRA ID OABRA operande_entier CABRA CBRA %prec UMINUS //fait
 {
     if(DEBUG)
         printRule("MINUS DOLLAR OBRA ID OABRA operande_entier CABRA CBRA %prec UMINUS");
@@ -934,60 +957,84 @@ operande_entier
     genCode(quad_new(Q_SUB, quadop_cst(zero), res, res));
     $$.result = res;
 }
-| PLUS DOLLAR INTEGER
+| PLUS DOLLAR INTEGER //fait
 {
     if(DEBUG)
         printRule("PLUS DOLLAR INTEGER");
     $$.firstquad = next_quad;
-    struct symbol *id = lookUp(S_LOCAL, $3);
-    if(id == NULL)
-    {
-        newName(S_LOCAL, $3, ARG, 0);
+    if(checkInsideFunction() == 1) // si on est dans une fonction alors on regarde uniquement dans le contexte local
+    {   
+        struct symbol *id = lookUp(S_LOCAL, $3);
+        if(id == NULL)
+        {
+            newName(S_LOCAL, $3, ARG, 0);
+        }
     }
+    else // si on est dans le  global alors on regarde uniquemeent dans le context global
+    {
+        struct symbol *id = lookUp(S_GLOBAL, $3);
+        if(id == NULL)
+        {
+            newName(S_GLOBAL, $3, ARG, 0);
+        }
+    }
+
     // verifier qu'on est bien dans une fonction car pas d'argument au programme...
     $$.result = quadop_var($3);
 }
-| MINUS DOLLAR INTEGER %prec UMINUS
+| MINUS DOLLAR INTEGER %prec UMINUS //fait 
 {
     if(DEBUG)
         printRule("MINUS DOLLAR INTEGER %prec UMINUS");
     $$.firstquad = next_quad;
-    struct symbol *id = lookUp(S_LOCAL, $3);
-    if(id == NULL)
+    if(checkInsideFunction() == 1) // si on est dans une fonction alors on regarde uniquement dans le contexte local
+    {   
+        struct symbol *id = lookUp(S_LOCAL, $3);
+        if(id == NULL)
+        {
+            newName(S_LOCAL, $3, ARG, 0);
+        }
+    }
+    else // si on est dans le  global alors on regarde uniquemeent dans le context global
     {
-        newName(S_LOCAL, $3, ARG, 0);
+        struct symbol *id = lookUp(S_GLOBAL, $3);
+        if(id == NULL)
+        {
+            newName(S_GLOBAL, $3, ARG, 0);
+        }
     }
     // verifier qu'on est bien dans une fonction car pas d'argument au programme...
     struct quadop res = quadop_var(newtemp());
     genCode(quad_new(Q_SUB, quadop_cst(zero), quadop_var($3), res));
     $$.result = res;
 }
-| INTEGER
+| INTEGER //Fait
 {
     if(DEBUG)
         printRule("INTEGER");
     $$.firstquad = next_quad;
     $$.result = quadop_cst($1);
 }
-| PLUS INTEGER
+| PLUS INTEGER //Fait
 {
     if(DEBUG)
         printRule("PLUS INTEGER");
     $$.firstquad = next_quad;
     $$.result = quadop_cst($2);
 }
-| MINUS INTEGER %prec UMINUS
+| MINUS INTEGER %prec UMINUS //Fait
 {
     if(DEBUG)
         printRule("MINUS INTEGER %prec UMINUS");
     $$.firstquad = next_quad;
     $$.result = quadop_cst(strcat("-", $2));
 }
-| OPAR somme_entiere CPAR
+| OPAR somme_entiere CPAR //Fait
 {
     if(DEBUG)
         printRule("OPAR somme_entiere CPAR");
     $$.firstquad = $2.firstquad;
+    $$.result = $2.result;
 }
 ;
 

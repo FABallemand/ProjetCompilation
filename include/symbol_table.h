@@ -11,6 +11,7 @@
 #define NB_MAX_STACK_FRAME 32   //< Nombre maximal de stack frame
 #define SIZE_MIPS_WORD 4        //< Taille d'un mot MIPS
 
+
 /**
  * \enum scope
  *
@@ -139,5 +140,7 @@ void printStackFrame(struct stack_frame sf);
 void printAllStackFrame();
 
 void printSymbol(struct symbol s);
+
+void setNbArgProgramme(size_t nb);
 
 #endif
