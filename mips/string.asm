@@ -19,10 +19,10 @@ int_to_str: .space 512
 
 
 main:
-	li $a0, -45
-	la $a1, int_to_str
-	jal convert_int_to_string
-	la $a0, int_to_str
+	la $a0, string2
+	la $a1, string5
+	jal sub_string
+	move $a0, $v0
 	li $v0, 4
 	syscall
 	li $v0, 10        # System call code for exit.
@@ -32,6 +32,19 @@ main:
 # entré : $a0 -> la chaine dans on veut connaitre la taille
 # sorti:  $v0 -> la taille de la chaine
 count_char:
+	addi $sp, $sp, -44 # to avoid headaches save $t- registers used in this procedure on stack
+	sw   $t0, 0($sp)          
+	sw   $t1, 4($sp)
+	sw   $t2, 8($sp)          
+	sw   $t3, 12($sp)  
+	sw   $t4, 16($sp)          
+	sw   $t5, 20($sp)  
+	sw   $t6, 24($sp)          
+	sw   $t7, 28($sp)  
+	sw   $t8, 32($sp)          
+	sw   $t9, 36($sp)        
+	sw   $ra, 40($sp)   
+
 	li $v0, 0 # on crée un compteur dans la valeur de retour (v0) pour compter le nombre de char (!= du char sentinel)
 	li $t2, 0 # on lit le char 0 en premier
 count_char_loop:
@@ -42,6 +55,18 @@ count_char_loop:
 	addi $t2, $t2, 1 # on lira le char suivant au prochain tour de boucle (probalement redondant avec v0)
 	j count_char_loop
 count_char_exit:
+	lw   $ra, 40($sp)
+	lw   $t9, 36($sp)           # restore $t9 value before function was called
+	lw   $t8, 32($sp)           # restore $t8 value before function was called
+	lw   $t7, 28($sp)           # restore $t7 value before function was called
+	lw   $t6, 24($sp)           # restore $t6 value before function was called
+	lw   $t5, 20($sp)           # restore $t5 value before function was called
+	lw   $t4, 16($sp)           # restore $t4 value before function was called
+	lw   $t3, 12($sp)           # restore $t3 value before function was called
+	lw   $t2, 8($sp)           # restore $t2 value before function was called
+	lw   $t1, 4($sp)           # restore $t1 value before function was called
+	lw   $t0, 0($sp)           # restore $t0 value before function was called
+	addi $sp, $sp, 44  
 	jr $ra # retour a l'appelant avec le resultat dans v0 (attention : on a pas compté le char sentinel)
 
 
@@ -49,6 +74,19 @@ count_char_exit:
 # entré : $a0 -> la chaine a convertir
 # sorti:  $v0 -> 0 si faux, 1 sinon
 is_integer:
+	addi $sp, $sp, -44 # to avoid headaches save $t- registers used in this procedure on stack
+	sw   $t0, 0($sp)          
+	sw   $t1, 4($sp)
+	sw   $t2, 8($sp)          
+	sw   $t3, 12($sp)  
+	sw   $t4, 16($sp)          
+	sw   $t5, 20($sp)  
+	sw   $t6, 24($sp)          
+	sw   $t7, 28($sp)  
+	sw   $t8, 32($sp)          
+	sw   $t9, 36($sp)        
+	sw   $ra, 40($sp)
+
 	li $v0, 1 # pour le moment on a pas trouver de chose qui nous font dire que la chaine n'est pas un integer donc vrai
 	li $t2, 0 # on lit le char 0 en premier
 	lb $t1, 0($a0) #c'est un test préalamble
@@ -71,6 +109,18 @@ is_integer_loop:
 is_integer_false:
 	li $v0, 0
 is_integer_exit:
+	lw   $ra, 40($sp)
+	lw   $t9, 36($sp)           # restore $t9 value before function was called
+	lw   $t8, 32($sp)           # restore $t8 value before function was called
+	lw   $t7, 28($sp)           # restore $t7 value before function was called
+	lw   $t6, 24($sp)           # restore $t6 value before function was called
+	lw   $t5, 20($sp)           # restore $t5 value before function was called
+	lw   $t4, 16($sp)           # restore $t4 value before function was called
+	lw   $t3, 12($sp)           # restore $t3 value before function was called
+	lw   $t2, 8($sp)           # restore $t2 value before function was called
+	lw   $t1, 4($sp)           # restore $t1 value before function was called
+	lw   $t0, 0($sp)           # restore $t0 value before function was called
+	addi $sp, $sp, 44  
 	jr $ra # retour a l'appelant avec le resultat dans v0 (0 égale faux et 1 égale vrai)
 	
 	
@@ -80,9 +130,20 @@ is_integer_exit:
 # entré : $a0 -> la chaine a convertir
 # sorti:  $v0 -> l'entier correspondant
 convert_string_to_int:
-	move $t8, $ra
+	addi $sp, $sp, -44 # to avoid headaches save $t- registers used in this procedure on stack
+	sw   $t0, 0($sp)          
+	sw   $t1, 4($sp)
+	sw   $t2, 8($sp)          
+	sw   $t3, 12($sp)  
+	sw   $t4, 16($sp)          
+	sw   $t5, 20($sp)  
+	sw   $t6, 24($sp)          
+	sw   $t7, 28($sp)  
+	sw   $t8, 32($sp)          
+	sw   $t9, 36($sp)        
+	sw   $ra, 40($sp)
+	
 	jal is_integer # on verifie si la chaine dans a0 contient bien un entier
-	move $ra, $t8
 	beqz $v0 ,csto_erreur_not_an_int
 	li $t5, 0 # c'est le nombre a renvoyer a la fin :)
 	li $t2, 0 # on lit le char 0 en premier
@@ -117,6 +178,18 @@ csto_loop:
 csto_exit:
 	mult $t4, $t5 #on rajoute le signe 
 	mflo $v0
+	lw   $ra, 40($sp)
+	lw   $t9, 36($sp)           # restore $t9 value before function was called
+	lw   $t8, 32($sp)           # restore $t8 value before function was called
+	lw   $t7, 28($sp)           # restore $t7 value before function was called
+	lw   $t6, 24($sp)           # restore $t6 value before function was called
+	lw   $t5, 20($sp)           # restore $t5 value before function was called
+	lw   $t4, 16($sp)           # restore $t4 value before function was called
+	lw   $t3, 12($sp)           # restore $t3 value before function was called
+	lw   $t2, 8($sp)           # restore $t2 value before function was called
+	lw   $t1, 4($sp)           # restore $t1 value before function was called
+	lw   $t0, 0($sp)           # restore $t0 value before function was called
+	addi $sp, $sp, 44    
 	jr $ra
 csto_erreur_not_an_int:
 	li $v0, 4
@@ -138,8 +211,19 @@ convert_int_to_string:
 # entré : $a0 -> l'entier a convertir
 #	  $a1 -> l'adresse de l'espace memoire ou ranger la chaine
 # sorti:  rien
-addi $sp, $sp, -4         # to avoid headaches save $t- registers used in this procedure on stack
-sw   $t0, ($sp)           # so the values don't change in the caller. We used only $t0 here, so save that.
+	addi $sp, $sp, -44 # to avoid headaches save $t- registers used in this procedure on stack
+	sw   $t0, 0($sp)          
+	sw   $t1, 4($sp)
+	sw   $t2, 8($sp)          
+	sw   $t3, 12($sp)  
+	sw   $t4, 16($sp)          
+	sw   $t5, 20($sp)  
+	sw   $t6, 24($sp)          
+	sw   $t7, 28($sp)  
+	sw   $t8, 32($sp)          
+	sw   $t9, 36($sp)        
+	sw   $ra, 40($sp)
+  
 bltz $a0, neg_num         # is num < 0 ?
 j    next0                # else, goto 'next0'
 
@@ -190,9 +274,169 @@ j    pop_digits           # and loop
 next2:
 sb  $zero, ($a1)          # *str = 0 (end of string marker)
 
-lw   $t0, ($sp)           # restore $t0 value before function was called
-addi $sp, $sp, 4          # restore stack
+	lw   $ra, 40($sp)
+	lw   $t9, 36($sp)           # restore $t9 value before function was called
+	lw   $t8, 32($sp)           # restore $t8 value before function was called
+	lw   $t7, 28($sp)           # restore $t7 value before function was called
+	lw   $t6, 24($sp)           # restore $t6 value before function was called
+	lw   $t5, 20($sp)           # restore $t5 value before function was called
+	lw   $t4, 16($sp)           # restore $t4 value before function was called
+	lw   $t3, 12($sp)           # restore $t3 value before function was called
+	lw   $t2, 8($sp)           # restore $t2 value before function was called
+	lw   $t1, 4($sp)           # restore $t1 value before function was called
+	lw   $t0, 0($sp)           # restore $t0 value before function was called
+	addi $sp, $sp, 44  
 jr  $ra
-       
 
+################################################################### FIN DE LA FONCTION VOLER #############################################################
+
+
+# PAS DE VERIFICATION D'OVERFLOW
+# entré : $a0 -> chaine 1
+#	  $a1 -> chaine 2
+# sorti:  $v0 -> chaine nouvellement malloc contenant le reslutat de l'opération
+add_string:
+
+	addi $sp, $sp, -44 # to avoid headaches save $t- registers used in this procedure on stack
+	sw   $t0, 0($sp)          
+	sw   $t1, 4($sp)
+	sw   $t2, 8($sp)          
+	sw   $t3, 12($sp)  
+	sw   $t4, 16($sp)          
+	sw   $t5, 20($sp)  
+	sw   $t6, 24($sp)          
+	sw   $t7, 28($sp)  
+	sw   $t8, 32($sp)          
+	sw   $t9, 36($sp)        
+	sw   $ra, 40($sp)
+
+move $t0, $a0 # faire une copie d'arg 1
+move $t1, $a1 # faire une copie d'arg 2
+jal is_integer # on test si l'arg 1 est bien un entier 
+beqz $v0, add_string_error_not_int
+jal convert_string_to_int #on converti l'entier en nombre
+move $t2, $v0
+jal count_char #on compte la taille max de la chaine final
+move $t4, $v0
+move $a0, $a1
+jal is_integer # on test si l'arg 1 est bien un entier 
+beqz $v0, add_string_error_not_int
+jal convert_string_to_int #on converti l'entier en nombre
+move $t3, $v0
+jal count_char #on compte la taille max de la chaine final
+move $t5, $v0
+
+bge $t4, $t5, add_string_4_s_5 #je prend la plus grande taille des deux et je rajoute 3 (1 pour le char sentinel, 1 pour le signe eventuel et 1 pour la sécurité même si 2 devraient toujours suffir)
+add $t4, $t5, 3 # la taille de la chaine résulatante est toujours contenu dans $t4
+j adds_next_1
+add_string_4_s_5:
+add $t4, $t4, 3 # la taille de la chaine résulatante est toujours contenu dans $t4
+j adds_next_1
+
+adds_next_1:
+move $a0, $t4
+li $v0, 9
+syscall # allocation de la memoire necessaire
+move $a1, $v0 # on met v0 dans a0 pour pouvoir exec le convertisseru un peu plus tard
+add $a0, $t2 , $t3 #on additionne les deux opérandes
+jal convert_int_to_string
+j add_string_exit
+
+add_string_exit:
 	
+	lw   $ra, 40($sp)
+	lw   $t9, 36($sp)           # restore $t9 value before function was called
+	lw   $t8, 32($sp)           # restore $t8 value before function was called
+	lw   $t7, 28($sp)           # restore $t7 value before function was called
+	lw   $t6, 24($sp)           # restore $t6 value before function was called
+	lw   $t5, 20($sp)           # restore $t5 value before function was called
+	lw   $t4, 16($sp)           # restore $t4 value before function was called
+	lw   $t3, 12($sp)           # restore $t3 value before function was called
+	lw   $t2, 8($sp)           # restore $t2 value before function was called
+	lw   $t1, 4($sp)           # restore $t1 value before function was called
+	lw   $t0, 0($sp)           # restore $t0 value before function was called
+	addi $sp, $sp, 44  
+	jr $ra
+	
+add_string_error_not_int:
+	li $v0, 4
+	la $a0, error_string_not_an_int
+        syscall
+        li $v0, 10
+        syscall
+
+# PAS DE VERIFICATION D'OVERFLOW
+# entré : $a0 -> chaine 1
+#	  $a1 -> chaine 2
+# sorti:  $v0 -> chaine nouvellement malloc contenant le reslutat de l'opération
+sub_string:
+
+	addi $sp, $sp, -44 # to avoid headaches save $t- registers used in this procedure on stack
+	sw   $t0, 0($sp)          
+	sw   $t1, 4($sp)
+	sw   $t2, 8($sp)          
+	sw   $t3, 12($sp)  
+	sw   $t4, 16($sp)          
+	sw   $t5, 20($sp)  
+	sw   $t6, 24($sp)          
+	sw   $t7, 28($sp)  
+	sw   $t8, 32($sp)          
+	sw   $t9, 36($sp)        
+	sw   $ra, 40($sp)
+
+move $t0, $a0 # faire une copie d'arg 1
+move $t1, $a1 # faire une copie d'arg 2
+jal is_integer # on test si l'arg 1 est bien un entier 
+beqz $v0, sub_string_error_not_int
+jal convert_string_to_int #on converti l'entier en nombre
+move $t2, $v0
+jal count_char #on compte la taille max de la chaine final
+move $t4, $v0
+move $a0, $a1
+jal is_integer # on test si l'arg 1 est bien un entier 
+beqz $v0, sub_string_error_not_int
+jal convert_string_to_int #on converti l'entier en nombre
+move $t3, $v0
+jal count_char #on compte la taille max de la chaine final
+move $t5, $v0
+
+bge $t4, $t5, sub_string_4_s_5 #je prend la plus grande taille des deux et je rajoute 3 (1 pour le char sentinel, 1 pour le signe eventuel et 1 pour la sécurité même si 2 devraient toujours suffir)
+add $t4, $t5, 3 # la taille de la chaine résulatante est toujours contenu dans $t4
+j sub_next_1
+sub_string_4_s_5:
+add $t4, $t4, 3 # la taille de la chaine résulatante est toujours contenu dans $t4
+j sub_next_1
+
+sub_next_1:
+move $a0, $t4
+li $v0, 9
+syscall # allocation de la memoire necessaire
+move $a1, $v0 # on met v0 dans a0 pour pouvoir exec le convertisseru un peu plus tard
+sub $a0, $t2 , $t3 #on additionne les deux opérandes
+jal convert_int_to_string
+j sub_string_exit
+
+sub_string_exit:
+	
+	lw   $ra, 40($sp)
+	lw   $t9, 36($sp)           # restore $t9 value before function was called
+	lw   $t8, 32($sp)           # restore $t8 value before function was called
+	lw   $t7, 28($sp)           # restore $t7 value before function was called
+	lw   $t6, 24($sp)           # restore $t6 value before function was called
+	lw   $t5, 20($sp)           # restore $t5 value before function was called
+	lw   $t4, 16($sp)           # restore $t4 value before function was called
+	lw   $t3, 12($sp)           # restore $t3 value before function was called
+	lw   $t2, 8($sp)           # restore $t2 value before function was called
+	lw   $t1, 4($sp)           # restore $t1 value before function was called
+	lw   $t0, 0($sp)           # restore $t0 value before function was called
+	addi $sp, $sp, 44  
+	jr $ra
+	
+sub_string_error_not_int:
+	li $v0, 4
+	la $a0, error_string_not_an_int
+        syscall
+        li $v0, 10
+        syscall
+
+
