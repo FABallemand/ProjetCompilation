@@ -1,0 +1,3 @@
+declare tab[3];
+read tab[0];
+exit

@@ -1,0 +1,14 @@
+echo "Avant la fonction";
+
+fonction()
+{
+    return
+};
+
+if test 0 = 0 then
+    echo "vrai"
+fi;
+
+echo "Apres la fonction";
+
+exit

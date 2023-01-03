@@ -119,10 +119,11 @@ struct quad
         Q_DECLARE,
         Q_LOCAL,
         Q_ECHO,
+        Q_READ,
         Q_RETURN,
         Q_EXIT,
-        Q_EXIT_VAL,
-        Q_ARRAY_GET
+        Q_ARRAY_GET,
+        Q_STACK_GROW // Faire affichage
     } kind; //< Type de quadruplet
 
     struct quadop op1, op2, res; //< Opérandes

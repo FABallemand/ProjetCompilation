@@ -5,8 +5,9 @@
     #include "quad.h"
     #include "bsos.tab.h"
 
-    char *removeQuote(char *src);
+    #include "error_handling.h"
 
+    char *removeQuote(char *src);
 %}
 
 %option nounput
@@ -93,5 +94,19 @@ exit return EXIT;
 %%
 
 char *removeQuote(char *src){
-    return src;
+    size_t s = 0;
+    char tmp = src[s];
+    while(tmp != '\0')
+    {
+        s++;
+        tmp = src[s];
+    }
+    s -= 2;
+    char *res = malloc(s);
+    CHK_NULL(res);
+    for(size_t i = 0; i < s; i++)
+    {
+        res[i] = src[i+1];
+    }
+    return res;
 }

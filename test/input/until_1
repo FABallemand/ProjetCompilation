@@ -2,3 +2,4 @@ i = 10;
 until test ${i} -gt 1 do
     i = ${i} - 1;
 done;
+exit

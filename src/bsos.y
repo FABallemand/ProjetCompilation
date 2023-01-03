@@ -63,13 +63,17 @@ char zero[2] = "0";
 %%
 
 programme
-: 
-initialisation liste_instructions
+: initialisation liste_instructions
 {
     if(DEBUG)
         printRule("initialisation liste_instructions");
     setNbArgProgramme(countArg());
     createNewStackFrame(name_global, popContext());
+    if(global_code[next_quad - 1].kind != Q_EXIT)
+    {
+        printError("Instruction de fin de programme manquante");
+        exit(1);
+    }
 }
 ;
 
@@ -136,7 +140,7 @@ instruction
         printError("Accès interdit (indice %ld en dehors du tableau %s)", atoi($3.result.qval.value), $1);
         exit(1);
     }
-    genCode(quad_new(Q_AFFECT,$6.result,quadop_empty(),quadop_var($1)));
+    genCode(quad_new(Q_AFFECT, $6.result, quadop_empty(), quadop_var($1)));
     $$.next = NULL;
 }
 | DECLARE ID OABRA INTEGER CABRA
@@ -153,7 +157,7 @@ instruction
     {
         newName(S_GLOBAL, $2, TAB, atoi($4));
     }
-    // genCode(quad_new(Q_DECLARE, quadop_cst($4), quadop_empty(), quadop_var($2)));
+    // Pas de code: action uniquement dans la table des symboles
     $$.next = NULL;
 }
 | IF test_bloc THEN liste_instructions g else_part FI
@@ -189,7 +193,7 @@ instruction
 {
     if(DEBUG)
         printRule("FOR ID IN liste_operandes DO liste_instructions DONE");
-    // $$.firstquad = $.firstquad;
+    $$.firstquad = $6.firstquad;
     struct symbol *id = lookUp(S_AUTO, $2);
     if(id == NULL)
     {
@@ -223,12 +227,21 @@ instruction
     if(DEBUG)
         printRule("CASE operande IN liste_cas ESAC");
 }
-| ECHO_ liste_operandes
+| ECHO_
 {
     if(DEBUG)
         printRule("ECHO_ liste_operandes");
-    $$.firstquad = $2.firstquad;
-    genCode(quad_new(Q_ECHO, quadop_empty(), quadop_empty(), quadop_empty()));
+    $<inst_val>$.firstquad = next_quad;
+    $<inst_val>$.next = createList(next_quad);
+    genCode(quad_new(Q_STACK_GROW, quadop_empty(), quadop_empty(), quadop_unknown()));
+} 
+liste_operandes
+{
+    $$.firstquad = $<inst_val>2.firstquad;
+    complete($<inst_val>2.next, $3.size);
+    char tmp[3];
+    sprintf(tmp, "%ld", $3.size);
+    genCode(quad_new(Q_ECHO, quadop_cst(strdup(tmp)), quadop_empty(), quadop_empty()));
     $$.next = NULL;
 }
 | READ ID
@@ -241,7 +254,7 @@ instruction
         newName(S_GLOBAL, $2, VAR, 0);
     }
 
-    // FAIRE READ
+    genCode(quad_new(Q_READ, quadop_empty(),  quadop_empty(), quadop_var($2)));
 }
 | READ ID OABRA operande_entier CABRA
 {
@@ -249,35 +262,30 @@ instruction
         printRule("READ ID OABRA operande_entier CABRA");
     struct symbol *id = lookUp(S_GLOBAL, $2);
     printf("ICI %d\n", atoi($4.result.qval.value));
-    printf("test1\n");
     if(id == NULL) // Variable pas définie
     {
-        printf("test2\n");
         printError("Variable %s non-définie", $2);
         exit(1);
     }
     else if(id->type != TAB) // Variable n'est pas un tableau
     {
-        printf("test3\n");
         printError("Symbole %s n'est pas un tableau", $2);
         exit(1);
     }
     else if($4.result.kind == QO_CST && id->size <= atoi($4.result.qval.value)) // Accès interdit avec valeur constante (si c'est une variable on ne peut pas vérifier à la compilation)
     {
-        printf("test4\n");
         printError("Accès interdit (indice %ld en dehors du tableau)", atoi($4.result.qval.value));
         exit(1);
     }
-    printf("test5\n");
 
-    // FAIRE READ
+    genCode(quad_new(Q_READ, quadop_empty(), $4.result, quadop_var($2)));
 }
 | declaration_de_fonction
 {
     if(DEBUG)
         printRule("declaration_de_fonction");
-    // $$.firstquad = ;
-    // $$.next = 
+    $$.firstquad = next_quad;
+    $$.next = $1.next;
 }
 | appel_de_fonction
 {
@@ -304,7 +312,7 @@ instruction
 | RETURN operande_entier
 {
     if(DEBUG)
-        printRule("RETURN operande_entier");
+        printRule("RETURN operande_entier");4 : goto (ADDR) 10
     // si on n'est pas dans une fonction pas de return
     if(!checkInsideFunction())
     {
@@ -314,7 +322,7 @@ instruction
     $$.firstquad = $2.firstquad;
     $$.next = NULL;
     genCode(quad_new(Q_AFFECT, $2.result, quadop_empty(), quadop_var(status)));
-    genCode(quad_new(Q_RETURN, quadop_empty(), quadop_empty(), quadop_empty()));
+    genCode(quad_new(Q_RETURN, $2.result, quadop_empty(), quadop_empty()));
 }
 | EXIT
 {
@@ -329,7 +337,7 @@ instruction
     if(DEBUG)
         printRule("EXIT opreande_entier");
     $$.firstquad = $2.firstquad;
-    genCode(quad_new(Q_EXIT_VAL, $2.result, quadop_empty(), quadop_empty()));
+    genCode(quad_new(Q_EXIT, $2.result, quadop_empty(), quadop_empty()));
     $$.next = NULL;
 }
 ;
@@ -406,9 +414,9 @@ liste_operandes
         printRule("liste_operandes operande");
     $$.firstquad = $1.firstquad;
     $$.size = $1.size + 1;
-    char test[3];
-    sprintf(test, "%ld", $$.size);
-    genCode(quad_new(Q_AFFECT, $2.result, quadop_empty(), quadop_var(strdup(test)))); // conflit dans la table des symboles??
+    char tmp[3];
+    sprintf(tmp, "%ld", $$.size);
+    genCode(quad_new(Q_AFFECT, $2.result, quadop_empty(), quadop_var(strdup(tmp)))); // conflit dans la table des symboles??
 }
 | operande
 {
@@ -634,7 +642,7 @@ test_instruction
 ;
 
 operande
-: DOLLAR OBRA ID CBRA //fait
+: DOLLAR OBRA ID CBRA
 {
     if(DEBUG)
         printRule("DOLLAR OBRA ID CBRA");
@@ -647,7 +655,7 @@ operande
     }
     $$.result = quadop_var($3);
 }
-| DOLLAR OBRA ID OABRA operande_entier CABRA CBRA //fait
+| DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
 {
     if(DEBUG)
         printRule("DOLLAR OBRA ID OABRA operande_entier CABRA CBRA");
@@ -672,7 +680,7 @@ operande
     genCode(quad_new(Q_ARRAY_GET, quadop_var($3), $5.result, res));
     $$.result = res;
 }
-| DOLLAR INTEGER //fait
+| DOLLAR INTEGER
 {
     if(DEBUG)
         printRule("DOLLAR INTEGER");
@@ -701,48 +709,50 @@ operande
         printRule("DOLLAR STAR");
     $$.firstquad = next_quad;
 }
-| DOLLAR STATUS //pas encore fini
+| DOLLAR STATUS
 {
     if(DEBUG)
         printRule("DOLLAR STATUS");
     $$.firstquad = next_quad;
+    $$.result = quadop_var(status);
+
 }
-| INTEGER //fait
+| INTEGER
 {
     if(DEBUG)
         printRule("INTEGER");
     $$.firstquad = next_quad;
     $$.result = quadop_cst($1);
 }
-| PLUS INTEGER //fait
+| PLUS INTEGER
 {
     if(DEBUG)
         printRule("PLUS INTEGER");
     $$.firstquad = next_quad;
     $$.result = quadop_cst($2);
 }
-| MINUS INTEGER %prec UMINUS //fait
+| MINUS INTEGER %prec UMINUS
 {
     if(DEBUG)
         printRule("MINUS INTEGER %prec UMINUS");
     $$.firstquad = next_quad;
     $$.result = quadop_cst(strcat("-", $2));
 }
-| STRING //fait
+| STRING
 {
     if(DEBUG)
         printRule("STRING");
     $$.firstquad = next_quad;
     $$.result = quadop_string($1);
 }
-| DOLLAR OPAR EXPR somme_entiere CPAR //fait
+| DOLLAR OPAR EXPR somme_entiere CPAR
 {
     if(DEBUG)
         printRule("DOLLAR OPAR EXPR somme_entiere CPAR");
     $$.firstquad = $4.firstquad;
     $$.result = $4.result;
 }
-| DOLLAR OPAR appel_de_fonction CPAR //fait
+| DOLLAR OPAR appel_de_fonction CPAR
 {
     if(DEBUG)
         printRule("DOLLAR OPAR appel_de_fonction CPAR");
@@ -1043,6 +1053,8 @@ declaration_de_fonction
 {
     if(DEBUG)
         printRule("ID OPAR CPAR OBRA decl_loc liste_instructions CBRA");
+    $<inst_val>$.next = createList(next_quad);
+    genCode(quad_new(Q_GOTO, quadop_unknown(), quadop_empty(), quadop_empty())); // pour passer la fonction à l'exécution
     struct symbol *id = lookUp(S_GLOBAL, $1);
     if(id != NULL) // Fonction déjà définie
     {
@@ -1065,6 +1077,7 @@ OPAR CPAR OBRA decl_loc liste_instructions CBRA
     id->size = countArg();
     removeCallList(id); // Pour les fonctions rec :)
     createNewStackFrame($1, popContext());
+    $$.next = $<inst_val>2.next;
 }
 ;
 

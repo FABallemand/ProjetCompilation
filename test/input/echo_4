@@ -1,0 +1,2 @@
+echo "bonjour" 1 "je suis un compilateur" 12 "qui fonctionne parfaitement" 123 "c\'est magnifique !!!" 1234 ;
+exit

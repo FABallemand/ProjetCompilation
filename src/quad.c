@@ -29,6 +29,11 @@ void printQuad(struct quad q)
         printf("goto ");
         printQuadop(q.res);
     }
+    else if (q.kind == Q_STACK_GROW)
+    {
+        printf("stack grow ");
+        printQuadop(q.res);
+    }
     else if (q.kind == Q_AFFECT)
     {
         printQuadop(q.res);
@@ -52,20 +57,36 @@ void printQuad(struct quad q)
     }
     else if (q.kind == Q_ECHO)
     {
-        printf("echo ");
+        printf("echo : nombre arg(");
+        printQuadop(q.op1);
+        printf(")");
+    }
+    else if (q.kind == Q_READ)
+    {
+        printf("read : ");
+        printQuadop(q.res);
+        if(q.op2.kind != QO_EMPTY)
+        {
+            printf("[");
+            printQuadop(q.op2);
+            printf("]");
+        }
     }
     else if (q.kind == Q_EXIT)
     {
-        printf("exit");
-    }
-    else if (q.kind == Q_EXIT_VAL)
-    {
         printf("exit ");
-        printQuadop(q.op1);
+        if(q.op1.kind != QO_EMPTY)
+        {
+            printQuadop(q.op1);
+        }
     }
     else if (q.kind == Q_RETURN)
     {
-        printf("return");
+        printf("return ");
+        if(q.op1.kind != QO_EMPTY)
+        {
+            printQuadop(q.op1);
+        }
     }
     else
     {

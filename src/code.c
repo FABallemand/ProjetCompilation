@@ -15,9 +15,7 @@ void increaseGlobalCodeSize()
     if(DEBUG)
         printCall("increaseGlobalCodeSize");
     struct quad *tmp = realloc(global_code, (next_quad + INITIAL_GLOBAL_CODE_SIZE) * sizeof(struct quad));
-
     CHK_NULL(tmp);
-    free(global_code);
     global_code = tmp;
 }
 
@@ -65,11 +63,8 @@ void complete(struct list *l, size_t addr)
         struct list *new_l = l; // clone pour itérer
         while (new_l)
         {
-            printf("test\n");
             global_code[new_l->addr].res = quadop_addr(addr);
-            printf("test\n");
             new_l = new_l->next;
-            printf("test\n");
         }
         freeList(l);
     }

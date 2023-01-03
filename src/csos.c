@@ -28,25 +28,32 @@ int main(int argc, char **argv)
             execlp("cat", "cat", "help", NULL);
             exit(1);
         }
-        if (strcmp("-version", argv[i]) == 0)
+        else if (strcmp("-version", argv[i]) == 0)
         {
             printf("-ALLEMAND Fabien\n-LEBOT Samuel\n");
         }
-        if (strcmp("-tos", argv[i]) == 0)
+        else if (strcmp("-tos", argv[i]) == 0)
         {
             symbol_table = 1;
         }
-        if (strcmp("-i", argv[i]) == 0)
+        else if (strcmp("-i", argv[i]) == 0)
         {
             input_file = 1;
             printInfo("Compiling programm located at %s\n", argv[i + 1]);
-            yyin = fopen(argv[i + 1], "r");
+            yyin = fopen(argv[++i], "r");
+            CHK_NULL(yyin);
         }
-        if (strcmp("-o", argv[i]) == 0)
+        else if (strcmp("-o", argv[i]) == 0)
         {
             output_file = 1;
             printInfo("Output will be saved in %s\n", argv[i + 1]);
-            yyout = fopen(argv[i + 1], "w");
+            yyout = fopen(argv[++i], "w");
+            CHK_NULL(yyout);
+        }
+        else
+        {
+            printError("Argument invalide");
+            exit(1);
         }
     }
 

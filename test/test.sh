@@ -22,7 +22,7 @@ echo "Program : $PROG\n"
 i=0
 
 # fichiers corrects
-for f in $(ls ${INPUT} | grep "^[^_]"); do
+for f in $(ls ${INPUT} | grep "^[^_-]"); do
     echo -n "Test" $i "-" $f ".........."
     $PROG < $INPUT/$f > $OUTPUT/$f 2>&1
     if [ $? -ne $SUCCESS ]

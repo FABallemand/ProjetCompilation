@@ -12,6 +12,8 @@
         "functional": "c",
         "tuple": "c",
         "type_traits": "c",
-        "utility": "c"
+        "utility": "c",
+        "declaration_fonction_1": "cpp",
+        "declaration_fonction_2": "cpp"
     }
 }

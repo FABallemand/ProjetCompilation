@@ -2,3 +2,4 @@ fonction ()
 {
     return
 };
+exit
