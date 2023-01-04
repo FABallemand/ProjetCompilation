@@ -24,7 +24,7 @@
 
 SOS
 
-**NAME**  
+**NOM**  
     sos - compilateur pour la langage SoS
 
 **SYNOPSIS**   
