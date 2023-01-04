@@ -1,9 +1,9 @@
 #include "symbol_table.h"
 
 struct stack *S_GLOBAL_stack = NULL;                     //< Pile des contextes (nom à changer)
-struct stack_frame stack_frame_list[NB_MAX_STACK_FRAME]; //< Liste de stack frame déjà calculés
+struct stack_frame stack_frame_list[NB_MAX_STACK_FRAME]; //< Liste de stack frame déjà calculées
 size_t nb_stack_frame = 0;                               //< Nombre de stack frame déjà calculés
-size_t nb_arg_programme = 0;                           //< Nombre d'argument global du programme
+size_t nb_arg_programme = 0;                             //< Nombre d'argument global du programme
 
 void increaseContextSize(struct stack *s)
 {
@@ -179,7 +179,8 @@ void createNewStackFrame(char *name, struct stack *stack)
     nb_stack_frame++;
 }
 
-void setNbArgProgramme(size_t nb){
+void setNbArgProgramme(size_t nb)
+{
     nb_arg_programme = nb;
 }
 
@@ -225,4 +226,17 @@ void printSymbol(struct symbol s)
         printError("Type non défini");
         exit(1);
     }
+}
+
+struct stack_frame findContext(char *var)
+{
+    for(int i =0 ; i<NB_MAX_STACK_FRAME; i++)
+    {
+        if(strcmp(stack_frame_list[i].context_name, var) == 0)
+        {
+            return stack_frame_list[i];
+        }
+    }
+    printError("Contexte manquant");
+    exit(1);
 }

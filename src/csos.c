@@ -5,6 +5,7 @@
 
 #include "error_handling.h"
 #include "code.h"
+#include "translator.h"
 
 extern int yydebug;
 extern int yyparse(void);
@@ -15,11 +16,12 @@ extern char *yytext;
 extern int yylex();
 extern int yylineno;
 
+extern FILE *output_file;
+
 int main(int argc, char **argv)
 {
-    int symbol_table = 0; //< Marqueur pour l'affichage de la table des symboles
-    int input_file = 0;   //< Marqueur d'utilisation d'un fichier d'entrée
-    int output_file = 0;  //< Marqueur d'utilisation d'un fichier de sortie
+    int symbol_table = 0;   //< Marqueur pour l'affichage de la table des symboles
+    int input_file_ind = 0; //< Marqueur d'utilisation d'un fichier d'entrée
 
     for (int i = 1; i < argc; i++)
     {
@@ -38,17 +40,15 @@ int main(int argc, char **argv)
         }
         else if (strcmp("-i", argv[i]) == 0)
         {
-            input_file = 1;
+            input_file_ind = 1;
             printInfo("Compiling programm located at %s\n", argv[i + 1]);
             yyin = fopen(argv[++i], "r");
             CHK_NULL(yyin);
         }
         else if (strcmp("-o", argv[i]) == 0)
         {
-            output_file = 1;
             printInfo("Output will be saved in %s\n", argv[i + 1]);
-            yyout = fopen(argv[++i], "w");
-            CHK_NULL(yyout);
+            CHK_NULL(output_file = fopen(argv[i + 1], "w"));
         }
         else
         {
@@ -73,18 +73,17 @@ int main(int argc, char **argv)
     printf("yylineno : %d\n", yylineno);
     printf("-> %d\n", r);
 
-    printAllQuad();
+    printAllQuad(); // Afficher le tableau de quadruplets
 
-    freeGlobalCode();
+    translator(); // Traduction du code intermédiaire en code MIPS
 
-    if (input_file)
+    freeGlobalCode(); // Libérer l'espace occupé par le code intermédiaire
+
+    if (input_file_ind)
     {
         fclose(yyin);
     }
-    if (output_file)
-    {
-        fclose(yyout);
-    }
+    fclose(output_file);
     if (symbol_table)
     {
         printAllStackFrame();

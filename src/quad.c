@@ -80,6 +80,19 @@ void printQuad(struct quad q)
             printQuadop(q.op1);
         }
     }
+    else if (q.kind == Q_FUNCTION_BEGIN)
+    {
+        printf("Début de fonction");
+    }
+    else if (q.kind == Q_FUNCTION_END)
+    {
+        printf("Fin de fonction");
+    }
+    else if (q.kind == Q_CALL)
+    {
+        printQuadop(q.op1);
+        printf("()");
+    }
     else if (q.kind == Q_RETURN)
     {
         printf("return ");

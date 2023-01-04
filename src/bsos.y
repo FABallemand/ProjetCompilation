@@ -140,7 +140,7 @@ instruction
         printError("Accès interdit (indice %ld en dehors du tableau %s)", atoi($3.result.qval.value), $1);
         exit(1);
     }
-    genCode(quad_new(Q_AFFECT, $6.result, quadop_empty(), quadop_var($1)));
+    genCode(quad_new(Q_AFFECT, $6.result, $3.result, quadop_var($1))); // ATTENTION: vérifier indice dans le tableau dans autres règles
     $$.next = NULL;
 }
 | DECLARE ID OABRA INTEGER CABRA
@@ -312,7 +312,7 @@ liste_operandes
 | RETURN operande_entier
 {
     if(DEBUG)
-        printRule("RETURN operande_entier");4 : goto (ADDR) 10
+        printRule("RETURN operande_entier");
     // si on n'est pas dans une fonction pas de return
     if(!checkInsideFunction())
     {
@@ -322,7 +322,7 @@ liste_operandes
     $$.firstquad = $2.firstquad;
     $$.next = NULL;
     genCode(quad_new(Q_AFFECT, $2.result, quadop_empty(), quadop_var(status)));
-    genCode(quad_new(Q_RETURN, $2.result, quadop_empty(), quadop_empty()));
+    genCode(quad_new(Q_RETURN, quadop_empty(), quadop_empty(), quadop_empty()));
 }
 | EXIT
 {
@@ -1062,6 +1062,7 @@ declaration_de_fonction
         exit(1);
     }
     newName(S_GLOBAL, $1, FUN, -1);
+    genCode(quad_new(Q_FUNCTION_BEGIN, quadop_empty(), quadop_empty(), quadop_var($1)));
     pushContext();
 }
 OPAR CPAR OBRA decl_loc liste_instructions CBRA
@@ -1077,6 +1078,7 @@ OPAR CPAR OBRA decl_loc liste_instructions CBRA
     id->size = countArg();
     removeCallList(id); // Pour les fonctions rec :)
     createNewStackFrame($1, popContext());
+    genCode(quad_new(Q_FUNCTION_END, quadop_empty(), quadop_empty(), quadop_empty()));
     $$.next = $<inst_val>2.next;
 }
 ;
@@ -1121,9 +1123,10 @@ appel_de_fonction
         printError("Symbole %s n'est pas une fonction", $1);
         exit(1);
     }
-    // Agrandir la stack
+    $<inst_val>$.next = createList(next_quad);
+    genCode(quad_new(Q_CALL, quadop_var($1), quad_empty(), quadop_unknow()));
 }
-liste_operandes // ici on créé le code pour affecter les variables
+liste_operandes // ici on crée le code pour affecter les variables
 {
     $$.firstquad = $3.firstquad;
     // Verifier que l'utilisateur a mis le bon nombre d'argument
@@ -1137,8 +1140,8 @@ liste_operandes // ici on créé le code pour affecter les variables
         printError("Appel de fonction %s invalide (nombre d'arguments incorrect)", $1);
         exit(1);
     }
-    genCode(quad_new(Q_GOTO, quadop_empty(), quadop_empty(), quadop_var($1))); // mettre l'adresse de la fonction dans la variable globale associé
     $$.result = quadop_var(status);
+    complete($<inst_val>2.next, $3.size);
 }
 | ID
 {
@@ -1166,7 +1169,7 @@ liste_operandes // ici on créé le code pour affecter les variables
         exit(1);
     }
     // Agrandir la stack
-    genCode(quad_new(Q_GOTO, quadop_empty(), quadop_empty(), quadop_var($1))); //mettre l'adresse de la fonction dans la variable global associé
+        genCode(quad_new(Q_CALL, quadop_var($1), quad_empty(), quad_empty()));
     $$.result = quadop_var(status);
 }
 ;

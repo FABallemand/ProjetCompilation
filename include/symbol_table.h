@@ -11,7 +11,6 @@
 #define NB_MAX_STACK_FRAME 32   //< Nombre maximal de stack frame
 #define SIZE_MIPS_WORD 4        //< Taille d'un mot MIPS
 
-
 /**
  * \enum scope
  *
@@ -72,7 +71,7 @@ struct stack_frame
     char *context_name;      //< Nom du contexte (ie: nom de la fonction)
     struct symbol *context;  //< Contexte
     size_t nb_symb;          //< Nombre de symboles dans le contexte
-    size_t stack_frame_size; //< Taille du contexte
+    size_t stack_frame_size; //< Taille du contexte (en octet)
 };
 
 /**
@@ -142,5 +141,13 @@ void printAllStackFrame();
 void printSymbol(struct symbol s);
 
 void setNbArgProgramme(size_t nb);
+
+/**
+ * \brief Retrouve le contexte contenant une variable
+ * 
+ * \param var Variable
+ * \return struct stack_frame Contexte contenant la variable
+ */
+struct stack_frame findContext(char *var);
 
 #endif
