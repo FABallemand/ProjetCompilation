@@ -150,4 +150,11 @@ void setNbArgProgramme(size_t nb);
  */
 struct stack_frame findContext(char *var);
 
+/**
+ * \brief Indique si une variable est dans un contexte
+ * 
+ * \return -1 si la variable n'est pas dans le contexte, l'offset (en octet) de la variable dans le contexte sinon
+ */
+int isInContext(char *var, struct stack_frame context);
+
 #endif

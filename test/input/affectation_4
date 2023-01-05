@@ -1,0 +1,4 @@
+declare tab[2];
+tab[0] = 42;
+a = ${tab[0]};
+exit

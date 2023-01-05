@@ -1,0 +1,4 @@
+declare tab[2];
+tab[0] = 2;
+tab[1] = "salut petit gars !";
+exit

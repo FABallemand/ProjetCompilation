@@ -23,4 +23,6 @@ extern char *name_global;
  */
 void translator();
 
+size_t affect(int i, size_t nb_used_const, struct stack_frame* current_frame_list, size_t nb_nested_declaration);
+
 #endif

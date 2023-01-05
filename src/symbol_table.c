@@ -230,13 +230,34 @@ void printSymbol(struct symbol s)
 
 struct stack_frame findContext(char *var)
 {
-    for(int i =0 ; i<NB_MAX_STACK_FRAME; i++)
+    for (int i = 0; i < NB_MAX_STACK_FRAME; i++)
     {
-        if(strcmp(stack_frame_list[i].context_name, var) == 0)
+        if (strcmp(stack_frame_list[i].context_name, var) == 0)
         {
             return stack_frame_list[i];
         }
     }
     printError("Contexte manquant");
     exit(1);
+}
+
+int isInContext(char *var, struct stack_frame context)
+{
+    int offset = 0;
+    for (int i = 0; i < context.nb_symb; i++)
+    {
+        if (strcmp(context.context[i].name, var) == 0)
+        {
+            return offset;
+        }
+        else if(context.context[i].type == TAB)
+        {
+            offset += context.context[i].size * SIZE_MIPS_WORD;
+        }
+        else
+        {
+            offset += SIZE_MIPS_WORD;
+        }
+    }
+    return -1;
 }

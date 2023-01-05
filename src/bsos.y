@@ -1124,7 +1124,7 @@ appel_de_fonction
         exit(1);
     }
     $<inst_val>$.next = createList(next_quad);
-    genCode(quad_new(Q_CALL, quadop_var($1), quad_empty(), quadop_unknow()));
+    genCode(quad_new(Q_CALL, quadop_var($1), quadop_empty(), quadop_unknown()));
 }
 liste_operandes // ici on crée le code pour affecter les variables
 {
@@ -1169,7 +1169,7 @@ liste_operandes // ici on crée le code pour affecter les variables
         exit(1);
     }
     // Agrandir la stack
-        genCode(quad_new(Q_CALL, quadop_var($1), quad_empty(), quad_empty()));
+        genCode(quad_new(Q_CALL, quadop_var($1), quadop_empty(), quadop_empty()));
     $$.result = quadop_var(status);
 }
 ;

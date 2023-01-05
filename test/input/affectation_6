@@ -1,0 +1,4 @@
+a = 0; # Changer pour valeur supérieure à 0
+declare tab[10];
+tab[${a}] = "boujour";
+exit
