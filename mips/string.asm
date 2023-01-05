@@ -797,4 +797,156 @@ read_string_exit:
 	lw   $t2, 8($sp)  # Restaurer $t2
 	lw   $t1, 4($sp)  # Restaurer $t1
 	lw   $t0, 0($sp)  # Restaurer $t0
+	addi $sp, $sp, 44 # Restaurer $sp
 	jr   $ra		  # Retour à l'appelant
+
+
+# ARGS:
+# $a0: Addresse de la chaine de caractères
+# $v0: 1 si la chaine est vide, 0 sinon
+empty_string:
+	addi $sp, $sp, -44 # Enreigstre les registres $t* dans la pile (pour simplifier)
+	sw   $t0, 0($sp)
+	sw   $t1, 4($sp)
+	sw   $t2, 8($sp)
+	sw   $t3, 12($sp)
+	sw   $t4, 16($sp)
+	sw   $t5, 20($sp)
+	sw   $t6, 24($sp) 
+	sw   $t7, 28($sp)
+	sw   $t8, 32($sp)
+	sw   $t9, 36($sp)
+	sw   $ra, 40($sp)
+
+	li   $v0, 1
+	lb   $t0, 0($a0) #on load le premier char de la chaine d'entré dans t0
+	beqz $t0, empty_string_exit
+	li   $v0, 0
+empty_string_exit:
+	lw   $ra, 40($sp) # Restaurer $t9
+	lw   $t9, 36($sp) # Restaurer $t9
+	lw   $t8, 32($sp) # Restaurer $t8
+	lw   $t7, 28($sp) # Restaurer $t7
+	lw   $t6, 24($sp) # Restaurer $t6
+	lw   $t5, 20($sp) # Restaurer $t5
+	lw   $t4, 16($sp) # Restaurer $t4
+	lw   $t3, 12($sp) # Restaurer $t3
+	lw   $t2, 8($sp)  # Restaurer $t2
+	lw   $t1, 4($sp)  # Restaurer $t1
+	lw   $t0, 0($sp)  # Restaurer $t0
+	jr   $ra		  # Retour à l'appelant
+#END FUN empty_string
+
+# ARGS:
+# $a0: Addresse de la chaine de caractères
+# $v0: 1 si la chaine est non vide, 0 sinon
+not_empty_string:
+	addi $sp, $sp, -44 # Enreigstre les registres $t* dans la pile (pour simplifier)
+	sw   $t0, 0($sp)
+	sw   $t1, 4($sp)
+	sw   $t2, 8($sp)
+	sw   $t3, 12($sp)
+	sw   $t4, 16($sp)
+	sw   $t5, 20($sp)
+	sw   $t6, 24($sp) 
+	sw   $t7, 28($sp)
+	sw   $t8, 32($sp)
+	sw   $t9, 36($sp)
+	sw   $ra, 40($sp)
+
+	jal empty_string
+	neg $v0, $v0
+
+	lw   $ra, 40($sp) # Restaurer $t9
+	lw   $t9, 36($sp) # Restaurer $t9
+	lw   $t8, 32($sp) # Restaurer $t8
+	lw   $t7, 28($sp) # Restaurer $t7
+	lw   $t6, 24($sp) # Restaurer $t6
+	lw   $t5, 20($sp) # Restaurer $t5
+	lw   $t4, 16($sp) # Restaurer $t4
+	lw   $t3, 12($sp) # Restaurer $t3
+	lw   $t2, 8($sp)  # Restaurer $t2
+	lw   $t1, 4($sp)  # Restaurer $t1
+	lw   $t0, 0($sp)  # Restaurer $t0
+	jr   $ra		  # Retour à l'appelant
+#END FUN empty_string
+
+# ARGS:
+# $a0: Addresse de la premiere chaine de caractères
+# $a1: Addresse de la seconde chaine de caractères
+# $v0: 1 si les chaines sont égales, 0 sinon
+equal_string:
+	addi $sp, $sp, -44 # Enreigstre les registres $t* dans la pile (pour simplifier)
+	sw   $t0, 0($sp)
+	sw   $t1, 4($sp)
+	sw   $t2, 8($sp)
+	sw   $t3, 12($sp)
+	sw   $t4, 16($sp)
+	sw   $t5, 20($sp)
+	sw   $t6, 24($sp) 
+	sw   $t7, 28($sp)
+	sw   $t8, 32($sp)
+	sw   $t9, 36($sp)
+	sw   $ra, 40($sp)
+	li   $v0, 1 # tant qu'on a pas trouvé de char différent ont considère les deux chaines identiques
+	li   $t0, 0 # Initiliser offset pour la lecture des caractères
+equal_string_loop:
+	add  $t1, $t0, $a0 		          # Calcul de l'adresse du prochain caractère de la première chaine (adresse de départ ($a0) + nombre de caractères déjà lus ($t0))
+	add  $t2, $t0, $a1 		          # Calcul de l'adresse du prochain caractère de la seconde chaine (adresse de départ ($a1) + nombre de caractères déjà lus ($t0))
+	lb   $t3, 0($t1)    	          # Charger le prochain char ascii de la première chaine  dans $t3
+	lb   $t4, 0($t2)    	          # Charger le prochain char ascii de la première chaine  dans $t4					
+	bne  $t3, $t4, equal_string_false # Si les deux char ne sont pas identiques alors on pars
+	beqz $t3, equal_string_exit       # Si on fait ce test c'est que les deux char sont égal (et donc si on le passe il faut sortir)
+	addi $t0, $t0, 1 		          # Incrémenter l'offset pour lire le caractère suivant
+	j    equal_string_loop			  # Boucle
+equal_string_false:
+	li   $v0, 0
+equal_string_exit:
+	lw   $ra, 40($sp) # Restaurer $t9
+	lw   $t9, 36($sp) # Restaurer $t9
+	lw   $t8, 32($sp) # Restaurer $t8
+	lw   $t7, 28($sp) # Restaurer $t7
+	lw   $t6, 24($sp) # Restaurer $t6
+	lw   $t5, 20($sp) # Restaurer $t5
+	lw   $t4, 16($sp) # Restaurer $t4
+	lw   $t3, 12($sp) # Restaurer $t3
+	lw   $t2, 8($sp)  # Restaurer $t2
+	lw   $t1, 4($sp)  # Restaurer $t1
+	lw   $t0, 0($sp)  # Restaurer $t0
+	jr   $ra		  # Retour à l'appelant
+#END FUN equal_string
+
+# ARGS:
+# $a0: Addresse de la premiere chaine de caractères
+# $a1: Addresse de la seconde chaine de caractères
+# $v0: 1 si les chaines sont différentes, 0 sinon
+not_equal_string:
+	addi $sp, $sp, -44 # Enreigstre les registres $t* dans la pile (pour simplifier)
+	sw   $t0, 0($sp)
+	sw   $t1, 4($sp)
+	sw   $t2, 8($sp)
+	sw   $t3, 12($sp)
+	sw   $t4, 16($sp)
+	sw   $t5, 20($sp)
+	sw   $t6, 24($sp) 
+	sw   $t7, 28($sp)
+	sw   $t8, 32($sp)
+	sw   $t9, 36($sp)
+	sw   $ra, 40($sp)
+
+	jal equal_string
+	neg $v0, $v0
+
+	lw   $ra, 40($sp) # Restaurer $t9
+	lw   $t9, 36($sp) # Restaurer $t9
+	lw   $t8, 32($sp) # Restaurer $t8
+	lw   $t7, 28($sp) # Restaurer $t7
+	lw   $t6, 24($sp) # Restaurer $t6
+	lw   $t5, 20($sp) # Restaurer $t5
+	lw   $t4, 16($sp) # Restaurer $t4
+	lw   $t3, 12($sp) # Restaurer $t3
+	lw   $t2, 8($sp)  # Restaurer $t2
+	lw   $t1, 4($sp)  # Restaurer $t1
+	lw   $t0, 0($sp)  # Restaurer $t0
+	jr   $ra		  # Retour à l'appelant
+#END FUN not_equal_string

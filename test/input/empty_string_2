@@ -1,0 +1,6 @@
+if test -z "fabfab" then
+    echo "NOK"
+else
+    echo "OK"
+fi;
+exit

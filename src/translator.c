@@ -50,48 +50,61 @@ void translator()
         switch (global_code[i].kind)
         {
         case Q_CONCAT:
-            nb_used_const = concat_(i, nb_used_const, current_frame_list, nb_nested_declaration);
+            nb_used_const = operation(i, nb_used_const, current_frame_list, nb_nested_declaration, "concat");
             break;
         case Q_ADD:
-            nb_used_const = calcul(i, nb_used_const, current_frame_list, nb_nested_declaration,"add");
+            nb_used_const = operation(i, nb_used_const, current_frame_list, nb_nested_declaration, "add");
             break;
         case Q_SUB:
-            nb_used_const = calcul(i, nb_used_const, current_frame_list, nb_nested_declaration,"sub");
+            nb_used_const = operation(i, nb_used_const, current_frame_list, nb_nested_declaration, "sub");
             break;
         case Q_MUL:
-            nb_used_const = calcul(i, nb_used_const, current_frame_list, nb_nested_declaration,"mult");
+            nb_used_const = operation(i, nb_used_const, current_frame_list, nb_nested_declaration, "mult");
             break;
         case Q_DIV:
-            nb_used_const = calcul(i, nb_used_const, current_frame_list, nb_nested_declaration,"div");
+            nb_used_const = operation(i, nb_used_const, current_frame_list, nb_nested_declaration, "div");
             break;
         case Q_MOD:
-            nb_used_const = calcul(i, nb_used_const, current_frame_list, nb_nested_declaration,"mod");
+            nb_used_const = operation(i, nb_used_const, current_frame_list, nb_nested_declaration, "mod");
             break;
         case Q_EQUAL:
+            nb_used_const = comparison(i, nb_used_const, current_frame_list, nb_nested_declaration, "beq");
             break;
         case Q_NOT_EQUAL:
+            nb_used_const = comparison(i, nb_used_const, current_frame_list, nb_nested_declaration, "bne");
             break;
         case Q_GT:
+            nb_used_const = comparison(i, nb_used_const, current_frame_list, nb_nested_declaration, "bgt");
             break;
         case Q_GE:
+            nb_used_const = comparison(i, nb_used_const, current_frame_list, nb_nested_declaration, "bge");
             break;
         case Q_LT:
+            nb_used_const = comparison(i, nb_used_const, current_frame_list, nb_nested_declaration, "blt");
             break;
         case Q_LE:
+            nb_used_const = comparison(i, nb_used_const, current_frame_list, nb_nested_declaration, "ble");
             break;
         case Q_EMP:
+            nb_used_const = stringComparison(i, nb_used_const, current_frame_list, nb_nested_declaration, "empty_string");
             break;
         case Q_N_EMP:
+            nb_used_const = stringComparison(i, nb_used_const, current_frame_list, nb_nested_declaration, "not_empty_string");
             break;
         case Q_EQUAL_STRING:
+            nb_used_const = stringComparison(i, nb_used_const, current_frame_list, nb_nested_declaration, "equal_string");
             break;
         case Q_NOT_EQUAL_STRING:
+            nb_used_const = stringComparison(i, nb_used_const, current_frame_list, nb_nested_declaration, "not_equal_string");
             break;
         case Q_AFFECT:
             nb_used_const = affect(i, nb_used_const, current_frame_list, nb_nested_declaration);
             break;
+        case Q_AFFECT_STACK:
+            nb_used_const = affect(i, nb_used_const, current_frame_list, nb_nested_declaration);
+            break;
         case Q_GOTO:
-            fprintf(output_file,"goto Label%ld\n",global_code[i].res.qval.addr);
+            fprintf(output_file, "goto Label%ld\n", global_code[i].res.qval.addr);
             break;
         case Q_ECHO:
             break;
@@ -122,6 +135,42 @@ void translator()
     }
     // Inclure bibliothèque MIPS
     fprintf(output_file, "\n.include \"mips/string.asm\"\n");
+}
+
+size_t echo_(int i, size_t nb_used_const, struct stack_frame *current_frame_list, size_t nb_nested_declaration)
+{
+    if (global_code[i].op1.kind == QO_CST)
+    {
+        fprintf(output_file, "la $a0, const_%ld\n", nb_used_const++); // Charger l'adresse de l'unique argument d'echo
+    }
+    else
+    {
+        printError("Argument invalide pour echo");
+        exit(1);
+    }
+
+    fprintf(output_file, "jal string_to_int # Convertir le nombre de chaine en entier\n");
+    fprintf(output_file, "move $a0, $v0 # Placer le nombre de chaine en argument de fonction\n");
+    fprintf(output_file, "jal echo_string # Appeler la fonction echo_string\n");
+
+    return nb_used_const;
+}
+
+size_t stackGrow(int i, size_t nb_used_const, struct stack_frame *current_frame_list, size_t nb_nested_declaration)
+{
+    if (global_code[i].op1.kind == QO_CST)
+    {
+        fprintf(output_file, "la $t0, const_%ld\n", nb_used_const++); // Charger l'adresse de l'unique argument d'echo
+    }
+    else
+    {
+        printError("Argument invalide pour agrandir la pile");
+        exit(1);
+    }
+
+    fprintf(output_file, "sub $sp, $sp, $t0 # Augmenter la taille de la pile\n");
+
+    return nb_used_const;
 }
 
 size_t affect(int i, size_t nb_used_const, struct stack_frame *current_frame_list, size_t nb_nested_declaration)
@@ -206,13 +255,12 @@ size_t affect(int i, size_t nb_used_const, struct stack_frame *current_frame_lis
     return nb_used_const;
 }
 
-size_t exit_(int i, size_t nb_used_const, struct stack_frame* current_frame_list, size_t nb_nested_declaration)
+size_t exit_(int i, size_t nb_used_const, struct stack_frame *current_frame_list, size_t nb_nested_declaration)
 {
     int offset = 0;
 
-
     // recuperer le code de retour dans $t0
-    if(global_code[i].op1.kind == QO_EMPTY)
+    if (global_code[i].op1.kind == QO_EMPTY)
     {
         fprintf(output_file, "li $a0, 0\n");
     }
@@ -243,14 +291,13 @@ size_t exit_(int i, size_t nb_used_const, struct stack_frame* current_frame_list
             exit(1);
         }
     }
-
-    fprintf(output_file,"li $v0, 17\n");
-    fprintf(output_file,"syscall\n");
+    fprintf(output_file, "li $v0, 17\n");
+    fprintf(output_file, "syscall\n");
 
     return nb_used_const;
 }
 
-size_t concat_(int i, size_t nb_used_const, struct stack_frame *current_frame_list, size_t nb_nested_declaration)
+size_t operation(int i, size_t nb_used_const, struct stack_frame *current_frame_list, size_t nb_nested_declaration, char *arithm_op)
 {
     //$t0 adresse de chaine src1
     //$t2 adresse de la chaine src2
@@ -280,7 +327,6 @@ size_t concat_(int i, size_t nb_used_const, struct stack_frame *current_frame_li
         }
     }
 
-        
     if (global_code[i].op2.kind == QO_CST || global_code[i].op2.kind == QO_STRING)
     {
         fprintf(output_file, "la $t2, const_%ld\n", nb_used_const++); // Charger l'adresse de la valeur dans $t0
@@ -306,7 +352,7 @@ size_t concat_(int i, size_t nb_used_const, struct stack_frame *current_frame_li
 
     fprintf(output_file, "move $a0, $t0\n");
     fprintf(output_file, "move $a1, $t2\n");
-    fprintf(output_file, "jal concat_string\n");
+    fprintf(output_file, "jal %s_string\n", arithm_op);
 
     if ((offset = isInContext(global_code[i].res.qval.value, current_frame_list[nb_nested_declaration])) != -1) // Variable dans le contexte courant
     {
@@ -314,21 +360,21 @@ size_t concat_(int i, size_t nb_used_const, struct stack_frame *current_frame_li
         fprintf(output_file, "sw $v0, %d($t1)\n", offset); // Charger la valeur de la variable
     }
 
-    return nb_nested_declaration;
+    return nb_used_const;
 }
 
-size_t calcul(int i, size_t nb_used_const, struct stack_frame *current_frame_list, size_t nb_nested_declaration, char *ope_arithm)
+size_t comparison(int i, size_t nb_used_const, struct stack_frame *current_frame_list, size_t nb_nested_declaration, char *comp_op)
 {
-        //$t0 adresse de chaine src1
+    //$t0 adresse de chaine src1
     //$t2 adresse de la chaine src2
 
     int offset = 0;
 
+    // Première opérande
     if (global_code[i].op1.kind == QO_CST || global_code[i].op1.kind == QO_STRING)
     {
         fprintf(output_file, "la $t0, const_%ld\n", nb_used_const++); // Charger l'adresse de la valeur dans $t0
     }
-    // Recherche variable à affecter (à droite du égal)
     else
     {
         if ((offset = isInContext(global_code[i].op1.qval.value, current_frame_list[nb_nested_declaration])) != -1) // Variable dans le contexte courant
@@ -347,12 +393,11 @@ size_t calcul(int i, size_t nb_used_const, struct stack_frame *current_frame_lis
         }
     }
 
-        
+    // Deuxième opérande
     if (global_code[i].op2.kind == QO_CST || global_code[i].op2.kind == QO_STRING)
     {
-        fprintf(output_file, "la $t2, const_%ld\n", nb_used_const++); // Charger l'adresse de la valeur dans $t0
+        fprintf(output_file, "la $t2, const_%ld\n", nb_used_const++); // Charger l'adresse de la valeur dans $t2
     }
-    // Recherche variable à affecter (à droite du égal)
     else
     {
         if ((offset = isInContext(global_code[i].op2.qval.value, current_frame_list[nb_nested_declaration])) != -1) // Variable dans le contexte courant
@@ -371,15 +416,62 @@ size_t calcul(int i, size_t nb_used_const, struct stack_frame *current_frame_lis
         }
     }
 
-    fprintf(output_file, "move $a0, $t0\n");
-    fprintf(output_file, "move $a1, $t2\n");
-    fprintf(output_file, "jal %s_string\n",ope_arithm);
+    fprintf(output_file, "move $a0, $t0\n");                                                 // Placer la première chaine en argument de fonction
+    fprintf(output_file, "jal string_to_int\n");                                             // Convertir la première chaine en entier
+    fprintf(output_file, "move $t0, $v0\n");                                                 // Enregistrer l'entier correspondant à la première chaine dans $t0
+    fprintf(output_file, "move $a0, $t2\n");                                                 // Placer la première chaine en argument de fonction
+    fprintf(output_file, "jal string_to_int\n");                                             // Convertir la première chaine en entier
+    fprintf(output_file, "move $t2, $v0\n");                                                 // Enregistrer l'entier correspondant à la première chaine dans $t0
+    fprintf(output_file, "%s $t0, $t2, Label_%ld\n", comp_op, global_code[i].res.qval.addr); // Effectuer l'opération booléenne
 
-    if ((offset = isInContext(global_code[i].res.qval.value, current_frame_list[nb_nested_declaration])) != -1) // Variable dans le contexte courant
+    return nb_used_const;
+}
+
+size_t stringComparison(int i, size_t nb_used_const, struct stack_frame *current_frame_list, size_t nb_nested_declaration, char *comp_op)
+{
+    // Première chaine de caractère
+    if (global_code[i].op1.kind == QO_CST || global_code[i].op1.kind == QO_STRING)
     {
-        fprintf(output_file, "la $t1, global_stack\n");
-        fprintf(output_file, "sw $v0, %d($t1)\n", offset); // Charger la valeur de la variable
+        fprintf(output_file, "la $a0, const_%ld\n", nb_used_const++); // Charger l'adresse de la valeur dans $a0
+    }
+    else
+    {
+        printError("Argument incorrect (chaine de caractère attendue)");
+        exit(1);
     }
 
-    return nb_nested_declaration;
+    // Deuxième chaine de caractère
+    if (global_code[i].op2.kind == QO_CST || global_code[i].op2.kind == QO_STRING)
+    {
+        fprintf(output_file, "la $a1, const_%ld\n", nb_used_const++); // Charger l'adresse de la valeur dans $a1
+    }
+    else
+    {
+        printError("Argument incorrect (chaine de caractère attendue)");
+        exit(1);
+    }
+
+    fprintf(output_file, "jal %s\n", comp_op);
+    fprintf(output_file, "beq $v0, 1, Label_%ld\n", global_code[i].res.qval.addr);
+
+    return nb_used_const;
+}
+
+size_t stringTest(int i, size_t nb_used_const, struct stack_frame *current_frame_list, size_t nb_nested_declaration, char *test_op)
+{
+    // Chaine de caractère à tester
+    if (global_code[i].op1.kind == QO_CST || global_code[i].op1.kind == QO_STRING)
+    {
+        fprintf(output_file, "la $a0, const_%ld\n", nb_used_const++); // Charger l'adresse de la valeur dans $a0
+    }
+    else
+    {
+        printError("Argument incorrect (chaine de caractère attendue)");
+        exit(1);
+    }
+
+    fprintf(output_file, "jal %s\n", test_op);
+    fprintf(output_file, "beq $v0, 1, Label_%ld\n", global_code[i].res.qval.addr);
+
+    return nb_used_const;
 }

@@ -410,6 +410,7 @@ filtre
 liste_operandes
 : liste_operandes operande
 {
+    // Quadop tag ??
     if(DEBUG)
         printRule("liste_operandes operande");
     $$.firstquad = $1.firstquad;

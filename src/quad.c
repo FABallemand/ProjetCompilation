@@ -40,6 +40,12 @@ void printQuad(struct quad q)
         printf(" := ");
         printQuadop(q.op1);
     }
+    else if (q.kind == Q_AFFECT_STACK)
+    {
+        printQuadop(q.res);
+        printf(" := ");
+        printQuadop(q.op1);
+    }
     else if (q.kind == Q_ECHO)
     {
         printf("echo : nombre arg(");

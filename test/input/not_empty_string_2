@@ -1,0 +1,6 @@
+if test -n "" then
+    echo "NOK"
+else
+    echo "OK"
+fi;
+exit

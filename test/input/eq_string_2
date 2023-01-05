@@ -1,0 +1,6 @@
+if test "abc" = "ab" then
+    echo "NOK"
+else
+    echo "OK"
+fi;
+exit

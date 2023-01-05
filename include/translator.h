@@ -23,11 +23,20 @@ extern char *name_global;
  */
 void translator();
 
+size_t echo_(int i, size_t nb_used_const, struct stack_frame* current_frame_list, size_t nb_nested_declaration);
+
+size_t stackGrow(int i, size_t nb_used_const, struct stack_frame* current_frame_list, size_t nb_nested_declaration);
+
 size_t affect(int i, size_t nb_used_const, struct stack_frame* current_frame_list, size_t nb_nested_declaration);
+
+size_t operation(int i, size_t nb_used_const, struct stack_frame *current_frame_list, size_t nb_nested_declaration, char *arithm_op);
+
+size_t comparison(int i, size_t nb_used_const, struct stack_frame *current_frame_list, size_t nb_nested_declaration, char *comp_op);
+
+size_t stringComparison(int i, size_t nb_used_const, struct stack_frame *current_frame_list, size_t nb_nested_declaration, char *comp_op);
+
+size_t stringTest(int i, size_t nb_used_const, struct stack_frame *current_frame_list, size_t nb_nested_declaration, char *test_op);
 
 size_t exit_(int i, size_t nb_used_const, struct stack_frame* current_frame_list, size_t nb_nested_declaration);
 
-size_t concat_(int i, size_t nb_used_const, struct stack_frame *current_frame_list, size_t nb_nested_declaration);
-
-size_t calcule(int i, size_t nb_used_const, struct stack_frame *current_frame_list, size_t nb_nested_declaration, char *ope_arithm);
 #endif

@@ -1,0 +1,6 @@
+if test 1 -neq 2 then
+    echo "OK"
+else
+    echo "NOK"
+fi;
+exit
