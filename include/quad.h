@@ -116,8 +116,6 @@ struct quad
         Q_NOT_EQUAL_STRING,
         Q_AFFECT,
         Q_GOTO,
-        Q_DECLARE,
-        Q_LOCAL,
         Q_ECHO,
         Q_READ,
         Q_FUNCTION_BEGIN,

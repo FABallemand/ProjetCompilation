@@ -40,21 +40,6 @@ void printQuad(struct quad q)
         printf(" := ");
         printQuadop(q.op1);
     }
-    else if (q.kind == Q_DECLARE)
-    {
-        printf("declare ");
-        printQuadop(q.res);
-        printf("[");
-        printQuadop(q.op1);
-        printf("]");
-    }
-    else if (q.kind == Q_LOCAL)
-    {
-        printf("local ");
-        printQuadop(q.res);
-        printf(" := ");
-        printQuadop(q.op1);
-    }
     else if (q.kind == Q_ECHO)
     {
         printf("echo : nombre arg(");

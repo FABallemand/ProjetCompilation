@@ -25,4 +25,9 @@ void translator();
 
 size_t affect(int i, size_t nb_used_const, struct stack_frame* current_frame_list, size_t nb_nested_declaration);
 
+size_t exit_(int i, size_t nb_used_const, struct stack_frame* current_frame_list, size_t nb_nested_declaration);
+
+size_t concat_(int i, size_t nb_used_const, struct stack_frame *current_frame_list, size_t nb_nested_declaration);
+
+size_t calcule(int i, size_t nb_used_const, struct stack_frame *current_frame_list, size_t nb_nested_declaration, char *ope_arithm);
 #endif

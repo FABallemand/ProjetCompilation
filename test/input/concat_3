@@ -1,0 +1,4 @@
+toto = "Bonjour, comment";
+titi = "ça va ?";
+tata = ${toto} ${titi};
+exit
