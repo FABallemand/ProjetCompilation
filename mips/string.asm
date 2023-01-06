@@ -25,7 +25,7 @@ save_reg:
 	sw   $ra, 40($sp)
 
 restore_reg:
-	lw   $ra, 40($sp) # Restaurer $t9
+	lw   $ra, 40($sp) # Restaurer $ra
 	lw   $t9, 36($sp) # Restaurer $t9
 	lw   $t8, 32($sp) # Restaurer $t8
 	lw   $t7, 28($sp) # Restaurer $t7
@@ -80,7 +80,7 @@ count_char_loop:
 	addi $t2, $t2, 1 		  # Incrémenter l'offset pour lire le caractère suivant (probalement redondant avec v0)
 	j    count_char_loop	  # Boucle
 count_char_exit:
-	lw   $ra, 40($sp) # Restaurer $t9
+	lw   $ra, 40($sp) # Restaurer $ra
 	lw   $t9, 36($sp) # Restaurer $t9
 	lw   $t8, 32($sp) # Restaurer $t8
 	lw   $t7, 28($sp) # Restaurer $t7
@@ -135,7 +135,7 @@ is_integer_loop:
 is_integer_false:
 	li $v0, 0
 is_integer_exit:
-	lw   $ra, 40($sp) # Restaurer $t9
+	lw   $ra, 40($sp) # Restaurer $ra
 	lw   $t9, 36($sp) # Restaurer $t9
 	lw   $t8, 32($sp) # Restaurer $t8
 	lw   $t7, 28($sp) # Restaurer $t7
@@ -205,7 +205,7 @@ sti_exit:
 	mflo $v0          # Placer le résultat dans $v0
 	mthi $zero	      # Réinitialiser les registres de multiplication
 	mtlo $zero        # Réinitialiser les registres de multiplication
-	lw   $ra, 40($sp) # Restaurer $t9
+	lw   $ra, 40($sp) # Restaurer $ra
 	lw   $t9, 36($sp) # Restaurer $t9
 	lw   $t8, 32($sp) # Restaurer $t8
 	lw   $t7, 28($sp) # Restaurer $t7
@@ -281,7 +281,7 @@ next2:
 	sb   $zero, ($a1) # *str = 0 (end of string marker)
 	mthi $zero
 	mtlo $zero
-	lw   $ra, 40($sp) # Restaurer $t9
+	lw   $ra, 40($sp) # Restaurer $ra
 	lw   $t9, 36($sp) # Restaurer $t9
 	lw   $t8, 32($sp) # Restaurer $t8
 	lw   $t7, 28($sp) # Restaurer $t7
@@ -349,7 +349,7 @@ add_string_next:
 	jal  int_to_string   # Convertir le résultat de l'addition en chaine de caractères
 	j    add_string_exit # (Saut inutile)
 add_string_exit:
-	lw   $ra, 40($sp) # Restaurer $t9
+	lw   $ra, 40($sp) # Restaurer $ra
 	lw   $t9, 36($sp) # Restaurer $t9
 	lw   $t8, 32($sp) # Restaurer $t8
 	lw   $t7, 28($sp) # Restaurer $t7
@@ -417,7 +417,7 @@ sub_string_next:
 	jal  int_to_string   # Convertir le résultat de l'addition en chaine de caractères
 	j    sub_string_exit # (Saut inutile)
 sub_string_exit:
-	lw   $ra, 40($sp) # Restaurer $t9
+	lw   $ra, 40($sp) # Restaurer $ra
 	lw   $t9, 36($sp) # Restaurer $t9
 	lw   $t8, 32($sp) # Restaurer $t8
 	lw   $t7, 28($sp) # Restaurer $t7
@@ -479,7 +479,7 @@ mult_string:
 	j    error_overflow
 suite_mult_l:
 	jal int_to_string # Convertir le résultat de la multiplication en chaine de caractères
-	lw   $ra, 40($sp) # Restaurer $t9
+	lw   $ra, 40($sp) # Restaurer $ra
 	lw   $t9, 36($sp) # Restaurer $t9
 	lw   $t8, 32($sp) # Restaurer $t8
 	lw   $t7, 28($sp) # Restaurer $t7
@@ -539,7 +539,7 @@ div_string:
 	jal  int_to_string   # Convertir le résultat de la division en chaine de caractère
 	j    div_string_exit # (Saut inutile)
 div_string_exit:
-	lw   $ra, 40($sp) # Restaurer $t9
+	lw   $ra, 40($sp) # Restaurer $ra
 	lw   $t9, 36($sp) # Restaurer $t9
 	lw   $t8, 32($sp) # Restaurer $t8
 	lw   $t7, 28($sp) # Restaurer $t7
@@ -599,7 +599,7 @@ mod_string:
 	jal  int_to_string   # Convertir le reste de la division en chaine de caractère
 	j    mod_string_exit # (Saut inutile)
 mod_string_exit:
-	lw   $ra, 40($sp) # Restaurer $t9
+	lw   $ra, 40($sp) # Restaurer $ra
 	lw   $t9, 36($sp) # Restaurer $t9
 	lw   $t8, 32($sp) # Restaurer $t8
 	lw   $t7, 28($sp) # Restaurer $t7
@@ -667,7 +667,7 @@ loop_concat_2:
 concat_string_exit:
 	sb   $zero, 0($t6)
 	move $v0, $t5
-	lw   $ra, 40($sp) # Restaurer $t9
+	lw   $ra, 40($sp) # Restaurer $ra
 	lw   $t9, 36($sp) # Restaurer $t9
 	lw   $t8, 32($sp) # Restaurer $t8
 	lw   $t7, 28($sp) # Restaurer $t7
@@ -704,31 +704,35 @@ echo_string:
 	
 	move $t0, $a0
 	beqz $t0, echo_string_exit # Si aucun argument
-	move $t7, $a0
+	move $t7, $a0              # Copie du nombre d'arg pour rétablir la taille de la pile
+	li   $t4, 1
+	li   $t5, 0                # Initiliser le compteur de chaines déjà affichées
 	li   $t1, 40               # Offset initial des arguments dans la pile (normalement 40 mais vue que au minimum on a 1 argument ça fait 40+4*1 donc 44)
 	                           # Afficher la première chaine (car si elle est seule on ne rajoutera pas d'espace)
-	mul  $t2, $t0, 4           # Multiplier le nombre d'argmuents restants par la taille d'un mot (4)
+	mul  $t2, $t4, 4           # Multiplier le nombre d'argmuents restants par la taille d'un mot (4)
 	add  $t3, $t2, $t1         # Offset du premier argument à afficher
 	add  $t3, $t3, $sp         # Adresse du premier élément à afficher
 	lw   $a0, 0($t3)           # Placer l'adresse dans $a0
 	li   $v0, 4				   #
 	syscall                    # Appeler primitive d'affichage
-	sub  $t0, $t0, 1           # Décrémenter le nombre de chaines à afficher
+	addi  $t4, $t4, 1          # Incrémenter le compteur de chaines déjà affichées
+	addi  $t5, $t5, 1
 echo_string_loop:
-	beqz $t0, echo_string_exit # S'il n'y a plus d'élément à afficher
-	la   $a0, one_space        #
-	li   $v0, 4                #
-	syscall                    # Appeler primitive d'affichage pour afficher un espace
-	mul  $t2, $t0, 4           # Multiplier le nombre d'argmuent restant par la taille d'un mot (4)
-	add  $t3, $t2, $t1         # Offset de l'élément à afficher
-	add  $t3, $t3, $sp         # Adresse de l'élément à afficher
-	lw   $a0, 0($t3)           # Placer l'adresse dans $a0
-	li   $v0, 4                #
-	syscall					   # Appeler primitive d'affichage
-	sub  $t0, $t0, 1           # Décrémenter le nombre de chaines à afficher
-	j    echo_string_loop      # Boucle
+	beq  $t5 ,$t0, echo_string_exit # S'il n'y a plus d'élément à afficher
+	la   $a0, one_space            #
+	li   $v0, 4                    #
+	syscall                        # Appeler primitive d'affichage pour afficher un espace
+	mul  $t2, $t4, 4               # Multiplier le nombre d'argmuent restant par la taille d'un mot (4)
+	add  $t3, $t2, $t1             # Offset de l'élément à afficher
+	add  $t3, $t3, $sp             # Adresse de l'élément à afficher
+	lw   $a0, 0($t3)               # Placer l'adresse dans $a0
+	li   $v0, 4                    #
+	syscall					       # Appeler primitive d'affichage
+	addi $t4, $t4, 1               # Incrémenter le compteur de chaines déjà affichées
+	addi $t5, $t5, 1
+	j    echo_string_loop          # Boucle
 echo_string_exit:
-	lw   $ra, 40($sp) # Restaurer $t9
+	lw   $ra, 40($sp) # Restaurer $ra
 	lw   $t9, 36($sp) # Restaurer $t9
 	lw   $t8, 32($sp) # Restaurer $t8
 	lw   $t7, 28($sp) # Restaurer $t7
@@ -786,7 +790,7 @@ read_string_exit:
 	sb $zero, 0($t6)
 	sw   $v0, 0($t9)  # Renvoyer le mot
 	move $a0, $t9     # Restaurer l'argument
-	lw   $ra, 40($sp) # Restaurer $t9
+	lw   $ra, 40($sp) # Restaurer $ra
 	lw   $t9, 36($sp) # Restaurer $t9
 	lw   $t8, 32($sp) # Restaurer $t8
 	lw   $t7, 28($sp) # Restaurer $t7
@@ -799,8 +803,9 @@ read_string_exit:
 	lw   $t0, 0($sp)  # Restaurer $t0
 	addi $sp, $sp, 44 # Restaurer $sp
 	jr   $ra		  # Retour à l'appelant
+#END FUN read_string
 
-
+# FUN empty_string
 # ARGS:
 # $a0: Addresse de la chaine de caractères
 # $v0: 1 si la chaine est vide, 0 sinon
@@ -818,12 +823,12 @@ empty_string:
 	sw   $t9, 36($sp)
 	sw   $ra, 40($sp)
 
-	li   $v0, 1
-	lb   $t0, 0($a0) #on load le premier char de la chaine d'entré dans t0
-	beqz $t0, empty_string_exit
-	li   $v0, 0
+	li   $v0, 1                 # Marquer la chaine vide
+	lb   $t0, 0($a0)            # Lire le premier caractère de la chaine
+	beqz $t0, empty_string_exit # Le caractère est nul (ie: la chaine est vide)
+	li   $v0, 0                 # Marquer la chaine non-vide
 empty_string_exit:
-	lw   $ra, 40($sp) # Restaurer $t9
+	lw   $ra, 40($sp) # Restaurer $ra
 	lw   $t9, 36($sp) # Restaurer $t9
 	lw   $t8, 32($sp) # Restaurer $t8
 	lw   $t7, 28($sp) # Restaurer $t7
@@ -837,6 +842,7 @@ empty_string_exit:
 	jr   $ra		  # Retour à l'appelant
 #END FUN empty_string
 
+# FUN not_empty_string
 # ARGS:
 # $a0: Addresse de la chaine de caractères
 # $v0: 1 si la chaine est non vide, 0 sinon
@@ -854,10 +860,12 @@ not_empty_string:
 	sw   $t9, 36($sp)
 	sw   $ra, 40($sp)
 
-	jal empty_string
-	neg $v0, $v0
-
-	lw   $ra, 40($sp) # Restaurer $t9
+	li   $v0, 1                 # Marquer la chaine non vide
+	lb   $t0, 0($a0)            # Lire le premier caractère de la chaine
+	bnez $t0, empty_string_exit # Le caractère est non nul (ie: la chaine n'est pas vide)
+	li   $v0, 0                 # Renvoyer 0 si la chaine est vide
+not_empty_string_exit:
+	lw   $ra, 40($sp) # Restaurer $ra
 	lw   $t9, 36($sp) # Restaurer $t9
 	lw   $t8, 32($sp) # Restaurer $t8
 	lw   $t7, 28($sp) # Restaurer $t7
@@ -869,8 +877,9 @@ not_empty_string:
 	lw   $t1, 4($sp)  # Restaurer $t1
 	lw   $t0, 0($sp)  # Restaurer $t0
 	jr   $ra		  # Retour à l'appelant
-#END FUN empty_string
+#END FUN not_empty_string
 
+# FUN equal_string
 # ARGS:
 # $a0: Addresse de la premiere chaine de caractères
 # $a1: Addresse de la seconde chaine de caractères
@@ -902,7 +911,7 @@ equal_string_loop:
 equal_string_false:
 	li   $v0, 0
 equal_string_exit:
-	lw   $ra, 40($sp) # Restaurer $t9
+	lw   $ra, 40($sp) # Restaurer $ra
 	lw   $t9, 36($sp) # Restaurer $t9
 	lw   $t8, 32($sp) # Restaurer $t8
 	lw   $t7, 28($sp) # Restaurer $t7
@@ -916,6 +925,7 @@ equal_string_exit:
 	jr   $ra		  # Retour à l'appelant
 #END FUN equal_string
 
+# FUN not_equal_string
 # ARGS:
 # $a0: Addresse de la premiere chaine de caractères
 # $a1: Addresse de la seconde chaine de caractères
@@ -933,11 +943,21 @@ not_equal_string:
 	sw   $t8, 32($sp)
 	sw   $t9, 36($sp)
 	sw   $ra, 40($sp)
-
-	jal equal_string
-	neg $v0, $v0
-
-	lw   $ra, 40($sp) # Restaurer $t9
+	li   $v0, 0 # tant qu'on a pas trouvé de char différent ont considère les deux chaines ne sont pas identiques
+	li   $t0, 0 # Initiliser offset pour la lecture des caractères
+not_equal_string_loop:
+	add  $t1, $t0, $a0 		             # Calcul de l'adresse du prochain caractère de la première chaine (adresse de départ ($a0) + nombre de caractères déjà lus ($t0))
+	add  $t2, $t0, $a1 		             # Calcul de l'adresse du prochain caractère de la seconde chaine (adresse de départ ($a1) + nombre de caractères déjà lus ($t0))
+	lb   $t3, 0($t1)    	             # Charger le prochain char ascii de la première chaine  dans $t3
+	lb   $t4, 0($t2)    	             # Charger le prochain char ascii de la première chaine  dans $t4					
+	bne  $t3, $t4, not_equal_string_true # Si les deux char ne sont pas identiques alors on sort
+	beqz $t3, not_equal_string_exit      # Si on fait ce test c'est que les deux char sont égaux (et donc si on le passe il faut sortir)
+	addi $t0, $t0, 1 		             # Incrémenter l'offset pour lire le caractère suivant
+	j    not_equal_string_loop			 # Boucle
+not_equal_string_true:
+	li   $v0, 1
+not_equal_string_exit:
+	lw   $ra, 40($sp) # Restaurer $ra
 	lw   $t9, 36($sp) # Restaurer $t9
 	lw   $t8, 32($sp) # Restaurer $t8
 	lw   $t7, 28($sp) # Restaurer $t7

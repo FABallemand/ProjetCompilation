@@ -86,10 +86,10 @@ void translator()
             nb_used_const = comparison(i, nb_used_const, current_frame_list, nb_nested_declaration, "ble");
             break;
         case Q_EMP:
-            nb_used_const = stringComparison(i, nb_used_const, current_frame_list, nb_nested_declaration, "empty_string");
+            nb_used_const = stringTest(i, nb_used_const, current_frame_list, nb_nested_declaration, "empty_string");
             break;
         case Q_N_EMP:
-            nb_used_const = stringComparison(i, nb_used_const, current_frame_list, nb_nested_declaration, "not_empty_string");
+            nb_used_const = stringTest(i, nb_used_const, current_frame_list, nb_nested_declaration, "not_empty_string");
             break;
         case Q_EQUAL_STRING:
             nb_used_const = stringComparison(i, nb_used_const, current_frame_list, nb_nested_declaration, "equal_string");
@@ -101,12 +101,13 @@ void translator()
             nb_used_const = affect(i, nb_used_const, current_frame_list, nb_nested_declaration);
             break;
         case Q_AFFECT_STACK:
-            nb_used_const = affect(i, nb_used_const, current_frame_list, nb_nested_declaration);
+            nb_used_const = affectStack(i, nb_used_const, current_frame_list, nb_nested_declaration);
             break;
         case Q_GOTO:
-            fprintf(output_file, "goto Label%ld\n", global_code[i].res.qval.addr);
+            fprintf(output_file, "j Label%ld\n", global_code[i].res.qval.addr);
             break;
         case Q_ECHO:
+            nb_used_const = echo_(i, nb_used_const, current_frame_list, nb_nested_declaration);
             break;
         case Q_READ:
             break;
@@ -127,6 +128,7 @@ void translator()
         case Q_ARRAY_GET:
             break;
         case Q_STACK_GROW:
+            nb_used_const = stackGrow(i, nb_used_const, current_frame_list, nb_nested_declaration);
             break;
         default:
             printError("Quad non reconnu");
@@ -158,17 +160,13 @@ size_t echo_(int i, size_t nb_used_const, struct stack_frame *current_frame_list
 
 size_t stackGrow(int i, size_t nb_used_const, struct stack_frame *current_frame_list, size_t nb_nested_declaration)
 {
-    if (global_code[i].op1.kind == QO_CST)
-    {
-        fprintf(output_file, "la $t0, const_%ld\n", nb_used_const++); // Charger l'adresse de l'unique argument d'echo
-    }
-    else
+    if (global_code[i].res.kind != QO_ADDR)
     {
         printError("Argument invalide pour agrandir la pile");
         exit(1);
     }
 
-    fprintf(output_file, "sub $sp, $sp, $t0 # Augmenter la taille de la pile\n");
+    fprintf(output_file, "sub $sp, $sp, %ld # Augmenter la taille de la pile\n", global_code[i].res.qval.addr * SIZE_MIPS_WORD);
 
     return nb_used_const;
 }
@@ -251,6 +249,40 @@ size_t affect(int i, size_t nb_used_const, struct stack_frame *current_frame_lis
         printError("Variable inconnue dans les contextes accessibles");
         exit(1);
     }
+
+    return nb_used_const;
+}
+
+size_t affectStack(int i, size_t nb_used_const, struct stack_frame *current_frame_list, size_t nb_nested_declaration)
+{
+    int offset = 0;
+    // Recherche constante à affecter (à droite du égal)
+    if (global_code[i].op1.kind == QO_CST || global_code[i].op1.kind == QO_STRING)
+    {
+        fprintf(output_file, "la $t0, const_%ld\n", nb_used_const++); // Charger l'adresse de la valeur dans $t0
+    }
+    // Recherche variable à affecter (à droite du égal)
+    else
+    {
+        if ((offset = isInContext(global_code[i].op1.qval.value, current_frame_list[nb_nested_declaration])) != -1) // Variable dans le contexte courant
+        {
+            fprintf(output_file, "lw $t0, %d($sp)\n", offset); // Charger la valeur de la variable
+        }
+        else if ((offset = isInContext(global_code[i].op1.qval.value, current_frame_list[0])) != -1) // Variable dans le contexte global
+        {
+            fprintf(output_file, "la $t1, global_stack\n");    // Charger l'adresse du pointeur vers le contexte global
+            fprintf(output_file, "lw $t0, %d($t1)\n", offset); // Charger la valeur de la variable
+        }
+        else
+        {
+            printError("Variable inconnue dans les contextes accessibles");
+            exit(1);
+        }
+    }
+
+    // Enregistrer dans la stack
+    int temp = (atoi(global_code[i].res.qval.value) - 1) * SIZE_MIPS_WORD; // Offset dans la pile
+    fprintf(output_file, "sw $t0, %d($sp) # Enregistrer $t0 dans la pile\n", temp);
 
     return nb_used_const;
 }
@@ -422,7 +454,7 @@ size_t comparison(int i, size_t nb_used_const, struct stack_frame *current_frame
     fprintf(output_file, "move $a0, $t2\n");                                                 // Placer la première chaine en argument de fonction
     fprintf(output_file, "jal string_to_int\n");                                             // Convertir la première chaine en entier
     fprintf(output_file, "move $t2, $v0\n");                                                 // Enregistrer l'entier correspondant à la première chaine dans $t0
-    fprintf(output_file, "%s $t0, $t2, Label_%ld\n", comp_op, global_code[i].res.qval.addr); // Effectuer l'opération booléenne
+    fprintf(output_file, "%s $t0, $t2, Label%ld\n", comp_op, global_code[i].res.qval.addr); // Effectuer l'opération booléenne
 
     return nb_used_const;
 }
@@ -452,7 +484,7 @@ size_t stringComparison(int i, size_t nb_used_const, struct stack_frame *current
     }
 
     fprintf(output_file, "jal %s\n", comp_op);
-    fprintf(output_file, "beq $v0, 1, Label_%ld\n", global_code[i].res.qval.addr);
+    fprintf(output_file, "beq $v0, 1, Label%ld\n", global_code[i].res.qval.addr);
 
     return nb_used_const;
 }
@@ -471,7 +503,7 @@ size_t stringTest(int i, size_t nb_used_const, struct stack_frame *current_frame
     }
 
     fprintf(output_file, "jal %s\n", test_op);
-    fprintf(output_file, "beq $v0, 1, Label_%ld\n", global_code[i].res.qval.addr);
+    fprintf(output_file, "beq $v0, 1, Label%ld\n", global_code[i].res.qval.addr);
 
     return nb_used_const;
 }

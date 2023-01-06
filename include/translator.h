@@ -29,6 +29,8 @@ size_t stackGrow(int i, size_t nb_used_const, struct stack_frame* current_frame_
 
 size_t affect(int i, size_t nb_used_const, struct stack_frame* current_frame_list, size_t nb_nested_declaration);
 
+size_t affectStack(int i, size_t nb_used_const, struct stack_frame* current_frame_list, size_t nb_nested_declaration);
+
 size_t operation(int i, size_t nb_used_const, struct stack_frame *current_frame_list, size_t nb_nested_declaration, char *arithm_op);
 
 size_t comparison(int i, size_t nb_used_const, struct stack_frame *current_frame_list, size_t nb_nested_declaration, char *comp_op);

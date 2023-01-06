@@ -42,8 +42,9 @@ void printQuad(struct quad q)
     }
     else if (q.kind == Q_AFFECT_STACK)
     {
+        printf("(stack) (offset = ");
         printQuadop(q.res);
-        printf(" := ");
+        printf(") := ");
         printQuadop(q.op1);
     }
     else if (q.kind == Q_ECHO)
@@ -134,10 +135,10 @@ void printQuad(struct quad q)
             printf(" -le ");
             break;
         case Q_EMP:
-            printf(" -n ");
+            printf(" -z ");
             break;
         case Q_N_EMP:
-            printf(" -z ");
+            printf(" -n ");
             break;
         case Q_EQUAL_STRING:
             printf(" = ");

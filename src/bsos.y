@@ -52,7 +52,7 @@ char zero[2] = "0";
 
 %type <expr_val> concatenation operande somme_entiere produit_entier operande_entier appel_de_fonction
 
-%type <list_op_val> liste_operandes
+%type <list_op_val> liste_operandes liste_operandes_echo
 
 %left PLUS MINUS
 %left STAR DIVISION MOD
@@ -235,7 +235,7 @@ instruction
     $<inst_val>$.next = createList(next_quad);
     genCode(quad_new(Q_STACK_GROW, quadop_empty(), quadop_empty(), quadop_unknown()));
 } 
-liste_operandes
+liste_operandes_echo
 {
     $$.firstquad = $<inst_val>2.firstquad;
     complete($<inst_val>2.next, $3.size);
@@ -404,6 +404,32 @@ filtre
 {
     if(DEBUG)
         printRule("STAR");
+}
+;
+
+liste_operandes_echo
+: liste_operandes_echo operande
+{
+    if(DEBUG)
+        printRule("liste_operandes operande");
+    $$.firstquad = $1.firstquad;
+    $$.size = $1.size + 1;
+    char tmp[3];
+    sprintf(tmp, "%ld", $$.size);
+    genCode(quad_new(Q_AFFECT_STACK, $2.result, quadop_empty(), quadop_var(strdup(tmp))));
+}
+| operande
+{
+    if(DEBUG)
+        printRule("operande (listop)");
+    $$.firstquad = $1.firstquad;
+    $$.size = 1;
+    genCode(quad_new(Q_AFFECT_STACK, $1.result, quadop_empty(), quadop_var("1")));
+}
+| DOLLAR OBRA ID OABRA STAR CABRA CBRA
+{
+    if(DEBUG)
+        printRule("DOLLAR OBRA ID OABRA STAR CABRA CBRA");
 }
 ;
 

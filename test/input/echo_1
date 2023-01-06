@@ -1,2 +1,2 @@
-echo "bonjour";
+echo "Hello World";
 exit
