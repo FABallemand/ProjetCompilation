@@ -38,7 +38,7 @@ restore_reg:
 	lw   $t0, 0($sp)  # Restaurer $t0
 	addi $sp, $sp, 44 # Restaurer $sp
 
-error_not_int:
+error_not_int: 
 	li $v0, 4                       # 
 	la $a0, error_string_not_an_int # Charger adresse du message d'erreur
 	syscall                         #
@@ -705,32 +705,27 @@ echo_string:
 	move $t0, $a0
 	beqz $t0, echo_string_exit # Si aucun argument
 	move $t7, $a0              # Copie du nombre d'arg pour rétablir la taille de la pile
-	li   $t4, 1
-	li   $t5, 0                # Initiliser le compteur de chaines déjà affichées
 	li   $t1, 40               # Offset initial des arguments dans la pile (normalement 40 mais vue que au minimum on a 1 argument ça fait 40+4*1 donc 44)
 	                           # Afficher la première chaine (car si elle est seule on ne rajoutera pas d'espace)
-	mul  $t2, $t4, 4           # Multiplier le nombre d'argmuents restants par la taille d'un mot (4)
-	add  $t3, $t2, $t1         # Offset du premier argument à afficher
-	add  $t3, $t3, $sp         # Adresse du premier élément à afficher
+	mul  $t2, $t0, 4           # Offset de la première chaine par rapport aux sauvergardes des registres
+	add  $t3, $t2, $t1         # Offset de la première chaine
+	add  $t3, $t3, $sp         # Adresse de la première chaine
 	lw   $a0, 0($t3)           # Placer l'adresse dans $a0
 	li   $v0, 4				   #
 	syscall                    # Appeler primitive d'affichage
-	addi  $t4, $t4, 1          # Incrémenter le compteur de chaines déjà affichées
-	addi  $t5, $t5, 1
+	sub  $t3, $t3, 4           # Décrémenter l'adresse de la chaine afficher
+	sub  $t0, $t0, 1
 echo_string_loop:
-	beq  $t5 ,$t0, echo_string_exit # S'il n'y a plus d'élément à afficher
-	la   $a0, one_space            #
-	li   $v0, 4                    #
-	syscall                        # Appeler primitive d'affichage pour afficher un espace
-	mul  $t2, $t4, 4               # Multiplier le nombre d'argmuent restant par la taille d'un mot (4)
-	add  $t3, $t2, $t1             # Offset de l'élément à afficher
-	add  $t3, $t3, $sp             # Adresse de l'élément à afficher
-	lw   $a0, 0($t3)               # Placer l'adresse dans $a0
-	li   $v0, 4                    #
-	syscall					       # Appeler primitive d'affichage
-	addi $t4, $t4, 1               # Incrémenter le compteur de chaines déjà affichées
-	addi $t5, $t5, 1
-	j    echo_string_loop          # Boucle
+	beqz $t0, echo_string_exit # S'il n'y a plus d'élément à afficher
+	la   $a0, one_space        #
+	li   $v0, 4                #
+	syscall                    # Appeler primitive d'affichage pour afficher un espace
+	lw   $a0, 0($t3)           # Placer l'adresse dans $a0
+	li   $v0, 4                #
+	syscall					   # Appeler primitive d'affichage
+	sub  $t3, $t3, 4           #
+	sub  $t0, $t0, 1
+	j    echo_string_loop      # Boucle
 echo_string_exit:
 	lw   $ra, 40($sp) # Restaurer $ra
 	lw   $t9, 36($sp) # Restaurer $t9

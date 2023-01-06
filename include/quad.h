@@ -124,8 +124,7 @@ struct quad
         Q_CALL,
         Q_RETURN,
         Q_EXIT,
-        Q_ARRAY_GET,
-        Q_STACK_GROW // Faire affichage
+        Q_ARRAY_GET
     } kind; //< Type de quadruplet
 
     struct quadop op1, op2, res; //< Opérandes

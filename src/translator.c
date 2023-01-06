@@ -112,8 +112,7 @@ void translator()
         case Q_READ:
             break;
         case Q_FUNCTION_BEGIN:
-            fprintf(output_file, "%s:\n", global_code[i].res.qval.value);
-            current_frame_list[++nb_nested_declaration] = findContext(global_code[i].res.qval.value);
+            nb_used_const = functionBegin(i, nb_used_const, current_frame_list, nb_nested_declaration);
             break;
         case Q_FUNCTION_END:
             nb_nested_declaration--;
@@ -126,9 +125,7 @@ void translator()
             nb_used_const = exit_(i, nb_used_const, current_frame_list, nb_nested_declaration);
             break;
         case Q_ARRAY_GET:
-            break;
-        case Q_STACK_GROW:
-            nb_used_const = stackGrow(i, nb_used_const, current_frame_list, nb_nested_declaration);
+            nb_used_const = arrayGet(i, nb_used_const, current_frame_list, nb_nested_declaration);
             break;
         default:
             printError("Quad non reconnu");
@@ -158,19 +155,6 @@ size_t echo_(int i, size_t nb_used_const, struct stack_frame *current_frame_list
     return nb_used_const;
 }
 
-size_t stackGrow(int i, size_t nb_used_const, struct stack_frame *current_frame_list, size_t nb_nested_declaration)
-{
-    if (global_code[i].res.kind != QO_ADDR)
-    {
-        printError("Argument invalide pour agrandir la pile");
-        exit(1);
-    }
-
-    fprintf(output_file, "sub $sp, $sp, %ld # Augmenter la taille de la pile\n", global_code[i].res.qval.addr * SIZE_MIPS_WORD);
-
-    return nb_used_const;
-}
-
 size_t affect(int i, size_t nb_used_const, struct stack_frame *current_frame_list, size_t nb_nested_declaration)
 {
     int offset = 0;
@@ -188,7 +172,7 @@ size_t affect(int i, size_t nb_used_const, struct stack_frame *current_frame_lis
         }
         else if ((offset = isInContext(global_code[i].op1.qval.value, current_frame_list[0])) != -1) // Variable dans le contexte global
         {
-            fprintf(output_file, "la $t1, global_stack\n");    // Charger l'adresse du pointeur vers le contexte global
+            fprintf(output_file, "lw $t1, global_stack\n");    // Charger l'adresse du pointeur vers le contexte global
             fprintf(output_file, "lw $t0, %d($t1)\n", offset); // Charger la valeur de la variable
         }
         else
@@ -219,7 +203,7 @@ size_t affect(int i, size_t nb_used_const, struct stack_frame *current_frame_lis
         }
         else if ((offset = isInContext(global_code[i].op2.qval.value, current_frame_list[0])) != -1) // Variable dans le contexte global
         {
-            fprintf(output_file, "la $t1, global_stack\n");
+            fprintf(output_file, "lw $t1, global_stack\n");
             fprintf(output_file, "lw $a0, %d($t1)\n", offset); // Charger l'offset
             fprintf(output_file, "jal string_to_int\n");       // Erreur si ce n'est pas un entier
             fprintf(output_file, "move $t2, $v0\n");
@@ -240,7 +224,7 @@ size_t affect(int i, size_t nb_used_const, struct stack_frame *current_frame_lis
     }
     else if ((offset = isInContext(global_code[i].res.qval.value, current_frame_list[0])) != -1) // Variable dans le contexte global
     {
-        fprintf(output_file, "la $t1, global_stack\n");    // Charger l'adresse du pointeur vers le contexte global
+        fprintf(output_file, "lw $t1, global_stack\n");    // Charger l'adresse du pointeur vers le contexte global
         fprintf(output_file, "add $t1, $t1, $t2\n");       // Combiner les offsets (offset dans la variable et dans la pile)
         fprintf(output_file, "sw $t0, %d($t1)\n", offset); // Affectation
     }
@@ -266,11 +250,12 @@ size_t affectStack(int i, size_t nb_used_const, struct stack_frame *current_fram
     {
         if ((offset = isInContext(global_code[i].op1.qval.value, current_frame_list[nb_nested_declaration])) != -1) // Variable dans le contexte courant
         {
+            offset += (atoi(global_code[i].res.qval.value) - 1) * SIZE_MIPS_WORD;
             fprintf(output_file, "lw $t0, %d($sp)\n", offset); // Charger la valeur de la variable
         }
         else if ((offset = isInContext(global_code[i].op1.qval.value, current_frame_list[0])) != -1) // Variable dans le contexte global
         {
-            fprintf(output_file, "la $t1, global_stack\n");    // Charger l'adresse du pointeur vers le contexte global
+            fprintf(output_file, "lw $t1, global_stack\n");    // Charger l'adresse du pointeur vers le contexte global
             fprintf(output_file, "lw $t0, %d($t1)\n", offset); // Charger la valeur de la variable
         }
         else
@@ -281,8 +266,8 @@ size_t affectStack(int i, size_t nb_used_const, struct stack_frame *current_fram
     }
 
     // Enregistrer dans la stack
-    int temp = (atoi(global_code[i].res.qval.value) - 1) * SIZE_MIPS_WORD; // Offset dans la pile
-    fprintf(output_file, "sw $t0, %d($sp) # Enregistrer $t0 dans la pile\n", temp);
+    fprintf(output_file, "sub $sp, $sp, %d # Ajouter de l'espace dans la pile\n", SIZE_MIPS_WORD);
+    fprintf(output_file, "sw $t0, 0($sp) # Enregistrer $t0 dans la pile\n");
 
     return nb_used_const;
 }
@@ -312,7 +297,7 @@ size_t exit_(int i, size_t nb_used_const, struct stack_frame *current_frame_list
         }
         else if ((offset = isInContext(global_code[i].op2.qval.value, current_frame_list[0])) != -1) // Variable dans le contexte global
         {
-            fprintf(output_file, "la $t1, global_stack\n");
+            fprintf(output_file, "lw $t1, global_stack\n");
             fprintf(output_file, "lw $a0, %d($t1)\n", offset); // Charger l'offset
             fprintf(output_file, "jal string_to_int\n");       // Erreur si ce n'est pas un entier
             fprintf(output_file, "move $a0, $v0\n");
@@ -349,7 +334,7 @@ size_t operation(int i, size_t nb_used_const, struct stack_frame *current_frame_
         }
         else if ((offset = isInContext(global_code[i].op1.qval.value, current_frame_list[0])) != -1) // Variable dans le contexte global
         {
-            fprintf(output_file, "la $t1, global_stack\n");    // Charger l'adresse du pointeur vers le contexte global
+            fprintf(output_file, "lw $t1, global_stack\n");    // Charger l'adresse du pointeur vers le contexte global
             fprintf(output_file, "lw $t0, %d($t1)\n", offset); // Charger la valeur de la variable
         }
         else
@@ -372,7 +357,7 @@ size_t operation(int i, size_t nb_used_const, struct stack_frame *current_frame_
         }
         else if ((offset = isInContext(global_code[i].op2.qval.value, current_frame_list[0])) != -1) // Variable dans le contexte global
         {
-            fprintf(output_file, "la $t1, global_stack\n");    // Charger l'adresse du pointeur vers le contexte global
+            fprintf(output_file, "lw $t1, global_stack\n");    // Charger l'adresse du pointeur vers le contexte global
             fprintf(output_file, "lw $t2, %d($t1)\n", offset); // Charger la valeur de la variable
         }
         else
@@ -388,7 +373,7 @@ size_t operation(int i, size_t nb_used_const, struct stack_frame *current_frame_
 
     if ((offset = isInContext(global_code[i].res.qval.value, current_frame_list[nb_nested_declaration])) != -1) // Variable dans le contexte courant
     {
-        fprintf(output_file, "la $t1, global_stack\n");
+        fprintf(output_file, "lw $t1, global_stack\n");
         fprintf(output_file, "sw $v0, %d($t1)\n", offset); // Charger la valeur de la variable
     }
 
@@ -415,7 +400,7 @@ size_t comparison(int i, size_t nb_used_const, struct stack_frame *current_frame
         }
         else if ((offset = isInContext(global_code[i].op1.qval.value, current_frame_list[0])) != -1) // Variable dans le contexte global
         {
-            fprintf(output_file, "la $t1, global_stack\n");    // Charger l'adresse du pointeur vers le contexte global
+            fprintf(output_file, "lw $t1, global_stack\n");    // Charger l'adresse du pointeur vers le contexte global
             fprintf(output_file, "lw $t0, %d($t1)\n", offset); // Charger la valeur de la variable
         }
         else
@@ -438,7 +423,7 @@ size_t comparison(int i, size_t nb_used_const, struct stack_frame *current_frame
         }
         else if ((offset = isInContext(global_code[i].op2.qval.value, current_frame_list[0])) != -1) // Variable dans le contexte global
         {
-            fprintf(output_file, "la $t1, global_stack\n");    // Charger l'adresse du pointeur vers le contexte global
+            fprintf(output_file, "lw $t1, global_stack\n");    // Charger l'adresse du pointeur vers le contexte global
             fprintf(output_file, "lw $t2, %d($t1)\n", offset); // Charger la valeur de la variable
         }
         else
@@ -448,12 +433,12 @@ size_t comparison(int i, size_t nb_used_const, struct stack_frame *current_frame
         }
     }
 
-    fprintf(output_file, "move $a0, $t0\n");                                                 // Placer la première chaine en argument de fonction
-    fprintf(output_file, "jal string_to_int\n");                                             // Convertir la première chaine en entier
-    fprintf(output_file, "move $t0, $v0\n");                                                 // Enregistrer l'entier correspondant à la première chaine dans $t0
-    fprintf(output_file, "move $a0, $t2\n");                                                 // Placer la première chaine en argument de fonction
-    fprintf(output_file, "jal string_to_int\n");                                             // Convertir la première chaine en entier
-    fprintf(output_file, "move $t2, $v0\n");                                                 // Enregistrer l'entier correspondant à la première chaine dans $t0
+    fprintf(output_file, "move $a0, $t0\n");                                                // Placer la première chaine en argument de fonction
+    fprintf(output_file, "jal string_to_int\n");                                            // Convertir la première chaine en entier
+    fprintf(output_file, "move $t0, $v0\n");                                                // Enregistrer l'entier correspondant à la première chaine dans $t0
+    fprintf(output_file, "move $a0, $t2\n");                                                // Placer la première chaine en argument de fonction
+    fprintf(output_file, "jal string_to_int\n");                                            // Convertir la première chaine en entier
+    fprintf(output_file, "move $t2, $v0\n");                                                // Enregistrer l'entier correspondant à la première chaine dans $t0
     fprintf(output_file, "%s $t0, $t2, Label%ld\n", comp_op, global_code[i].res.qval.addr); // Effectuer l'opération booléenne
 
     return nb_used_const;
@@ -505,5 +490,78 @@ size_t stringTest(int i, size_t nb_used_const, struct stack_frame *current_frame
     fprintf(output_file, "jal %s\n", test_op);
     fprintf(output_file, "beq $v0, 1, Label%ld\n", global_code[i].res.qval.addr);
 
+    return nb_used_const;
+}
+
+size_t arrayGet(int i, size_t nb_used_const, struct stack_frame *current_frame_list, size_t nb_nested_declaration)
+{
+    int offset;
+
+    // $t0 Adresse du tableau
+    // $t2 Offset dans le tableau
+
+    // Adresse du tableau dans $t0
+    if ((offset = isInContext(global_code[i].op1.qval.value, current_frame_list[0])) != -1) // Tableau dans le contexte global
+    {
+        fprintf(output_file, "lw $t1, global_stack\n");    // Charger l'adresse du pointeur vers le contexte global
+        fprintf(output_file, "addi $t0, $t1, %d\n", offset); // Charger l'adresse du tableau dans $t0
+    }
+    else
+    {
+        printError("Tableau inconnu dans le contexte global");
+        exit(1);
+    }
+
+    // Offset dans le tableau
+    if (global_code[i].op2.kind == QO_CST)
+    {
+        fprintf(output_file, "la $a0, const_%ld\n", nb_used_const++);
+        fprintf(output_file, "jal string_to_int\n"); // Erreur si ce n'est pas un entier
+        fprintf(output_file, "move $t2, $v0\n");
+    }
+    else if (global_code[i].op2.kind == QO_VAR)
+    {
+        if ((offset = isInContext(global_code[i].op2.qval.value, current_frame_list[nb_nested_declaration])) != -1) // Variable dans le contexte courant
+        {
+            fprintf(output_file, "lw $a0, %d($sp)\n", offset); // Charger l'adresse
+            fprintf(output_file, "jal string_to_int\n");       // Erreur si ce n'est pas un entier
+            fprintf(output_file, "move $t2, $v0\n");
+        }
+        else if ((offset = isInContext(global_code[i].op2.qval.value, current_frame_list[0])) != -1) // Variable dans le contexte global
+        {
+            fprintf(output_file, "lw $t1, global_stack\n");    // Charger le pointeur vers le contexte global
+            fprintf(output_file, "lw $a0, %d($t1)\n", offset); // Charger l'offset
+            fprintf(output_file, "jal string_to_int\n");       // Erreur si ce n'est pas un entier
+            fprintf(output_file, "move $t2, $v0\n");
+        }
+        else
+        {
+            printError("Variable inconnue dans les contextes accessibles");
+            exit(1);
+        }
+    }
+
+    fprintf(output_file, "mul $t2, $t2, %d  # Convertir l'offset en octet\n", SIZE_MIPS_WORD);
+    fprintf(output_file, "add $t0, $t0, $t2 # Adresse de l'élément du tableau\n");
+    fprintf(output_file, "lw $t3, 0($t0)    # Charger la valeur dans $t3\n");
+    
+    if ((offset = isInContext(global_code[i].res.qval.value, current_frame_list[0])) != -1) // Variable dans le contexte global
+    {
+        fprintf(output_file, "lw $t1, global_stack # Charger l'adresse du pointeur vers le contexte global\n");
+        fprintf(output_file, "sw $t3, %d($t1)\n", offset); // Affectation
+    }
+    else
+    {
+        printError("Variable temporaire manquante dans le contexte global");
+        exit(1);
+    }
+
+    return nb_used_const;
+}
+
+size_t functionBegin(int i, size_t nb_used_const, struct stack_frame *current_frame_list, size_t nb_nested_declaration)
+{
+    fprintf(output_file, "%s:\n", global_code[i].res.qval.value);
+    current_frame_list[++nb_nested_declaration] = findContext(global_code[i].res.qval.value);
     return nb_used_const;
 }

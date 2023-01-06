@@ -29,11 +29,6 @@ void printQuad(struct quad q)
         printf("goto ");
         printQuadop(q.res);
     }
-    else if (q.kind == Q_STACK_GROW)
-    {
-        printf("stack grow ");
-        printQuadop(q.res);
-    }
     else if (q.kind == Q_AFFECT)
     {
         printQuadop(q.res);
@@ -42,7 +37,7 @@ void printQuad(struct quad q)
     }
     else if (q.kind == Q_AFFECT_STACK)
     {
-        printf("(stack) (offset = ");
+        printf("(stack) (offset ");
         printQuadop(q.res);
         printf(") := ");
         printQuadop(q.op1);

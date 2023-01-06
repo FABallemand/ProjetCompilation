@@ -227,20 +227,13 @@ instruction
     if(DEBUG)
         printRule("CASE operande IN liste_cas ESAC");
 }
-| ECHO_
+| ECHO_ liste_operandes_echo
 {
     if(DEBUG)
         printRule("ECHO_ liste_operandes");
-    $<inst_val>$.firstquad = next_quad;
-    $<inst_val>$.next = createList(next_quad);
-    genCode(quad_new(Q_STACK_GROW, quadop_empty(), quadop_empty(), quadop_unknown()));
-} 
-liste_operandes_echo
-{
-    $$.firstquad = $<inst_val>2.firstquad;
-    complete($<inst_val>2.next, $3.size);
+    $$.firstquad = $2.firstquad;
     char tmp[3];
-    sprintf(tmp, "%ld", $3.size);
+    sprintf(tmp, "%ld", $2.size);
     genCode(quad_new(Q_ECHO, quadop_cst(strdup(tmp)), quadop_empty(), quadop_empty()));
     $$.next = NULL;
 }

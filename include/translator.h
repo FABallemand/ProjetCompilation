@@ -25,8 +25,6 @@ void translator();
 
 size_t echo_(int i, size_t nb_used_const, struct stack_frame* current_frame_list, size_t nb_nested_declaration);
 
-size_t stackGrow(int i, size_t nb_used_const, struct stack_frame* current_frame_list, size_t nb_nested_declaration);
-
 size_t affect(int i, size_t nb_used_const, struct stack_frame* current_frame_list, size_t nb_nested_declaration);
 
 size_t affectStack(int i, size_t nb_used_const, struct stack_frame* current_frame_list, size_t nb_nested_declaration);
@@ -40,5 +38,9 @@ size_t stringComparison(int i, size_t nb_used_const, struct stack_frame *current
 size_t stringTest(int i, size_t nb_used_const, struct stack_frame *current_frame_list, size_t nb_nested_declaration, char *test_op);
 
 size_t exit_(int i, size_t nb_used_const, struct stack_frame* current_frame_list, size_t nb_nested_declaration);
+
+size_t arrayGet(int i, size_t nb_used_const, struct stack_frame* current_frame_list, size_t nb_nested_declaration);
+
+size_t functionBegin(int i, size_t nb_used_const, struct stack_frame* current_frame_list, size_t nb_nested_declaration);
 
 #endif
