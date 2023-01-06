@@ -1,0 +1,12 @@
+declare tab[2];
+
+tab[0] = 65;
+tab[1] = 66;
+if test $( expr ${tab[0]} + 1) -eq ${tab[1]} then
+    echo "OK"
+else
+    echo "NOK"
+fi;
+
+echo ${a};
+exit

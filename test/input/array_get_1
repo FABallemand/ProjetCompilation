@@ -1,4 +1,5 @@
 declare tab[2];
-tab[0] = 42 ;
-echo ${tab[0]};
+tab[0] = 42;
+tab[1] = 66;
+echo ${tab[1]};
 exit

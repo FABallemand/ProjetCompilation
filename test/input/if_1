@@ -1,11 +1,16 @@
 declare tab[4];
 
-tab[0] = 1;
+tab[0] = 65;
+tab[1] = 66;
+echo ${tab[0]} "\n";
+echo "fin echo 1\n";
+echo ${tab[1]} "\n";
 if test 4 -gt 3 then
-    echo "bonjour" "test" "salut\n";
-    tab[0] = $( expr 91 + 7);
+    echo "bonjour\n";
+    tab[0] = $( expr 91 + 7)
 fi;
 echo ${tab[0]} "\n";
+echo "fin echo 1";
 echo ${tab[0]} "\n";
-echo ${tab[1]} "\n":
+echo ${tab[1]} "\n";
 exit
