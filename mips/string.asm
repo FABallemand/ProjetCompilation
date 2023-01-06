@@ -318,16 +318,12 @@ add_string:
 
 	move $t0, $a0  			# Faire une copie de la première chaine
 	move $t1, $a1  			# Faire une copie de la deuxième chaine
-	jal  is_integer 		# Vérifier si la première chaine est un entier
-	beqz $v0, error_not_int # Vérifier si la première chaine est un entier
 	jal  string_to_int      # Convertir la première chaine en nombre
 	move $t2, $v0           # Enregistrer le résultat dans $t2
 	jal  count_char         # Déterminer la taille de la première chaine de caractères
 	move $t4, $v0           # Enregistrer le résultat dans $t4
 
 	move $a0, $a1			# Placer la deuxième chaine dans $a0
-	jal  is_integer         # Vérifier si la deuxième chaine est un entier
-	beqz $v0, error_not_int # Vérifier si la deuxième chaine est un entier
 	jal  string_to_int      # Convertir la deuxième chaine en nombre
 	move $t3, $v0           # Enregistrer le résultat dans $t3
 	jal  count_char         # Déterminer la taille de la deuxième chaine de caractères
@@ -386,16 +382,12 @@ sub_string:
 
 	move $t0, $a0  			# Faire une copie de la première chaine
 	move $t1, $a1  			# Faire une copie de la deuxième chaine
-	jal  is_integer 		# Vérifier si la première chaine est un entier
-	beqz $v0, error_not_int # Vérifier si la première chaine est un entier
 	jal  string_to_int      # Convertir la première chaine en nombre
 	move $t2, $v0           # Enregistrer le résultat dans $t2
 	jal  count_char         # Déterminer la taille de la première chaine de caractères
 	move $t4, $v0           # Enregistrer le résultat dans $t4
 
 	move $a0, $a1			# Placer la deuxième chaine dans $a0
-	jal  is_integer         # Vérifier si la deuxième chaine est un entier
-	beqz $v0, error_not_int # Vérifier si la deuxième chaine est un entier
 	jal  string_to_int      # Convertir la deuxième chaine en nombre
 	move $t3, $v0           # Enregistrer le résultat dans $t3
 	jal  count_char         # Déterminer la taille de la deuxième chaine de caractères
@@ -413,7 +405,7 @@ sub_string_next:
 	syscall       # Allocation de la memoire necessaire
 
 	move $a1, $v0        # Placer $v0 en argument de fonction
-	add  $a0, $t2, $t3   # Additionner les deux nombres et placer le résultat en argument de focntion
+	sub  $a0, $t2, $t3   # Additionner les deux nombres et placer le résultat en argument de focntion
 	jal  int_to_string   # Convertir le résultat de l'addition en chaine de caractères
 	j    sub_string_exit # (Saut inutile)
 sub_string_exit:
@@ -454,14 +446,10 @@ mult_string:
 
 	move $t0, $a0  			# Faire une copie de la première chaine
 	move $t1, $a1  			# Faire une copie de la deuxième chaine
-	jal  is_integer 		# Vérifier si la première chaine est un entier
-	beqz $v0, error_not_int # Vérifier si la première chaine est un entier
 	jal  string_to_int      # Convertir la première chaine en nombre
 	move $t2, $v0           # Enregistrer le résultat dans $t2
 
 	move $a0, $a1			# Placer la deuxième chaine dans $a0
-	jal  is_integer         # Vérifier si la deuxième chaine est un entier
-	beqz $v0, error_not_int # Vérifier si la deuxième chaine est un entier
 	jal  string_to_int      # Convertir la deuxième chaine en nombre
 	move $t3, $v0           # Enregistrer le résultat dans $t3
 
@@ -516,14 +504,10 @@ div_string:
 
 	move $t0, $a0  			# Faire une copie de la première chaine
 	move $t1, $a1  			# Faire une copie de la deuxième chaine
-	jal  is_integer 		# Vérifier si la première chaine est un entier
-	beqz $v0, error_not_int # Vérifier si la première chaine est un entier
 	jal  string_to_int      # Convertir la première chaine en nombre
 	move $t2, $v0           # Enregistrer le résultat dans $t2
 
 	move $a0, $a1			# Placer la deuxième chaine dans $a0
-	jal  is_integer         # Vérifier si la deuxième chaine est un entier
-	beqz $v0, error_not_int # Vérifier si la deuxième chaine est un entier
 	jal  string_to_int      # Convertir la deuxième chaine en nombre
 	move $t3, $v0           # Enregistrer le résultat dans $t3
 
@@ -576,14 +560,10 @@ mod_string:
 
 	move $t0, $a0  			# Faire une copie de la première chaine
 	move $t1, $a1  			# Faire une copie de la deuxième chaine
-	jal  is_integer 		# Vérifier si la première chaine est un entier
-	beqz $v0, error_not_int # Vérifier si la première chaine est un entier
 	jal  string_to_int      # Convertir la première chaine en nombre
 	move $t2, $v0           # Enregistrer le résultat dans $t2
 
 	move $a0, $a1			# Placer la deuxième chaine dans $a0
-	jal  is_integer         # Vérifier si la deuxième chaine est un entier
-	beqz $v0, error_not_int # Vérifier si la deuxième chaine est un entier
 	jal  string_to_int      # Convertir la deuxième chaine en nombre
 	move $t3, $v0           # Enregistrer le résultat dans $t3
 
@@ -747,7 +727,7 @@ echo_string_exit:
 
 # FUN read_string
 # ARGS:
-# $a0: Adresse de l'espace memoire nouvellement lu (et malloc)
+# $v0: Adresse de l'espace memoire nouvellement lu (et malloc)
 read_string:
 	addi $sp, $sp, -44 # Enreigstre les registres $t* dans la pile (pour simplifier)
 	sw   $t0, 0($sp)
@@ -762,7 +742,7 @@ read_string:
 	sw   $t9, 36($sp)
 	sw   $ra, 40($sp)
 
-	move $t9, $a0         # Sauvegarder l'adresse cible
+	#move $t9, $a0         # Sauvegarder l'adresse cible
 	la   $a0, read_buffer # Charger l'adresse du buffer
 	li   $a1, 1024        # Charger la taille du buffer
 	li   $v0, 8			  # 
@@ -774,6 +754,7 @@ read_string:
 	syscall               # Allouer l'espace mémoire nécessaire pour enregistrer la chaine de caractères lue
 	la   $t0, read_buffer #
 	move $t6, $v0		  #
+	move $t9, $v0
 loop_copy:
 	lb   $t7, 0($t0)           # Enregistrer temporairement le caractère en début de chaine
 	beqz $t7, read_string_exit # Fin de la première chaine de caractères
@@ -782,9 +763,8 @@ loop_copy:
 	add  $t6, $t6, 1           # Déplacer la tête d'écriture dans la chaine résultat
 	j loop_copy			       # Boucle
 read_string_exit:
-	sb $zero, 0($t6)
-	sw   $v0, 0($t9)  # Renvoyer le mot
-	move $a0, $t9     # Restaurer l'argument
+	sb $zero, -1($t6)
+	move   $v0, $t9  # Renvoyer le mot
 	lw   $ra, 40($sp) # Restaurer $ra
 	lw   $t9, 36($sp) # Restaurer $t9
 	lw   $t8, 32($sp) # Restaurer $t8

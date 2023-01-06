@@ -1,6 +1,11 @@
 declare tab[4];
 i = 0;
 while test ${i} -lt 10 do
+    if test $( expr ${i} % 2) -eq 0 then
+        echo "paire : "
+    else
+        echo "impaire : "
+    fi;
     echo ${i} "\n";
     i = $( expr ${i} + 1)
 done;

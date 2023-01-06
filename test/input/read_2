@@ -1,3 +1,6 @@
 declare tab[3];
 read tab[0];
+read tab[1];
+read tab[2];
+echo ${tab[0]} ${tab[1]} ${tab[2]} "\n";
 exit
