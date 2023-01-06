@@ -43,4 +43,8 @@ size_t arrayGet(int i, size_t nb_used_const, struct stack_frame* current_frame_l
 
 size_t functionBegin(int i, size_t nb_used_const, struct stack_frame* current_frame_list, size_t nb_nested_declaration);
 
+size_t functionCall(int i, size_t nb_used_const, struct stack_frame* current_frame_list, size_t nb_nested_declaration);
+
+size_t return_(int i, size_t nb_used_const, struct stack_frame* current_frame_list, size_t nb_nested_declaration);
+
 #endif

@@ -1,0 +1,13 @@
+declare tab[4];
+
+tab[0] = 0;
+tab[1] = 1;
+tab[2] = 2;
+tab[3] = 3;
+
+echo ${tab[0]} "\n";
+echo ${tab[1]} "\n";
+echo ${tab[2]} "\n";
+echo ${tab[3]} "\n";
+
+exit

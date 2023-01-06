@@ -1,23 +1,21 @@
 #include "translator.h"
 
-// li $a0, 3
-// jal echo_string
-// li $v0, 10
-// syscall
-
 FILE *output_file = NULL;
 
 void translator()
 {
-    size_t nb_const = 0;
-    size_t nb_used_const = 0;
-    struct stack_frame current_frame_list[MAX_NESTED_DECLARATION];
-    size_t nb_nested_declaration = 0;
-    current_frame_list[0] = findContext("global");
+    // Fichier de sortie
     if (!output_file)
     {
         CHK_NULL(output_file = fopen(OUTPUT_NAME, "w"));
     }
+
+    size_t nb_const = 0;                                           //< Nombre de constantes dans le programme
+    size_t nb_used_const = 0;                                      //< Nombre de constantes utilisées
+    size_t current_frame = 0;                                      //< Inutile?
+    struct stack_frame current_frame_list[MAX_NESTED_DECLARATION]; //< Liste de contextes
+    current_frame_list[0] = findContext("global");                 //< Contexte global
+    size_t nb_nested_declaration = 0;                              //< Niveau de déclaration imbriquée
 
     // Segment data
     fprintf(output_file, ".data\n\n");
@@ -39,11 +37,13 @@ void translator()
             fprintf(output_file, "const_%ld: .asciiz \"%s\"\n", nb_const++, global_code[i].res.qval.value);
         }
     }
+
     // Segment text
     fprintf(output_file, "\n.text\n\n");
     fprintf(output_file, "addi $sp, $sp, -%ld # Empiler contexte global\n", current_frame_list[0].stack_frame_size); // à vérifier
     fprintf(output_file, "la $t0, global_stack\n");
     fprintf(output_file, "sw $sp, 0($t0) # Enregistrer l'adresse du contexte global dans global_stack\n");
+
     for (size_t i = 0; i < next_quad; i++)
     {
         fprintf(output_file, "Label%ld:\n", i);
@@ -118,8 +118,10 @@ void translator()
             nb_nested_declaration--;
             break;
         case Q_CALL:
+            nb_used_const = functionCall(i, nb_used_const, current_frame_list, nb_nested_declaration);
             break;
         case Q_RETURN:
+            nb_used_const = return_(i, nb_used_const, current_frame_list, nb_nested_declaration);
             break;
         case Q_EXIT:
             nb_used_const = exit_(i, nb_used_const, current_frame_list, nb_nested_declaration);
@@ -503,7 +505,7 @@ size_t arrayGet(int i, size_t nb_used_const, struct stack_frame *current_frame_l
     // Adresse du tableau dans $t0
     if ((offset = isInContext(global_code[i].op1.qval.value, current_frame_list[0])) != -1) // Tableau dans le contexte global
     {
-        fprintf(output_file, "lw $t1, global_stack\n");    // Charger l'adresse du pointeur vers le contexte global
+        fprintf(output_file, "lw $t1, global_stack\n");      // Charger l'adresse du pointeur vers le contexte global
         fprintf(output_file, "addi $t0, $t1, %d\n", offset); // Charger l'adresse du tableau dans $t0
     }
     else
@@ -544,7 +546,7 @@ size_t arrayGet(int i, size_t nb_used_const, struct stack_frame *current_frame_l
     fprintf(output_file, "mul $t2, $t2, %d  # Convertir l'offset en octet\n", SIZE_MIPS_WORD);
     fprintf(output_file, "add $t0, $t0, $t2 # Adresse de l'élément du tableau\n");
     fprintf(output_file, "lw $t3, 0($t0)    # Charger la valeur dans $t3\n");
-    
+
     if ((offset = isInContext(global_code[i].res.qval.value, current_frame_list[0])) != -1) // Variable dans le contexte global
     {
         fprintf(output_file, "lw $t1, global_stack # Charger l'adresse du pointeur vers le contexte global\n");
@@ -563,5 +565,33 @@ size_t functionBegin(int i, size_t nb_used_const, struct stack_frame *current_fr
 {
     fprintf(output_file, "%s:\n", global_code[i].res.qval.value);
     current_frame_list[++nb_nested_declaration] = findContext(global_code[i].res.qval.value);
+    return nb_used_const;
+}
+
+size_t functionCall(int i, size_t nb_used_const, struct stack_frame *current_frame_list, size_t nb_nested_declaration)
+{
+    // Changer de contexte
+    // current_frame++; // ???
+
+    // Agrandir la pile
+    if (global_code[i].res.kind != QO_ADDR) // Le nombre d'arguments est complété à posteriori par complete donc QO_ADDR
+    {
+        printError("Nombre d'argument inconnu");
+        exit(1);
+    }
+    fprintf(output_file, "addi $sp, $sp, -%ld # Agrandir la pile (appel de fonction)\n", global_code[i].res.qval.addr);
+
+    return nb_used_const;
+}
+
+size_t return_(int i, size_t nb_used_const, struct stack_frame *current_frame_list, size_t nb_nested_declaration)
+{
+    // Statut -> on génère déjà un Q_AFFECT qui place la bonne valeur dans "?"
+
+    // Rétrécir la pile
+    fprintf(output_file, "add $sp, $sp, %ld # Rétrécir la pile (appel de fonction)\n", 0); // Comment récupérer le nombre d'arg de la fonction??
+
+    nb_nested_declaration--; // Sortir d'un niveau de déclaration imbriquée
+
     return nb_used_const;
 }

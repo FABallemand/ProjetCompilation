@@ -1,16 +1,20 @@
 declare tab[4];
 
-if test 4 -gt 3 then
-    echo "test" 1;
+if test 4 -le 3 then
+    echo "if" 1 "\n";
     tab[0] = $( expr 1 + 2)
-elif test 3 -lt 2 then
-    echo "test" 2;
+elif test 3 -gt 2 then
+    echo "elif" 2 "\n";
+    tab[0] = $( expr 2 + 2);
     if test 0 -gt 5 then
-        echo "test" 25;
+        echo "if" 3 "\n";
         tab[1] = $( expr 1 + 2)
     fi;
-    tab[(2 + 2)] = $( expr 1 + 2)
+    tab[(0 + 1)] = $( expr 2 + 2)
 else
-    echo "test" 3
+    echo "else" 4 "\n"
 fi;
+
+echo ${tab[0]} "\n";
+echo ${tab[1]} "\n";
 exit

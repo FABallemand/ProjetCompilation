@@ -46,11 +46,11 @@ error_not_int:
 	syscall                         #
 
 error_overflow:
-	li $v0, 4			   #
+	li $v0, 4			       #
 	la $a0, error_overflow_msg # Charger adresse du message d'erreur
-	syscall                #
-	li $v0, 10             #
-	syscall                #
+	syscall                    #
+	li $v0, 10                 #
+	syscall                    #
 
 # FUN countchar
 # ARGS:
@@ -704,8 +704,8 @@ echo_string:
 	
 	move $t0, $a0
 	beqz $t0, echo_string_exit # Si aucun argument
-	move $t7, $a0              # Copie du nombre d'arg pour rétablir la taille de la pile
-	li   $t1, 40               # Offset initial des arguments dans la pile (normalement 40 mais vue que au minimum on a 1 argument ça fait 40+4*1 donc 44)
+	move $s1, $a0              # Copie du nombre d'arg pour rétablir la taille de la pile
+	li   $t1, 40               # Offset initial des arguments dans la pile
 	                           # Afficher la première chaine (car si elle est seule on ne rajoutera pas d'espace)
 	mul  $t2, $t0, 4           # Offset de la première chaine par rapport aux sauvergardes des registres
 	add  $t3, $t2, $t1         # Offset de la première chaine
@@ -739,9 +739,9 @@ echo_string_exit:
 	lw   $t1, 4($sp)  # Restaurer $t1
 	lw   $t0, 0($sp)  # Restaurer $t0
 	addi $sp, $sp, 44 # Restaurer $sp
-	mul  $t0, $t7, 4
 	mtlo $zero
-	add  $sp, $sp, $t0 # Réduire la taille de la pile a l'intérieur du echo! Cela permet de s'épargner un quad. A la fin de cette fonction le pointeur de pile est plus grand de $a0*4 
+	mul  $s1, $s1, 4
+	add  $sp, $sp, $s1 # Réduire la taille de la pile a l'intérieur du echo! Cela permet de s'épargner un quad. A la fin de cette fonction le pointeur de pile est plus grand de $a0*4 
 	jr   $ra           # Retour à l'appelant
 #END FUN echo_string
 
@@ -834,6 +834,7 @@ empty_string_exit:
 	lw   $t2, 8($sp)  # Restaurer $t2
 	lw   $t1, 4($sp)  # Restaurer $t1
 	lw   $t0, 0($sp)  # Restaurer $t0
+	addi $sp, $sp, 44
 	jr   $ra		  # Retour à l'appelant
 #END FUN empty_string
 
@@ -871,6 +872,7 @@ not_empty_string_exit:
 	lw   $t2, 8($sp)  # Restaurer $t2
 	lw   $t1, 4($sp)  # Restaurer $t1
 	lw   $t0, 0($sp)  # Restaurer $t0
+	addi $sp, $sp, 44
 	jr   $ra		  # Retour à l'appelant
 #END FUN not_empty_string
 
@@ -917,6 +919,7 @@ equal_string_exit:
 	lw   $t2, 8($sp)  # Restaurer $t2
 	lw   $t1, 4($sp)  # Restaurer $t1
 	lw   $t0, 0($sp)  # Restaurer $t0
+	addi $sp, $sp, 44
 	jr   $ra		  # Retour à l'appelant
 #END FUN equal_string
 
@@ -963,5 +966,6 @@ not_equal_string_exit:
 	lw   $t2, 8($sp)  # Restaurer $t2
 	lw   $t1, 4($sp)  # Restaurer $t1
 	lw   $t0, 0($sp)  # Restaurer $t0
+	addi $sp, $sp, 44
 	jr   $ra		  # Retour à l'appelant
 #END FUN not_equal_string

@@ -1,12 +1,17 @@
-declare tab[4];
+declare tab[2];
 
 if test 4 -gt 3 then
-    echo "test" 1;
+    echo "if" 1 "\n";
     tab[0] = $( expr 1 + 2)
 elif test 3 -lt 2 then
-    echo "test" 2;
-    tab[0] = $( expr 1 + 2)
+    echo "elif" 2 "\n";
+    tab[1] = $( expr 1 + 1)
 else
-    echo "test" 2
+    echo "else" 3 "\n";
+    tab[1] = $( expr 1 + 2)
 fi;
+
+echo ${tab[0]} "\n";
+echo ${tab[1]} "\n";
+
 exit
