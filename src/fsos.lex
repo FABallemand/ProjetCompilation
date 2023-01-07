@@ -4,6 +4,7 @@
     
     #include "quad.h"
     #include "bsos.tab.h"
+    #include "error_handling.h"
 
     #include "error_handling.h"
 
@@ -89,7 +90,7 @@ exit return EXIT;
 
 [[:space:]] ;
 
-. printf("ah bon ?\n"); // xD
+. {printError("Unité lexicale incorrecte"); exit(1);}
 
 %%
 

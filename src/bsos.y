@@ -81,7 +81,7 @@ initialisation
 : %empty
 {
     if(DEBUG)
-        printRule("empty");
+        printRule("empty (initialisation)");
     pushContext();
     newName(S_GLOBAL, status, VAR, 0);
     genCode(quad_new(Q_AFFECT, quadop_cst(zero), quadop_empty(), quadop_var(status)));
@@ -847,7 +847,7 @@ produit_entier
 ;
 
 operande_entier
-: DOLLAR OBRA ID CBRA //fait
+: DOLLAR OBRA ID CBRA
 {
     if(DEBUG)
         printRule("DOLLAR OBRA ID CBRA");
@@ -860,7 +860,7 @@ operande_entier
     }
     $$.result = quadop_var($3);
 }
-| DOLLAR OBRA ID OABRA operande_entier CABRA CBRA //fait
+| DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
 {
     if(DEBUG)
         printRule("DOLLAR OBRA ID OABRA operande_entier CABRA CBRA");
@@ -885,7 +885,7 @@ operande_entier
     genCode(quad_new(Q_ARRAY_GET, quadop_var($3), $5.result, res));
     $$.result = res;
 }
-| DOLLAR INTEGER //fait
+| DOLLAR INTEGER
 {
     if(DEBUG)
         printRule("DOLLAR INTEGER");
@@ -908,7 +908,7 @@ operande_entier
     }
     $$.result = quadop_var($2);
 }
-| PLUS DOLLAR OBRA ID CBRA //Fait
+| PLUS DOLLAR OBRA ID CBRA
 {
     if(DEBUG)
         printRule("PLUS DOLLAR OBRA ID CBRA");
@@ -921,7 +921,7 @@ operande_entier
     }
     $$.result = quadop_var($4);
 }
-| MINUS DOLLAR OBRA ID CBRA %prec UMINUS //fait
+| MINUS DOLLAR OBRA ID CBRA %prec UMINUS
 {
     if(DEBUG)
         printRule("MINUS DOLLAR OBRA ID CBRA %prec UMINUS");
@@ -936,7 +936,7 @@ operande_entier
     genCode(quad_new(Q_SUB, quadop_cst(zero), quadop_var($4), res));
     $$.result = res;
 }
-| PLUS DOLLAR OBRA ID OABRA operande_entier CABRA CBRA //Fait
+| PLUS DOLLAR OBRA ID OABRA operande_entier CABRA CBRA
 {
     if(DEBUG)
         printRule("PLUS DOLLAR OBRA ID OABRA operande_entier CABRA CBRA");
@@ -961,7 +961,7 @@ operande_entier
     genCode(quad_new(Q_ARRAY_GET, quadop_var($4), $6.result, res));
     $$.result = res;
 }
-| MINUS DOLLAR OBRA ID OABRA operande_entier CABRA CBRA %prec UMINUS //fait
+| MINUS DOLLAR OBRA ID OABRA operande_entier CABRA CBRA %prec UMINUS
 {
     if(DEBUG)
         printRule("MINUS DOLLAR OBRA ID OABRA operande_entier CABRA CBRA %prec UMINUS");
@@ -987,7 +987,7 @@ operande_entier
     genCode(quad_new(Q_SUB, quadop_cst(zero), res, res));
     $$.result = res;
 }
-| PLUS DOLLAR INTEGER //fait
+| PLUS DOLLAR INTEGER
 {
     if(DEBUG)
         printRule("PLUS DOLLAR INTEGER");
@@ -1012,7 +1012,7 @@ operande_entier
     // verifier qu'on est bien dans une fonction car pas d'argument au programme...
     $$.result = quadop_var($3);
 }
-| MINUS DOLLAR INTEGER %prec UMINUS //fait 
+| MINUS DOLLAR INTEGER %prec UMINUS 
 {
     if(DEBUG)
         printRule("MINUS DOLLAR INTEGER %prec UMINUS");
@@ -1038,28 +1038,28 @@ operande_entier
     genCode(quad_new(Q_SUB, quadop_cst(zero), quadop_var($3), res));
     $$.result = res;
 }
-| INTEGER //Fait
+| INTEGER
 {
     if(DEBUG)
         printRule("INTEGER");
     $$.firstquad = next_quad;
     $$.result = quadop_cst($1);
 }
-| PLUS INTEGER //Fait
+| PLUS INTEGER
 {
     if(DEBUG)
         printRule("PLUS INTEGER");
     $$.firstquad = next_quad;
     $$.result = quadop_cst($2);
 }
-| MINUS INTEGER %prec UMINUS //Fait
+| MINUS INTEGER %prec UMINUS
 {
     if(DEBUG)
         printRule("MINUS INTEGER %prec UMINUS");
     $$.firstquad = next_quad;
     $$.result = quadop_cst(strcat("-", $2));
 }
-| OPAR somme_entiere CPAR //Fait
+| OPAR somme_entiere CPAR
 {
     if(DEBUG)
         printRule("OPAR somme_entiere CPAR");

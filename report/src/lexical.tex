@@ -1,0 +1,53 @@
+\section{Analyse Lexicale}
+
+\paragraph{}
+La première étape de la compilation consiste à analyser les unités lexicales contenues dans un programme, c'est à dire découper le programme en blocs de taille la plus petite possible selon la syntaxe du langage de programmation.
+
+\paragraph{}
+L'analyse lexicale est réalisée à l'aide de \textsf{Flex}. Cet outil permet de définir des unités lexicales sous formes d'expressions rationnelles et d'associer une action à chacune d'elles.
+
+\paragraph{}
+On peut donc définir les unités lexicales utilisées dans un programme écrit en SoS. Dans le fichier \textsf{fsos.lex}, on définit tout d'abord les unités lexicales réservées au langage:
+\begin{itemize}
+    \item Les symboles (\textbf{+}, \textbf{-}, \textbf{*}, \textbf{()}...)
+    \item Les mots clés (\textbf{if}, \textbf{for}, \textbf{test}...)
+\end{itemize}
+Puis les unités lexicales définies par l'utilisateur:
+\begin{itemize}
+    \item Chaines de caractères
+    \item Nombres
+    \item Identifiants de variables ou de fonctions
+    \item Commentaires
+    \item Espaces et tabulations
+\end{itemize}
+
+\paragraph{}
+On associe ensuite une action à chaque unité lexicale.\\
+Pour les unités lexicales réservées au langages, cela consiste à renvoyer un \textit{TOKEN}, c'est à dire une valeur numérique correspondant à une unité lexicale.
+\begin{figure}[H]
+\begin{lstlisting}
+\+ return PLUS;
+if return IF;
+\end{lstlisting}
+\caption{Exemple d'action \textsf{Flex} pour le symbole \textbf{+} et le mot clé \textbf{if}}
+\end{figure}
+
+Les unités lexicales ayant une valeur définie par l'utilisateur doivent être ignorées ou transmises (à l'aide de \textsf{yylval}, \textsf{yytext} ainsi qu'un TOKEN).
+\begin{figure}[H]
+\begin{lstlisting}
+#[^\n]*\n ;
+(([1-9][0-9]*)|0) {yylval.val = strdup(yytext); return INTEGER;}
+\end{lstlisting}
+\caption{Exemple d'action \textsf{Flex} pour les commentaires et les entiers}
+\end{figure}
+
+\noindent
+\begin{minipage}[!hc]{0.12\textwidth}
+   \textbf{Remarque}
+\end{minipage}
+\vrule\enskip\vrule\quad\begin{minipage}{\dimexpr 0.87\textwidth-0.8pt-1.5em}
+Les unités lexicales qui ne sont pas reconnues par l'analyseur lexical sont considérées incorrectes pour un programme SoS et mettent fin à la compilation.
+\end{minipage}
+
+\paragraph{}
+Les valeurs renvoyées par l'analyseur lexical \textsf{Flex} sont transmises à l'analyseur syntaxique.

@@ -1,0 +1,73 @@
+\section{Analyse Syntaxique}
+
+\paragraph{}
+Après avoir déterminé les blocs de taille minimale composant le programme, il faut vérifier s'ils sont assemblés de façon correcte. C'est à dire si le programmeur a écrit des instructions correctes et agencées convenablement selon la grammaire du langage de programmation.
+
+\paragraph{}
+L'analyse syntaxique est réalisée à l'aide de \textsf{Bison}, un outil permettant de définir la grammaire d'un langage de programmation et de définir des actions à effectuer pour chaque règle rencontrée dans le programme.
+
+\paragraph{}
+L'exemple de règle ci-dessous correspond à la multiplication de deux entiers. On y trouve:
+\begin{itemize}
+    \item Une instruction qui permet d'afficher la règle lorsqu'elle est utilisée (utilisé pour du debuggage)
+    \item La création d'une opérande de type variable utilisable dans une instruction de code intermédiaire
+    \item Un appel à la fonction \textsf{genCode} qui permet de générer le code intermédiaire (code à trois adresses) correspondant.
+    \item Des affectations de valeurs de l'élément de droite à l'élément de gauche de la règle selon leur type
+\end{itemize}
+\begin{figure}[H]
+\begin{lstlisting}
+produit_entier
+: produit_entier STAR operande_entier
+{
+    if(DEBUG)
+        printRule("produit_entier STAR operande_entier");
+    $$.firstquad = $1.firstquad;
+    struct quadop result = quadop_var(newtemp());
+    genCode(quad_new(Q_MUL, $1.result, $3.result, result));
+    $$.result = result;
+}
+\end{lstlisting}
+\caption{Exemple d'action \textsf{Bison} pour la multiplication de deux entiers}
+\end{figure}
+
+\paragraph{}
+La première partie du fichier \textsf{bsos.y} permet de définir des propriétés de la grammaire (priorité des opérations) ainsi que des outils pour l'analyse syntaxique (TOKEN et types d'éléments de règles).\\
+Les types définis dans la section \textsf{\%union} permettent d'utiliser chaque élément de règle comme une structure pour y stocker des information à porpager lors de la compilation.
+\begin{figure}[H]
+\begin{lstlisting}
+%union{
+    struct {
+        size_t firstquad;
+        struct quadop result;
+    } expr_val;
+}
+
+%type <expr_val> produit_entier
+\end{lstlisting}
+\caption{Déclaration du type \textsf{expr\_val} dans le fichier \textsf{Bison}}
+\end{figure}
+Dans l'exemple précédent on utilise \textsf{dollar dollar} pour accéder aux champs de \textsf{produit\_entier} et y affecter les valeurs de l'addresse du premier \textit{quadruplet} (code à trois adresses) correspondant à la multiplication et le resultat de cette multiplication.\\
+
+\paragraph{}
+La partie la plus importante de fichier \textsf{Bison} (la deuxième) contient toutes les règles de la grammaire et leurs actions.\\
+\`A cette étape de la compilation, on génère du code intermédiaire grâce à la fonction \textsf{genCode}. Les différents types de quadruplets (\textsf{Q\_ADD}, \textsf{Q\_EQUAL\_STRING}, \textsf{Q\_GOTO}...) et types d'opérandes de quadruplets (\textsf{QO\_CST}, \textsf{QO\_VAR}, \textsf{QO\_UNKNOWN}...) sont définis dans le fichiers \textsf{quad.h}.\\
+L'adresse d'une instruction correspond à sa position dans un tableau de quadruplets contenant toutes les instructions du programme. Certaines instructions, notamment les \textsf{Q\_GOTO}, contiennent des opérandes qui ne sont pas connues au moment où elles sont compilées. Il faut donc les enregistrer dans le quadruplet comme \textsf{QO\_UNKNOWN}, les enregistrer dans le membre gauche de la règle dans un liste d'opérandes à compléter (\textsf{next}, \textsf{ltrue} ou \textsf{lfalse}) et les compléter par la suite grâce à la fonction \textsf{complete}.
+\paragraph{}
+C'est aussi à cette étape de la compilation que la table des symboles est créée. Cette structure a pour but d'enregistrer les variables déclarées dans le programme SoS à compiler ainsi que leur portées. On utilise pour cela une pile de contextes (voir \textsf{symbol\_table.h} et \textsf{symbol\_table.c}). Dans l'exemple ci-dessous, on constate que la fonction \textsf{pushContext} est utilisée pour empiler le contexte global.
+\begin{figure}[H]
+\begin{lstlisting}
+initialisation 
+: %empty
+{
+    if(DEBUG)
+        printRule("empty (initialisation)");
+    pushContext();
+    newName(S_GLOBAL, status, VAR, 0);
+    genCode(quad_new(Q_AFFECT, quadop_cst(zero), quadop_empty(), quadop_var(status)));
+}
+\end{lstlisting}
+\caption{Actions réalisées pour initialiser un programme lors de l'analyse syntaxique}
+\end{figure}
+On remarque aussi dans l'exemple ci-dessus l'appel à la fonction \textsf{newName} qui permet de créer une nouvelle variable dans la table des symboles, ici pour créer la variable \textsf{?} (identifiant invalide pour un utilisateur)qui contient le status (le code de retour du programme). Une stratégie similaire est utilisée pour le code retour d'une fonction.\\
+La fonction \textsf{newName} est aussi utilisée pour créer des variables temporaires dans le table des symboles qui ont elles aussi un identifiant invalide pour un utilisateur afin d'éviter tout conflit entre varibles.\\
+Par la suite, on peut vérifier si une variable est dans le contexte voulu grâce à la fonction \textsf{lookUp} et en précisant le niveau de contexte souhaité (courrant et/ou global).
