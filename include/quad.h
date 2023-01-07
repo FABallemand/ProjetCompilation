@@ -117,6 +117,7 @@ struct quad
         Q_AFFECT,
         Q_AFFECT_STACK,
         Q_GOTO,
+        Q_GOTO_FUN,
         Q_ECHO,
         Q_READ,
         Q_FUNCTION_BEGIN,

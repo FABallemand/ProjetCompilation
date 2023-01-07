@@ -1,15 +1,14 @@
-echo "Avant les fonctions";
-
+echo "Avant les fonctions\n";
 fonction1()
 {
     return
 };
-
 fonction2()
 {
     return 12
 };
-
-echo "Apres les fonctions";
-
+fonction1;
+fonction2;
+echo $? "\n";
+echo "Apres les fonctions\n";
 exit

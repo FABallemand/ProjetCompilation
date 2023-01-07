@@ -1,3 +1,4 @@
 a = 17;
 tmp = $( expr 1 + ${a} );
+echo ${tmp} "\n";
 exit

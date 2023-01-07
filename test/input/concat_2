@@ -1,2 +1,3 @@
 toto = 12 14 28;
+echo ${toto} "\n";
 exit

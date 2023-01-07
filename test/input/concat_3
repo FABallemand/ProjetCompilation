@@ -1,4 +1,5 @@
 toto = "Bonjour, comment";
 titi = "ça va ?";
 tata = ${toto} ${titi};
+echo ${tata} "\n";
 exit

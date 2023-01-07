@@ -1,2 +1,3 @@
 toto = "AZ" " salut";
+echo ${toto} "\n";
 exit

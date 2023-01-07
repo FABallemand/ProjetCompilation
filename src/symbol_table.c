@@ -126,7 +126,6 @@ size_t countArg()
     // Compter les arguments
     for (int i = 0; i < ctx->current_symb; i++)
     {
-        printf("%d\n", i);
         if (ctx->context[i].type == ARG && count < atoi(ctx->context[i].name)) // le nombre d'argument d'une fonction c'est le plus haut numéro d'argument.
         {
             count = atoi(ctx->context[i].name);
@@ -181,6 +180,8 @@ void createNewStackFrame(char *name, struct stack *stack)
 
 void setNbArgProgramme(size_t nb)
 {
+    if (DEBUG)
+        printCall("setNbArgProgramme");
     nb_arg_programme = nb;
 }
 
@@ -230,6 +231,8 @@ void printSymbol(struct symbol s)
 
 struct stack_frame findContext(char *var)
 {
+    if (DEBUG)
+        printCall("findContext");
     for (int i = 0; i < NB_MAX_STACK_FRAME; i++)
     {
         if (strcmp(stack_frame_list[i].context_name, var) == 0)
@@ -243,6 +246,8 @@ struct stack_frame findContext(char *var)
 
 int isInContext(char *var, struct stack_frame context)
 {
+    if (DEBUG)
+        printCall("isInContext");
     int offset = 0;
     for (int i = 0; i < context.nb_symb; i++)
     {

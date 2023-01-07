@@ -1,2 +1,3 @@
 tmp = $( expr 1 + 2 );
+echo ${tmp} "\n";
 exit

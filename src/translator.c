@@ -1,10 +1,13 @@
 #include "translator.h"
 
 FILE *output_file = NULL;
+struct stack_frame calling_func;
 
 void translator()
 {
     // Fichier de sortie
+    if (DEBUG)
+        printCall("translator");
     if (!output_file)
     {
         CHK_NULL(output_file = fopen(OUTPUT_NAME, "w"));
@@ -20,6 +23,7 @@ void translator()
     // Segment data
     fprintf(output_file, ".data\n\n");
     fprintf(output_file, "global_stack: .space 4\n");
+    fprintf(output_file, "prev_stack: .space 4 # Enregistre l'emplacement dans la pile de stack de a fonction appelante (utile pour le passage d'arguments locaux)\n");
     for (size_t i = 0; i < next_quad; i++)
     {
         if (global_code[i].kind == Q_GOTO)
@@ -106,6 +110,10 @@ void translator()
         case Q_GOTO:
             fprintf(output_file, "j Label%ld\n", global_code[i].res.qval.addr);
             break;
+        case Q_GOTO_FUN:
+            nb_nested_declaration--;
+            fprintf(output_file, "jal %s\n", global_code[i].res.qval.value);
+            break;
         case Q_ECHO:
             nb_used_const = echo_(i, nb_used_const, current_frame_list, nb_nested_declaration);
             break;
@@ -113,6 +121,7 @@ void translator()
             nb_used_const = read_(i, nb_used_const, current_frame_list, nb_nested_declaration);
             break;
         case Q_FUNCTION_BEGIN:
+            nb_nested_declaration++;
             nb_used_const = functionBegin(i, nb_used_const, current_frame_list, nb_nested_declaration);
             break;
         case Q_FUNCTION_END:
@@ -120,6 +129,7 @@ void translator()
             break;
         case Q_CALL:
             nb_used_const = functionCall(i, nb_used_const, current_frame_list, nb_nested_declaration);
+            current_frame_list[++nb_nested_declaration] = findContext(global_code[i].op1.qval.value);
             break;
         case Q_RETURN:
             nb_used_const = return_(i, nb_used_const, current_frame_list, nb_nested_declaration);
@@ -141,6 +151,8 @@ void translator()
 
 size_t echo_(int i, size_t nb_used_const, struct stack_frame *current_frame_list, size_t nb_nested_declaration)
 {
+    if (DEBUG)
+        printCall("echo_");
     if (global_code[i].op1.kind == QO_CST)
     {
         fprintf(output_file, "la $a0, const_%ld\n", nb_used_const++); // Charger l'adresse de l'unique argument d'echo
@@ -160,7 +172,8 @@ size_t echo_(int i, size_t nb_used_const, struct stack_frame *current_frame_list
 
 size_t read_(int i, size_t nb_used_const, struct stack_frame* current_frame_list, size_t nb_nested_declaration)
 {
-
+    if (DEBUG)
+        printCall("read_");
     fprintf(output_file,"jal read_string\n");
     fprintf(output_file,"move $t0, $v0\n");
     int offset = 0;
@@ -220,13 +233,53 @@ size_t read_(int i, size_t nb_used_const, struct stack_frame* current_frame_list
 
 size_t affect(int i, size_t nb_used_const, struct stack_frame *current_frame_list, size_t nb_nested_declaration)
 {
+    if (DEBUG)
+        printCall("affect");
     int offset = 0;
+
     // Recherche constante à affecter (à droite du égal)
+    if (global_code[i].res.kind == QO_VAR && global_code[i].res.qval.value[0] >= 48 && global_code[i].res.qval.value[0] <= 57) //si on affect dans un argument
+    {
+        if (global_code[i].op1.kind == QO_CST || global_code[i].op1.kind == QO_STRING)
+        {
+            fprintf(output_file, "la $t0, const_%ld\n", nb_used_const++); // Charger l'adresse de la valeur dans $t0
+        }// Recherche variable à affecter (à droite du égal)
+        else
+        {
+            if ((offset = isInContext(global_code[i].op1.qval.value, calling_func)) != -1) // Variable dans le contexte courant
+            {
+                fprintf(output_file, "lw $t1, prev_stack\n");
+                fprintf(output_file, "lw $t0, %d($t1)\n", offset); // Charger la valeur de la variable
+            }
+            else if ((offset = isInContext(global_code[i].op1.qval.value, current_frame_list[0])) != -1) // Variable dans le contexte global
+            {
+                fprintf(output_file, "lw $t1, global_stack\n");    // Charger l'adresse du pointeur vers le contexte global
+                fprintf(output_file, "lw $t0, %d($t1)\n", offset); // Charger la valeur de la variable
+            }
+            else
+            {
+                printError("Variable inconnue dans les contextes accessibles");
+                exit(1);
+            }
+        }
+
+        if ((offset = isInContext(global_code[i].res.qval.value, current_frame_list[nb_nested_declaration])) != -1) // Variable dans le contexte courant
+        {
+            fprintf(output_file, "sw $t0, %d($sp)\n", offset); // Affectation
+        }
+        else
+        {
+            printError("Variable inconnue dans les contextes accessibles");
+            exit(1);
+        }
+        return nb_used_const;
+    }
+
+
     if (global_code[i].op1.kind == QO_CST || global_code[i].op1.kind == QO_STRING)
     {
         fprintf(output_file, "la $t0, const_%ld\n", nb_used_const++); // Charger l'adresse de la valeur dans $t0
-    }
-    // Recherche variable à affecter (à droite du égal)
+    }// Recherche variable à affecter (à droite du égal)
     else
     {
         if ((offset = isInContext(global_code[i].op1.qval.value, current_frame_list[nb_nested_declaration])) != -1) // Variable dans le contexte courant
@@ -302,6 +355,8 @@ size_t affect(int i, size_t nb_used_const, struct stack_frame *current_frame_lis
 
 size_t affectStack(int i, size_t nb_used_const, struct stack_frame *current_frame_list, size_t nb_nested_declaration)
 {
+    if (DEBUG)
+        printCall("affectStack");
     int offset = 0;
     // Recherche constante à affecter (à droite du égal)
     if (global_code[i].op1.kind == QO_CST || global_code[i].op1.kind == QO_STRING)
@@ -337,6 +392,8 @@ size_t affectStack(int i, size_t nb_used_const, struct stack_frame *current_fram
 
 size_t exit_(int i, size_t nb_used_const, struct stack_frame *current_frame_list, size_t nb_nested_declaration)
 {
+    if (DEBUG)
+        printCall("exit_");
     int offset = 0;
 
     // recuperer le code de retour dans $t0
@@ -379,6 +436,8 @@ size_t exit_(int i, size_t nb_used_const, struct stack_frame *current_frame_list
 
 size_t operation(int i, size_t nb_used_const, struct stack_frame *current_frame_list, size_t nb_nested_declaration, char *arithm_op)
 {
+    if (DEBUG)
+        printCall("operation");
     //$t0 adresse de chaine src1
     //$t2 adresse de la chaine src2
 
@@ -434,7 +493,7 @@ size_t operation(int i, size_t nb_used_const, struct stack_frame *current_frame_
     fprintf(output_file, "move $a1, $t2\n");
     fprintf(output_file, "jal %s_string\n", arithm_op);
 
-    if ((offset = isInContext(global_code[i].res.qval.value, current_frame_list[nb_nested_declaration])) != -1) // Variable dans le contexte courant
+    if ((offset = isInContext(global_code[i].res.qval.value, current_frame_list[0])) != -1) // Variable dans le contexte courant
     {
         fprintf(output_file, "lw $t1, global_stack\n");
         fprintf(output_file, "sw $v0, %d($t1)\n", offset); // Charger la valeur de la variable
@@ -447,7 +506,8 @@ size_t comparison(int i, size_t nb_used_const, struct stack_frame *current_frame
 {
     //$t0 adresse de chaine src1
     //$t2 adresse de la chaine src2
-
+    if (DEBUG)
+        printCall("comparaison");
     int offset = 0;
 
     // Première opérande
@@ -509,6 +569,8 @@ size_t comparison(int i, size_t nb_used_const, struct stack_frame *current_frame
 
 size_t stringComparison(int i, size_t nb_used_const, struct stack_frame *current_frame_list, size_t nb_nested_declaration, char *comp_op)
 {
+    if (DEBUG)
+        printCall("stringComparaison");
     // Première chaine de caractère
     if (global_code[i].op1.kind == QO_CST || global_code[i].op1.kind == QO_STRING)
     {
@@ -539,6 +601,8 @@ size_t stringComparison(int i, size_t nb_used_const, struct stack_frame *current
 
 size_t stringTest(int i, size_t nb_used_const, struct stack_frame *current_frame_list, size_t nb_nested_declaration, char *test_op)
 {
+    if (DEBUG)
+        printCall("stringTest");
     // Chaine de caractère à tester
     if (global_code[i].op1.kind == QO_CST || global_code[i].op1.kind == QO_STRING)
     {
@@ -558,6 +622,8 @@ size_t stringTest(int i, size_t nb_used_const, struct stack_frame *current_frame
 
 size_t arrayGet(int i, size_t nb_used_const, struct stack_frame *current_frame_list, size_t nb_nested_declaration)
 {
+    if (DEBUG)
+        printCall("arrayGet");
     int offset;
 
     // $t0 Adresse du tableau
@@ -624,35 +690,40 @@ size_t arrayGet(int i, size_t nb_used_const, struct stack_frame *current_frame_l
 
 size_t functionBegin(int i, size_t nb_used_const, struct stack_frame *current_frame_list, size_t nb_nested_declaration)
 {
+    if (DEBUG)
+        printCall("functionBegin");
     fprintf(output_file, "%s:\n", global_code[i].res.qval.value);
-    current_frame_list[++nb_nested_declaration] = findContext(global_code[i].res.qval.value);
+    current_frame_list[nb_nested_declaration] = findContext(global_code[i].res.qval.value);
+    fprintf(output_file, "sw $ra, %ld($sp) # Savegarder $ra\n",current_frame_list[nb_nested_declaration].stack_frame_size);
     return nb_used_const;
 }
 
 size_t functionCall(int i, size_t nb_used_const, struct stack_frame *current_frame_list, size_t nb_nested_declaration)
 {
-    // Changer de contexte
-    // current_frame++; // ???
+    if (DEBUG)
+        printCall("functionCall");
+    fprintf(output_file, "la $t0, prev_stack\n");
+    fprintf(output_file, "sw $sp, 0($t0) # on enregistre l'emplacement de la stack appelante\n");
+    calling_func = current_frame_list[nb_nested_declaration];
+    fprintf(output_file, "addi $sp, $sp, -%d # Agrandir la pile pour $ra ATTENTION CETTE CASE MEMOIRE N'EST REMPLIT QUE DANS LA FONCTION\n", SIZE_MIPS_WORD);
+    struct stack_frame function_frame = findContext(global_code[i].op1.qval.value);
+    fprintf(output_file, "addi $sp, $sp, -%ld # Agrandir la pile (appel de fonction)\n", function_frame.stack_frame_size);
 
-    // Agrandir la pile
-    if (global_code[i].res.kind != QO_ADDR) // Le nombre d'arguments est complété à posteriori par complete donc QO_ADDR
-    {
-        printError("Nombre d'argument inconnu");
-        exit(1);
-    }
-    fprintf(output_file, "addi $sp, $sp, -%ld # Agrandir la pile (appel de fonction)\n", global_code[i].res.qval.addr);
 
     return nb_used_const;
 }
 
 size_t return_(int i, size_t nb_used_const, struct stack_frame *current_frame_list, size_t nb_nested_declaration)
 {
+    if (DEBUG)
+        printCall("return_");
     // Statut -> on génère déjà un Q_AFFECT qui place la bonne valeur dans "?"
 
     // Rétrécir la pile
-    fprintf(output_file, "add $sp, $sp, %d # Rétrécir la pile (appel de fonction)\n", 0); // Comment récupérer le nombre d'arg de la fonction??
-
-    nb_nested_declaration--; // Sortir d'un niveau de déclaration imbriquée
+    fprintf(output_file, "addi $sp, $sp, %ld # Rétrécir la pile (appel de fonction)\n", current_frame_list[nb_nested_declaration].stack_frame_size); // Comment récupérer le nombre d'arg de la fonction??
+    fprintf(output_file, "lw $ra, 0($sp) # Savegarder $ra\n");
+    fprintf(output_file, "addi $sp, $sp, %d # Rétrécir la pile pour $ra\n", SIZE_MIPS_WORD);
+    fprintf(output_file, "jr $ra # retour à l'appelant\n");
 
     return nb_used_const;
 }

@@ -246,7 +246,7 @@ instruction
     {
         newName(S_GLOBAL, $2, VAR, 0);
     }
-
+    $$.firstquad = next_quad;
     genCode(quad_new(Q_READ, quadop_empty(),  quadop_empty(), quadop_var($2)));
 }
 | READ ID OABRA operande_entier CABRA
@@ -270,7 +270,7 @@ instruction
         printError("Accès interdit (indice %ld en dehors du tableau)", atoi($4.result.qval.value));
         exit(1);
     }
-
+    $$.firstquad = next_quad;
     genCode(quad_new(Q_READ, quadop_empty(), $4.result, quadop_var($2)));
 }
 | declaration_de_fonction
@@ -776,7 +776,7 @@ operande
 {
     if(DEBUG)
         printRule("DOLLAR OPAR appel_de_fonction CPAR");
-    $$.firstquad = next_quad;
+    $$.firstquad = $3.firstquad;
     $$.result = $3.result;
 }
 ;
@@ -1143,12 +1143,12 @@ appel_de_fonction
         printError("Symbole %s n'est pas une fonction", $1);
         exit(1);
     }
-    $<inst_val>$.next = createList(next_quad);
-    genCode(quad_new(Q_CALL, quadop_var($1), quadop_empty(), quadop_unknown()));
+    $<inst_val>$.firstquad = next_quad;
+    genCode(quad_new(Q_CALL, quadop_var($1), quadop_empty(), quadop_empty()));
 }
 liste_operandes // ici on crée le code pour affecter les variables
 {
-    $$.firstquad = $3.firstquad;
+    $$.firstquad = $<inst_val>2.firstquad; // quasiment sur que c'est faux ici.
     // Verifier que l'utilisateur a mis le bon nombre d'argument
     struct symbol *id = lookUp(S_GLOBAL, $1);
     if (id->size == -1) // Appel de fonction non résolu (il faut vérifier le nombre d'arguments)
@@ -1160,8 +1160,8 @@ liste_operandes // ici on crée le code pour affecter les variables
         printError("Appel de fonction %s invalide (nombre d'arguments incorrect)", $1);
         exit(1);
     }
+    genCode(quad_new(Q_GOTO_FUN, quadop_empty(), quadop_empty(), quadop_var($1)));
     $$.result = quadop_var(status);
-    complete($<inst_val>2.next, $3.size);
 }
 | ID
 {
@@ -1189,7 +1189,8 @@ liste_operandes // ici on crée le code pour affecter les variables
         exit(1);
     }
     // Agrandir la stack
-        genCode(quad_new(Q_CALL, quadop_var($1), quadop_empty(), quadop_empty()));
+    genCode(quad_new(Q_CALL, quadop_var($1), quadop_empty(), quadop_empty()));
+    genCode(quad_new(Q_GOTO_FUN, quadop_empty(), quadop_empty(), quadop_var($1)));
     $$.result = quadop_var(status);
 }
 ;

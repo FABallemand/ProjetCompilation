@@ -1,0 +1,19 @@
+factoriel()
+{
+    local tmp = $(expr $1 - 1);
+    echo $1 "\n";
+    echo ${tmp} "\n";
+    if test $1 -eq 0 then
+        return 1
+    elif test $1 -eq 1 then
+        return 1
+    fi;
+    tmp = $(factoriel ${tmp});
+    echo ${tmp} "\n";
+    tmp = $(expr ${tmp} * $1);
+    echo ${tmp} "\n";
+    return ${tmp}
+};
+factoriel 5;
+echo "status de fonction :" $? "\n";
+exit

@@ -143,7 +143,7 @@ void printSymbol(struct symbol s);
 void setNbArgProgramme(size_t nb);
 
 /**
- * \brief Retrouve le contexte contenant une variable
+ * \brief Retrouve le contexte ayant le même nom que var
  * 
  * \param var Variable
  * \return struct stack_frame Contexte contenant la variable

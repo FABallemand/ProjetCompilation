@@ -69,11 +69,18 @@ int main(int argc, char **argv)
 
     yylineno = 1;
     int r = yyparse();
-    printf("yytext :%s\n", yytext);
-    printf("yylineno : %d\n", yylineno);
-    printf("-> %d\n", r);
+    if(r == 1){
+        printError("echec de la compilation !\n erreur a la ligne %d : symbole \"%s\" non reconnu", yylineno,yytext);
+        exit(1);
+    }
 
     printAllQuad(); // Afficher le tableau de quadruplets
+
+    if (symbol_table)
+    {
+        printAllStackFrame();
+    }
+
 
     translator(); // Traduction du code intermédiaire en code MIPS
 
@@ -84,10 +91,7 @@ int main(int argc, char **argv)
         fclose(yyin);
     }
     fclose(output_file);
-    if (symbol_table)
-    {
-        printAllStackFrame();
-    }
+
 
     return r;
 }

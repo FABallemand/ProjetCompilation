@@ -1,11 +1,10 @@
-echo "Avant la fonction";
+echo "Avant la fonction\n";
 
 fonction()
 {
     return 1
 };
 
-
-echo "Apres la fonction";
-
+echo "status de fonction :" $(fonction) "\n";
+echo "Apres la fonction\n";
 exit

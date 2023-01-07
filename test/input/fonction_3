@@ -1,0 +1,9 @@
+fonction()
+{
+    echo $1 $2 "\n";
+    return
+};
+
+fonction 12 14;
+echo "status de fonction :" $? "\n";
+exit
