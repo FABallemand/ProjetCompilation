@@ -110,6 +110,7 @@ void translator()
             nb_used_const = echo_(i, nb_used_const, current_frame_list, nb_nested_declaration);
             break;
         case Q_READ:
+            nb_used_const = read_(i, nb_used_const, current_frame_list, nb_nested_declaration);
             break;
         case Q_FUNCTION_BEGIN:
             nb_used_const = functionBegin(i, nb_used_const, current_frame_list, nb_nested_declaration);
@@ -154,6 +155,66 @@ size_t echo_(int i, size_t nb_used_const, struct stack_frame *current_frame_list
     fprintf(output_file, "move $a0, $v0 # Placer le nombre de chaine en argument de fonction\n");
     fprintf(output_file, "jal echo_string # Appeler la fonction echo_string\n");
 
+    return nb_used_const;
+}
+
+size_t read_(int i, size_t nb_used_const, struct stack_frame* current_frame_list, size_t nb_nested_declaration)
+{
+
+    fprintf(output_file,"jal read_string\n");
+    fprintf(output_file,"move $t0, $v0\n");
+    int offset = 0;
+    // Recherche de l'offset dans la variable à affecter (à gauche du égal)
+    if (global_code[i].op2.kind == QO_EMPTY)
+    {
+        fprintf(output_file, "li $t2, 0\n");
+    }
+    else if (global_code[i].op2.kind == QO_CST)
+    {
+        fprintf(output_file, "la $a0, const_%ld\n", nb_used_const++);
+        fprintf(output_file, "jal string_to_int\n"); // Erreur si ce n'est pas un entier
+        fprintf(output_file, "move $t2, $v0\n");
+    }
+    else if (global_code[i].op2.kind == QO_VAR)
+    {
+        if ((offset = isInContext(global_code[i].op2.qval.value, current_frame_list[nb_nested_declaration])) != -1) // Variable dans le contexte courant
+        {
+            fprintf(output_file, "lw $a0, %d($sp)\n", offset); // Charger l'adresse
+            fprintf(output_file, "jal string_to_int\n");       // Erreur si ce n'est pas un entier
+            fprintf(output_file, "move $t2, $v0\n");
+        }
+        else if ((offset = isInContext(global_code[i].op2.qval.value, current_frame_list[0])) != -1) // Variable dans le contexte global
+        {
+            fprintf(output_file, "lw $t1, global_stack\n");
+            fprintf(output_file, "lw $a0, %d($t1)\n", offset); // Charger l'offset
+            fprintf(output_file, "jal string_to_int\n");       // Erreur si ce n'est pas un entier
+            fprintf(output_file, "move $t2, $v0\n");
+        }
+        else
+        {
+            printError("Variable inconnue dans les contextes accessibles");
+            exit(1);
+        }
+    }
+    fprintf(output_file, "mul $t2, $t2, %d\n", SIZE_MIPS_WORD); // Conversion de l'offset MIPS en octet
+
+    // Recherche de variable à affecter (à gauche du égal)
+    if ((offset = isInContext(global_code[i].res.qval.value, current_frame_list[nb_nested_declaration])) != -1) // Variable dans le contexte courant
+    {
+        fprintf(output_file, "add $t2, $t2, $sp\n");       // Combiner les offsets (offset dans la variable et dans la pile)
+        fprintf(output_file, "sw $t0, %d($t2)\n", offset); // Affectation
+    }
+    else if ((offset = isInContext(global_code[i].res.qval.value, current_frame_list[0])) != -1) // Variable dans le contexte global
+    {
+        fprintf(output_file, "lw $t1, global_stack\n");    // Charger l'adresse du pointeur vers le contexte global
+        fprintf(output_file, "add $t1, $t1, $t2\n");       // Combiner les offsets (offset dans la variable et dans la pile)
+        fprintf(output_file, "sw $t0, %d($t1)\n", offset); // Affectation
+    }
+    else
+    {
+        printError("Variable inconnue dans les contextes accessibles");
+        exit(1);
+    }
     return nb_used_const;
 }
 
@@ -589,7 +650,7 @@ size_t return_(int i, size_t nb_used_const, struct stack_frame *current_frame_li
     // Statut -> on génère déjà un Q_AFFECT qui place la bonne valeur dans "?"
 
     // Rétrécir la pile
-    fprintf(output_file, "add $sp, $sp, %ld # Rétrécir la pile (appel de fonction)\n", 0); // Comment récupérer le nombre d'arg de la fonction??
+    fprintf(output_file, "add $sp, $sp, %d # Rétrécir la pile (appel de fonction)\n", 0); // Comment récupérer le nombre d'arg de la fonction??
 
     nb_nested_declaration--; // Sortir d'un niveau de déclaration imbriquée
 

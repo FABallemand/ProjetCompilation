@@ -5,7 +5,7 @@ if test 4 -le 3 then
     tab[0] = $( expr 1 + 2)
 elif test 3 -gt 2 then
     echo "elif" 2 "\n";
-    tab[0] = $( expr 2 + 2);
+    tab[0] = $( expr 2 + 5);
     if test 0 -gt 5 then
         echo "if" 3 "\n";
         tab[1] = $( expr 1 + 2)

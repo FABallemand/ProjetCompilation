@@ -12,6 +12,5 @@ else
 fi;
 
 echo ${tab[0]} "\n";
-echo ${tab[1]} "\n";
 
 exit

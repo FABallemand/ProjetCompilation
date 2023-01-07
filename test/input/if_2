@@ -21,5 +21,4 @@ echo ${tab[0]} "\n";
 echo "tab[1] n\'est pas accessible\n";
 echo ${tab[2]} "\n";
 echo ${tab[3]} "\n";
-
 exit
