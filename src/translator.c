@@ -695,6 +695,7 @@ size_t functionBegin(int i, size_t nb_used_const, struct stack_frame *current_fr
     fprintf(output_file, "%s:\n", global_code[i].res.qval.value);
     current_frame_list[nb_nested_declaration] = findContext(global_code[i].res.qval.value);
     fprintf(output_file, "sw $ra, %ld($sp) # Savegarder $ra\n",current_frame_list[nb_nested_declaration].stack_frame_size);
+    
     return nb_used_const;
 }
 
@@ -705,10 +706,9 @@ size_t functionCall(int i, size_t nb_used_const, struct stack_frame *current_fra
     fprintf(output_file, "la $t0, prev_stack\n");
     fprintf(output_file, "sw $sp, 0($t0) # on enregistre l'emplacement de la stack appelante\n");
     calling_func = current_frame_list[nb_nested_declaration];
-    fprintf(output_file, "addi $sp, $sp, -%d # Agrandir la pile pour $ra ATTENTION CETTE CASE MEMOIRE N'EST REMPLIT QUE DANS LA FONCTION\n", SIZE_MIPS_WORD);
+    fprintf(output_file, "addi $sp, $sp, -%d # Agrandir la pile pour $ra ATTENTION CETTE CASE MEMOIRE N'EST REMPLIE QUE DANS LA FONCTION\n", SIZE_MIPS_WORD);
     struct stack_frame function_frame = findContext(global_code[i].op1.qval.value);
     fprintf(output_file, "addi $sp, $sp, -%ld # Agrandir la pile (appel de fonction)\n", function_frame.stack_frame_size);
-
 
     return nb_used_const;
 }

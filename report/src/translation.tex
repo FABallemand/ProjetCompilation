@@ -1,1 +1,38 @@
 \section{Génération de Code MIPS}
+
+\paragraph{}
+Après avoir analysé le programme en SoS et construit le code intermédiaire qui lui correspond il reste une dernière étape afin d'obtenir un programme qui fonctionne: traduire le code intermédiare en code exécutable par une machine.\\
+Dans ce projet, les fichiers \textsf{translator.h} et \textsf{translator.c} permettent de traduire le code intermédiaire en code MIPS.
+
+\paragraph{}
+La traduction se déroule en deux étapes: on traduit en premier ce qui correspond au segment data puis ce qui correspond au segment text.\\
+Pour le segment data, il faut enregistrer toutes les constantes utilisées dans le programme et afin de simplifier la traduction on ajoute l'adresse de la pile du contexte global et l'adresse de la pile du contexte précédent.\\
+En ce qui concerne le segment text, il faut parcourir le tableau \textsf{global\_code} qui contient l'ensemble des quadruplets constituants le programme et pour chaque quadruplet écrire le code MIPS correspondant dans le fichier de sortie.\\
+Dans l'exemple ci-dessous, on reconnait dans les \textsf{fprintf} les instructions MIPS pour charger l'adresse de l'unique argument de la fonction \textsf{echo\_string}, convertir cet argument en entier, le placer en argument de fonction et appeler la fonction \textsf{echo\_string}. 
+\begin{figure}[H]
+\begin{lstlisting}
+size_t echo_(int i, size_t nb_used_const, struct stack_frame *current_frame_list, size_t nb_nested_declaration)
+{
+    if (DEBUG)
+        printCall("echo_");
+    if (global_code[i].op1.kind == QO_CST)
+    {
+        fprintf(output_file, "la $a0, const_%ld\n", nb_used_const++); // Charger l'adresse de l'unique argument d'echo
+    }
+    else
+    {
+        printError("Argument invalide pour echo");
+        exit(1);
+    }
+
+    fprintf(output_file, "jal string_to_int # Convertir le nombre de chaine en entier\n");
+    fprintf(output_file, "move $a0, $v0 # Placer le nombre de chaine en argument de fonction\n");
+    fprintf(output_file, "jal echo_string # Appeler la fonction echo_string\n");
+
+    return nb_used_const;
+}
+\end{lstlisting}
+\caption{Fonction effectuant la traduction d'un quadruplet \textsf{Q\_ECHO}}
+\end{figure}
+Il est important de créer des fonctions MIPS permettant d'effectuer les opérations, les comparaisons, les tests, echo et read qui pourront être appelées dans le programme MIPS résultat. Dans l'exemple ci-dessus la fonction \textsf{echo\_string} est une fonction écrite en MIPS.\\
+Cette bibliotèque de fonctions a été créée dans le fichier \textsf{string.asm}.

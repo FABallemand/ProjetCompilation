@@ -40,3 +40,5 @@ SOS
     -o          Permet d'indiquer le fichier résultat de la compilation  
 
 ## Remarques:
+
+-De nombreux fichiers tests sont disponibles dans le dossier *test*. L'ensemble de ces fichiers ont été testés manuellement à l'aide du simulateur MIPS [Mars](https://www.d.umn.edu/~gshute/mips/Mars/Mars.html)
