@@ -10,4 +10,11 @@ if test 4 -gt 3 then
 fi;
 echo ${tab[0]} "\n";
 echo ${tab[1]} "\n";
+if test ${tab[0]} -eq 98 then
+    echo "OK"
+elif test ${tab[0]} -eq 65 then
+    echo "NOK"
+else
+    echo "WTF?"
+fi;
 exit

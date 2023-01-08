@@ -1,5 +1,11 @@
 fonction ()
 {
-    return 0
+    return 123
 };
+fonction;
+if test $? -eq 123 then 
+    echo "OK"
+else
+    echo "NOK"
+fi;
 exit

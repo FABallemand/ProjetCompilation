@@ -31,4 +31,5 @@ tri_bulle()
 };
 tri_bulle ${taille_tab};
 echo ${tab[0]} ${tab[1]} ${tab[2]} ${tab[3]} ${tab[4]} ${tab[5]} ${tab[6]} ${tab[7]} ${tab[8]} ${tab[9]} "\n";
+echo "OK";
 exit

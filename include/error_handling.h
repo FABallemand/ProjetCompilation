@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-#define DEBUG 1
+#define DEBUG 0
 
 #define RED "\033[1;31m"   // BOLD
 #define GREEN "\033[1;32m" // BOLD

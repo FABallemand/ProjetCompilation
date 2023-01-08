@@ -1,9 +1,13 @@
 fonction()
 {
     echo $1 $2 "\n";
-    return
+    return 42
 };
 
 fonction 12 14;
-echo "status de fonction :" $? "\n";
+if test $? -eq 42 then
+    echo "OK"
+else
+    echo "NOK"
+fi;
 exit
