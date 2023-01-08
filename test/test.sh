@@ -1,8 +1,9 @@
 #!/bin/bash
 
 COMPILATION_SUCCESS=0
-ASSEMBLY_ERROR=1
-EXECUTION_ERROR=2
+COMPILATION_FAIL=1
+ASSEMBLY_ERROR=2
+EXECUTION_ERROR=3
 
 # programme
 PROG=${PROG:=bin/sos}
@@ -34,7 +35,7 @@ for f in $(ls ${INPUT} | grep "^[^_-]"); do
         return 1
     fi
     echo "COMPILATION - OK"
-    java -jar ${MARS} $OUTPUT/$f ae1 se2
+    java -jar ${MARS} $OUTPUT/$f ae2 se3
     if [ $? -eq $ASSEMBLY_ERROR ]
     then
         return 2
@@ -51,20 +52,10 @@ done
 for f in $(ls ${INPUT} | grep "^_"); do
     echo "Test" $i "-" $f
     $PROG -i $INPUT/$f -o $OUTPUT/$f
-    if [ $? -ne $COMPILATION_SUCCESS ]
+    if [ $? -ne $COMPILATION_FAIL ]
     then
         return 1
     fi
     echo "COMPILATION - OK"
-    java -jar ${MARS} $OUTPUT/$f ae2 se3
-    if [ $? -eq $ASSEMBLY_ERROR ]
-    then
-        return 2
-    fi
-    if [ $? -eq $EXECUTION_ERROR ]
-    then
-        return 3
-    fi
-    echo "EXECUTION - OK"
     i=$((i+1))
 done
