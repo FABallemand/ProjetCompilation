@@ -47,7 +47,7 @@ void printQuad(struct quad q)
         printf(") := ");
         printQuadop(q.op1);
     }
-    else if (q.kind == Q_ECHO)
+    else if (q.kind == Q_ECHO || q.kind == Q_ECHO)
     {
         printf("echo : nombre arg(");
         printQuadop(q.op1);

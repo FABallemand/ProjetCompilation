@@ -6,7 +6,8 @@ factoriel()
     elif test $1 -eq 1 then
         return 1
     fi;
-    tmp = $(factoriel ${tmp});
+    factoriel ${tmp};
+    tmp = $?;
     tmp = $(expr ${tmp} * $1);
     return ${tmp}
 };

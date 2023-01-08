@@ -10,34 +10,6 @@ read_buffer: .space 1024
 
 .text
 
-save_reg:
-	addi $sp, $sp, -44 # Enreigstre les registres $t* dans la pile (pour simplifier)
-	sw   $t0, 0($sp)
-	sw   $t1, 4($sp)
-	sw   $t2, 8($sp)
-	sw   $t3, 12($sp)
-	sw   $t4, 16($sp)
-	sw   $t5, 20($sp)
-	sw   $t6, 24($sp)
-	sw   $t7, 28($sp)
-	sw   $t8, 32($sp)
-	sw   $t9, 36($sp)
-	sw   $ra, 40($sp)
-
-restore_reg:
-	lw   $ra, 40($sp) # Restaurer $ra
-	lw   $t9, 36($sp) # Restaurer $t9
-	lw   $t8, 32($sp) # Restaurer $t8
-	lw   $t7, 28($sp) # Restaurer $t7
-	lw   $t6, 24($sp) # Restaurer $t6
-	lw   $t5, 20($sp) # Restaurer $t5
-	lw   $t4, 16($sp) # Restaurer $t4
-	lw   $t3, 12($sp) # Restaurer $t3
-	lw   $t2, 8($sp)  # Restaurer $t2
-	lw   $t1, 4($sp)  # Restaurer $t1
-	lw   $t0, 0($sp)  # Restaurer $t0
-	addi $sp, $sp, 44 # Restaurer $sp
-
 error_not_int: 
 	li $v0, 4                       # 
 	la $a0, error_string_not_an_int # Charger adresse du message d'erreur
@@ -707,6 +679,89 @@ echo_string_loop:
 	sub  $t0, $t0, 1
 	j    echo_string_loop      # Boucle
 echo_string_exit:
+	lw   $ra, 40($sp) # Restaurer $ra
+	lw   $t9, 36($sp) # Restaurer $t9
+	lw   $t8, 32($sp) # Restaurer $t8
+	lw   $t7, 28($sp) # Restaurer $t7
+	lw   $t6, 24($sp) # Restaurer $t6
+	lw   $t5, 20($sp) # Restaurer $t5
+	lw   $t4, 16($sp) # Restaurer $t4
+	lw   $t3, 12($sp) # Restaurer $t3
+	lw   $t2, 8($sp)  # Restaurer $t2
+	lw   $t1, 4($sp)  # Restaurer $t1
+	lw   $t0, 0($sp)  # Restaurer $t0
+	addi $sp, $sp, 44 # Restaurer $sp
+	mtlo $zero
+	mul  $s1, $s1, 4
+	add  $sp, $sp, $s1 # Réduire la taille de la pile a l'intérieur du echo! Cela permet de s'épargner un quad. A la fin de cette fonction le pointeur de pile est plus grand de $a0*4 
+	jr   $ra           # Retour à l'appelant
+#END FUN echo_string
+
+# FUN echo_string_function
+# ARGS:
+# $a0: Nombre de chaines à afficher (on considère que leurs adresses ont été rentrées dans l'ordre dans la pile)
+# ATTENTION : On reduit la taille de la pile à l'intérieur du echo!
+#             Cela permet de s'épargner un quad.
+#             A la fin de cette fonction le pointeur de pile est plus grand de $a0*4.
+echo_string_function:
+	addi $sp, $sp, -44 # Enregistre les registres $t* dans la pile (pour simplifier)
+	sw   $t0, 0($sp)
+	sw   $t1, 4($sp)
+	sw   $t2, 8($sp)
+	sw   $t3, 12($sp)
+	sw   $t4, 16($sp)
+	sw   $t5, 20($sp)
+	sw   $t6, 24($sp)
+	sw   $t7, 28($sp)
+	sw   $t8, 32($sp)
+	sw   $t9, 36($sp)
+	sw   $ra, 40($sp)
+	
+	move $s1, $a0                       # Sauvegarde du nombre d'arguments pour réduire la taille de la pile
+	beqz $s1, echo_string_function_exit # Si aucun argument
+	move $t3, $a0                       # Copie du nombre d'arguments
+	li   $t1, 40                        # Offset initial des arguments dans la pile
+	add  $t1, $t1, $sp                  # Adresse du dernier élément
+	mul  $t3, $t3, 4                    #
+	add  $t3, $t3, $t1                  # Adresse du premier élément
+	move $t0, $t3			            # Copie de l'adresse du premier élément
+	move $t2, $a0                       # Initialiser le nombre de caractères de la chaine finale (nombre d'espaces nécessaires + \0)
+count_size_loop:
+	beq  $t3, $t1, concat_echo # Si on a compté le nombre de caractère de chaque chaine
+	lw   $a0, 0($t3)           # Charger la chaine suivante en argument
+	jal  count_char			   # Compter le nombre de caractères
+	add  $t2, $t2, $v0         # Augmenter le nombre de caractères
+	subi $t3, $t3, 4           # Adresse de la prochaine chaine
+	j    count_size_loop       # Boucle
+concat_echo:
+	move $a0, $t2 # PLacer le nombre de caractères de la chaine finale en argument
+	li $v0, 9     #
+	syscall       # Alloue l'espace mémoire nécessaire à la chaine finale
+	move $t5, $v0 # Récupérer adresse chaine finale
+	move $t9, $v0 # Copie de l'adresse de la chaine finale (non moidifiée par la suite)
+concat_echo_loop:
+	beq  $t0, $t1, echo_string_function_exit # Si toutes les chaines ont été copiées
+	lw   $t6, 0($t0)                		 # Charger la chaine suivante
+	subi $t0, $t0, 4						 # Passer à la chaine suivante (pour le prochain tour de boucle)
+concat_echo_loop_loop:
+	lb   $t7, 0($t6)           # Enregistrer temporairement le caractère en début de chaine
+	beqz $t7, add_space        # Fin de la chaine de caractères
+	add  $t6, $t6, 1           # Déplacer la tête de lecture sur le prochain caractère de la chaine
+	sb   $t7, 0($t5)           # Enregistrer le caractère dans la chaine résultat
+	add  $t5, $t5, 1           # Déplacer la tête d'écriture dans la chaine résultat
+	j    concat_echo_loop_loop # Boucle
+add_space:
+	lb   $t7, one_space   # Charger un espace en argument
+	sb   $t7, 0($t5)      # Enregistrer le caractère dans la chaine résultat
+	add  $t5, $t5, 1      # Déplacer la tête d'écriture dans la chaine résultat
+	j    concat_echo_loop # Boucle
+echo_string_function_exit:
+	sub $t5, $t5, 1  # Enlever le dernier espace
+	sb $zero, 0($t5) # Ajouter un caractère sentinel
+	move $a0, $t9    # Passer la chaine finale en argument 
+	li $v0, 4        #
+	syscall          # Afficher la chaine finale
+	move $v0, $t9    # Enregistrer l'adresse de la chaine finale
 	lw   $ra, 40($sp) # Restaurer $ra
 	lw   $t9, 36($sp) # Restaurer $t9
 	lw   $t8, 32($sp) # Restaurer $t8

@@ -17,7 +17,6 @@ void translator()
 
     size_t nb_const = 0;                                           //< Nombre de constantes dans le programme
     size_t nb_used_const = 0;                                      //< Nombre de constantes utilisées
-    size_t current_frame = 0;                                      //< Inutile?
     struct stack_frame current_frame_list[MAX_NESTED_DECLARATION]; //< Liste de contextes
     current_frame_list[0] = findContext("global");                 //< Contexte global
     size_t nb_nested_declaration = 0;                              //< Niveau de déclaration imbriquée
@@ -26,7 +25,7 @@ void translator()
     fprintf(output_file, ".data\n\n");
     fprintf(output_file, "global_stack: .space 4\n");
     fprintf(output_file, "prev_stack: .space 4 # Enregistre l'emplacement dans la pile de stack de a fonction appelante (utile pour le passage d'arguments locaux)\n");
-    fprintf(output_file, "err_arg: .asciiz \"Mauvais nombre d'argument pour le programme, %ld argument(s) attendu(s)\"\n",nb_arg_programme);
+    fprintf(output_file, "err_arg: .asciiz \"Mauvais nombre d'argument pour le programme, %ld argument(s) attendu(s)\"\n", nb_arg_programme);
 
     for (size_t i = 0; i < next_quad; i++)
     {
@@ -34,41 +33,38 @@ void translator()
             continue;
         if (global_code[i].op1.kind == QO_CST || global_code[i].op1.kind == QO_STRING)
         {
-            printf("%s\n",global_code[i].op1.qval.value);
             fprintf(output_file, "const_%ld: .asciiz \"%s\"\n", nb_const++, global_code[i].op1.qval.value);
         }
         if (global_code[i].op2.kind == QO_CST || global_code[i].op2.kind == QO_STRING)
         {
             fprintf(output_file, "const_%ld: .asciiz \"%s\"\n", nb_const++, global_code[i].op2.qval.value);
-            printf("%s\n",global_code[i].op1.qval.value);
         }
         if (global_code[i].res.kind == QO_CST || global_code[i].res.kind == QO_STRING)
         {
             fprintf(output_file, "const_%ld: .asciiz \"%s\"\n", nb_const++, global_code[i].res.qval.value);
-            printf("%s\n",global_code[i].op1.qval.value);
         }
     }
 
     // Segment text
     fprintf(output_file, "\n.text\n\n");
-    fprintf(output_file, "addi $sp, $sp, -%ld # Empiler contexte global\n", current_frame_list[0].stack_frame_size); // à vérifier
+    fprintf(output_file, "addi $sp, $sp, -%ld # Empiler contexte global\n", current_frame_list[0].stack_frame_size);
     fprintf(output_file, "la $t0, global_stack\n");
     fprintf(output_file, "sw $sp, 0($t0) # Enregistrer l'adresse du contexte global dans global_stack\n");
 
-    fprintf(output_file,"beq $a0, %ld, fin_check_arg\n",nb_arg_programme);
-    fprintf(output_file,"li $v0, 4\n");
-    fprintf(output_file,"la $a0, err_arg\n");
-    fprintf(output_file,"syscall\n");
-    fprintf(output_file,"li $v0, 10\n");
-    fprintf(output_file,"syscall\n");
-    fprintf(output_file,"fin_check_arg:\n");
-    for(size_t i=0;i<nb_arg_programme;i++)
+    fprintf(output_file, "beq $a0, %ld, fin_check_arg\n", nb_arg_programme);
+    fprintf(output_file, "li $v0, 4\n");
+    fprintf(output_file, "la $a0, err_arg\n");
+    fprintf(output_file, "syscall\n");
+    fprintf(output_file, "li $v0, 10\n");
+    fprintf(output_file, "syscall\n");
+    fprintf(output_file, "fin_check_arg:\n");
+    for (size_t i = 0; i < nb_arg_programme; i++)
     {
-        fprintf(output_file,"lw $t1, %ld($a1)\n",SIZE_MIPS_WORD*i);
+        fprintf(output_file, "lw $t1, %ld($a1)\n", SIZE_MIPS_WORD * i);
         char tmp[5];
-        snprintf(tmp,4,"%ld",i+1);
+        snprintf(tmp, 4, "%ld", i + 1);
         int offset = isInContext(tmp, current_frame_list[0]);
-        fprintf(output_file,"sw $t1, %d($sp)\n",offset);
+        fprintf(output_file, "sw $t1, %d($sp)\n", offset);
     }
 
     for (size_t i = 0; i < next_quad; i++)
@@ -140,6 +136,9 @@ void translator()
         case Q_ECHO:
             nb_used_const = echo_(i, nb_used_const, current_frame_list, nb_nested_declaration);
             break;
+        case Q_ECHO_FUNCTION:
+            nb_used_const = echoFunction(i, nb_used_const, current_frame_list, nb_nested_declaration);
+            break;
         case Q_READ:
             nb_used_const = read_(i, nb_used_const, current_frame_list, nb_nested_declaration);
             break;
@@ -189,6 +188,38 @@ size_t echo_(int i, size_t nb_used_const, struct stack_frame *current_frame_list
     fprintf(output_file, "jal string_to_int # Convertir le nombre de chaine en entier\n");
     fprintf(output_file, "move $a0, $v0 # Placer le nombre de chaine en argument de fonction\n");
     fprintf(output_file, "jal echo_string # Appeler la fonction echo_string\n");
+
+    return nb_used_const;
+}
+
+size_t echoFunction(int i, size_t nb_used_const, struct stack_frame *current_frame_list, size_t nb_nested_declaration)
+{
+    if (DEBUG)
+        printCall("echoFunction");
+    if (global_code[i].op1.kind == QO_CST)
+    {
+        fprintf(output_file, "la $a0, const_%ld\n", nb_used_const++); // Charger l'adresse de l'unique argument d'echo
+    }
+    else
+    {
+        printError("Argument invalide pour echo");
+        exit(1);
+    }
+
+    fprintf(output_file, "jal string_to_int # Convertir le nombre de chaine en entier\n");
+    fprintf(output_file, "move $a0, $v0 # Placer le nombre de chaine en argument de fonction\n");
+    fprintf(output_file, "jal echo_string # Appeler la fonction echo_string\n");
+    fprintf(output_file, "lw $t0, global_stack # \n");
+    int offset = 0;
+    if ((offset = isInContext("_return_value", current_frame_list[0])) != -1)
+    {
+        fprintf(output_file, "sw $v0, %d($t0) # Sauvegarder le résultat dans la varible globale _return_value\n", offset);
+    }
+    else
+    {
+        printError("Variable inconnue dans les contextes accessibles");
+        exit(1);
+    }
 
     return nb_used_const;
 }
@@ -598,6 +629,24 @@ size_t stringComparison(int i, size_t nb_used_const, struct stack_frame *current
     {
         fprintf(output_file, "la $a0, const_%ld\n", nb_used_const++); // Charger l'adresse de la valeur dans $a0
     }
+    else if (global_code[i].op1.kind == QO_VAR)
+    {
+        int offset;
+        if ((offset = isInContext(global_code[i].op1.qval.value, current_frame_list[nb_nested_declaration])) != -1) // Variable dans le contexte courant
+        {
+            fprintf(output_file, "lw $a0, %d($sp)\n", offset); // Charger la valeur de la variable
+        }
+        else if ((offset = isInContext(global_code[i].op1.qval.value, current_frame_list[0])) != -1) // Variable dans le contexte global
+        {
+            fprintf(output_file, "lw $t1, global_stack\n");    // Charger l'adresse du pointeur vers le contexte global
+            fprintf(output_file, "lw $a0, %d($t1)\n", offset); // Charger la valeur de la variable
+        }
+        else
+        {
+            printError("Variable inconnue dans les contextes accessibles");
+            exit(1);
+        }
+    }
     else
     {
         printError("Argument incorrect (chaine de caractère attendue)");
@@ -608,6 +657,24 @@ size_t stringComparison(int i, size_t nb_used_const, struct stack_frame *current
     if (global_code[i].op2.kind == QO_CST || global_code[i].op2.kind == QO_STRING)
     {
         fprintf(output_file, "la $a1, const_%ld\n", nb_used_const++); // Charger l'adresse de la valeur dans $a1
+    }
+    else if (global_code[i].op2.kind == QO_VAR)
+    {
+        int offset;
+        if ((offset = isInContext(global_code[i].op2.qval.value, current_frame_list[nb_nested_declaration])) != -1) // Variable dans le contexte courant
+        {
+            fprintf(output_file, "lw $a1, %d($sp)\n", offset); // Charger la valeur de la variable
+        }
+        else if ((offset = isInContext(global_code[i].op2.qval.value, current_frame_list[0])) != -1) // Variable dans le contexte global
+        {
+            fprintf(output_file, "lw $t1, global_stack\n");    // Charger l'adresse du pointeur vers le contexte global
+            fprintf(output_file, "lw $a1, %d($t1)\n", offset); // Charger la valeur de la variable
+        }
+        else
+        {
+            printError("Variable inconnue dans les contextes accessibles");
+            exit(1);
+        }
     }
     else
     {

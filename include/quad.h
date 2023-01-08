@@ -119,6 +119,7 @@ struct quad
         Q_GOTO,
         Q_GOTO_FUN,
         Q_ECHO,
+        Q_ECHO_FUNCTION,
         Q_READ,
         Q_FUNCTION_BEGIN,
         Q_FUNCTION_END,

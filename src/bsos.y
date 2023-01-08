@@ -13,8 +13,10 @@ extern int yylex();
 extern void yyerror(const char *msg);
 
 char name_global[7] = "global";
+char return_value[14] = "_return_value";
 char status[2] = "?";
 char zero[2] = "0";
+char empty[2] = "\0";
 %}
 
 %union {
@@ -85,6 +87,8 @@ initialisation
     pushContext();
     newName(S_GLOBAL, status, VAR, 0);
     genCode(quad_new(Q_AFFECT, quadop_cst(zero), quadop_empty(), quadop_var(status)));
+    newName(S_GLOBAL, return_value, VAR, 0);
+    genCode(quad_new(Q_AFFECT, quadop_cst(empty), quadop_empty(), quadop_var(return_value)));
 }
 
 liste_instructions
@@ -135,9 +139,9 @@ instruction
         printError("Symbole %s n'est pas un tableau", $1);
         exit(1);
     }
-    else if($3.result.kind == QO_CST && atoi($3.result.qval.value) < 0 && id->size < atoi($3.result.qval.value)) // Accès interdit avec valeur constante (si c'est une variable on ne peut pas vérifier à la compilation)
+    else if($3.result.kind == QO_CST && (atoi($3.result.qval.value) < 0 || id->size < atoi($3.result.qval.value))) // Accès interdit avec valeur constante (si c'est une variable on ne peut pas vérifier à la compilation)
     {
-        printError("Accès interdit (indice %ld en dehors du tableau %s)", atoi($3.result.qval.value), $1);
+        printError("Accès interdit (indice %d en dehors du tableau %s)", atoi($3.result.qval.value), $1);
         exit(1);
     }
     genCode(quad_new(Q_AFFECT, $6.result, $3.result, quadop_var($1))); // ATTENTION: vérifier indice dans le tableau dans autres règles
@@ -234,7 +238,14 @@ instruction
     $$.firstquad = $2.firstquad;
     char tmp[3];
     sprintf(tmp, "%ld", $2.size);
-    genCode(quad_new(Q_ECHO, quadop_cst(strdup(tmp)), quadop_empty(), quadop_empty()));
+    if(checkInsideFunction())
+    {
+        genCode(quad_new(Q_ECHO_FUNCTION, quadop_cst(strdup(tmp)), quadop_empty(), quadop_empty()));
+    }
+    else
+    {
+        genCode(quad_new(Q_ECHO, quadop_cst(strdup(tmp)), quadop_empty(), quadop_empty()));
+    }
     $$.next = NULL;
 }
 | READ ID
@@ -264,9 +275,9 @@ instruction
         printError("Symbole %s n'est pas un tableau", $2);
         exit(1);
     }
-    else if($4.result.kind == QO_CST && atoi($4.result.qval.value) < 0 && id->size < atoi($4.result.qval.value)) // Accès interdit avec valeur constante (si c'est une variable on ne peut pas vérifier à la compilation)
+    else if($4.result.kind == QO_CST && (atoi($4.result.qval.value) < 0 || id->size < atoi($4.result.qval.value))) // Accès interdit avec valeur constante (si c'est une variable on ne peut pas vérifier à la compilation)
     {
-        printError("Accès interdit (indice %ld en dehors du tableau)", atoi($4.result.qval.value));
+        printError("Accès interdit (indice %d en dehors du tableau)", atoi($4.result.qval.value));
         exit(1);
     }
     $$.firstquad = next_quad;
@@ -690,9 +701,9 @@ operande
         printError("Symbole %s n'est pas un tableau", $3);
         exit(1);
     }
-    else if($5.result.kind == QO_CST && atoi($5.result.qval.value) < 0 && id->size < atoi($5.result.qval.value)) // Accès interdit avec valeur constante (si c'est une variable on ne peut pas vérifier à la compilation)
+    else if($5.result.kind == QO_CST && (atoi($5.result.qval.value) < 0 || id->size < atoi($5.result.qval.value))) // Accès interdit avec valeur constante (si c'est une variable on ne peut pas vérifier à la compilation)
     {
-        printError("Accès interdit (indice %ld en dehors du tableau %s)", atoi($5.result.qval.value), $3);
+        printError("Accès interdit (indice %d en dehors du tableau %s)", atoi($5.result.qval.value), $3);
         exit(1);
     }
     struct quadop res = quadop_var(newtemp());
@@ -767,7 +778,6 @@ operande
     if(DEBUG)
         printRule("STRING");
     $$.firstquad = next_quad;
-    printf("%s\n",$1);
     $$.result = quadop_string($1);
 }
 | DOLLAR OPAR EXPR somme_entiere CPAR
@@ -881,9 +891,9 @@ operande_entier
         printError("Symbole %s n'est pas un tableau", $3);
         exit(1);
     }
-    else if($5.result.kind == QO_CST && atoi($5.result.qval.value) < 0 && id->size < atoi($5.result.qval.value)) // Accès interdit avec valeur constante (si c'est une variable on ne peut pas vérifier à la compilation)
+    else if($5.result.kind == QO_CST && (atoi($5.result.qval.value) < 0 || id->size < atoi($5.result.qval.value))) // Accès interdit avec valeur constante (si c'est une variable on ne peut pas vérifier à la compilation)
     {
-        printError("Accès interdit (indice %ld en dehors du tableau %s)", atoi($5.result.qval.value), $3);
+        printError("Accès interdit (indice %d en dehors du tableau %s)", atoi($5.result.qval.value), $3);
         exit(1);
     }
     struct quadop res = quadop_var(newtemp());
@@ -957,9 +967,9 @@ operande_entier
         printError("Symbole %s n'est pas un tableau", $4);
         exit(1);
     }
-    else if($6.result.kind == QO_CST && atoi($6.result.qval.value) < 0 && id->size < atoi($6.result.qval.value)) // Accès interdit avec valeur constante (si c'est une variable on ne peut pas vérifier à la compilation)
+    else if($6.result.kind == QO_CST && (atoi($6.result.qval.value) < 0 || id->size < atoi($6.result.qval.value))) // Accès interdit avec valeur constante (si c'est une variable on ne peut pas vérifier à la compilation)
     {
-        printError("Accès interdit (indice %ld en dehors du tableau %s)", atoi($6.result.qval.value), $4);
+        printError("Accès interdit (indice %d en dehors du tableau %s)", atoi($6.result.qval.value), $4);
         exit(1);
     }
     struct quadop res = quadop_var(newtemp());
@@ -982,9 +992,9 @@ operande_entier
         printError("Symbole \"%s\" n'est pas un tableau", $4);
         exit(1);
     }
-    else if($6.result.kind == QO_CST && atoi($6.result.qval.value) < 0 && id->size < atoi($6.result.qval.value)) // Accès interdit avec valeur constante (si c'est une variable on ne peut pas vérifier à la compilation)
+    else if($6.result.kind == QO_CST && (atoi($6.result.qval.value) < 0 || id->size < atoi($6.result.qval.value))) // Accès interdit avec valeur constante (si c'est une variable on ne peut pas vérifier à la compilation)
     {
-        printError("Accès interdit (indice %ld en dehors du tableau %s)", atoi($6.result.qval.value), $4);
+        printError("Accès interdit (indice %d en dehors du tableau %s)", atoi($6.result.qval.value), $4);
         exit(1);
     }
     struct quadop res = quadop_var(newtemp());
@@ -1171,7 +1181,7 @@ liste_operandes // ici on crée le code pour affecter les variables
         exit(1);
     }
     genCode(quad_new(Q_GOTO_FUN, quadop_empty(), quadop_empty(), quadop_var($1)));
-    $$.result = quadop_var(status);
+    $$.result = quadop_var(return_value);
 }
 | ID
 {
@@ -1201,7 +1211,7 @@ liste_operandes // ici on crée le code pour affecter les variables
     // Agrandir la stack
     genCode(quad_new(Q_CALL, quadop_var($1), quadop_empty(), quadop_empty()));
     genCode(quad_new(Q_GOTO_FUN, quadop_empty(), quadop_empty(), quadop_var($1)));
-    $$.result = quadop_var(status);
+    $$.result = quadop_var(return_value);
 }
 ;
 

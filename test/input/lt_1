@@ -1,0 +1,8 @@
+a = 1;
+b = 2;
+if test ${a} -lt ${b} then
+    echo "OK"
+else
+ echo "NOK"
+fi;
+exit
