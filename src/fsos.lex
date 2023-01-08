@@ -105,9 +105,11 @@ char *removeQuote(char *src){
     s -= 2;
     char *res = malloc(s);
     CHK_NULL(res);
-    for(size_t i = 0; i < s; i++)
+    size_t i = 0;
+    for(; i < s; i++)
     {
         res[i] = src[i+1];
     }
+    res[i] = '\0';
     return res;
 }

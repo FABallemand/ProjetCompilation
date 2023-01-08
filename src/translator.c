@@ -3,6 +3,7 @@
 char *MIPS_library = "mips/string.asm";
 FILE *output_file = NULL;
 struct stack_frame calling_func;
+extern size_t nb_arg_programme;
 
 void translator()
 {
@@ -25,21 +26,26 @@ void translator()
     fprintf(output_file, ".data\n\n");
     fprintf(output_file, "global_stack: .space 4\n");
     fprintf(output_file, "prev_stack: .space 4 # Enregistre l'emplacement dans la pile de stack de a fonction appelante (utile pour le passage d'arguments locaux)\n");
+    fprintf(output_file, "err_arg: .asciiz \"Mauvais nombre d'argument pour le programme, %ld argument(s) attendu(s)\"\n",nb_arg_programme);
+
     for (size_t i = 0; i < next_quad; i++)
     {
         if (global_code[i].kind == Q_GOTO)
             continue;
         if (global_code[i].op1.kind == QO_CST || global_code[i].op1.kind == QO_STRING)
         {
+            printf("%s\n",global_code[i].op1.qval.value);
             fprintf(output_file, "const_%ld: .asciiz \"%s\"\n", nb_const++, global_code[i].op1.qval.value);
         }
         if (global_code[i].op2.kind == QO_CST || global_code[i].op2.kind == QO_STRING)
         {
             fprintf(output_file, "const_%ld: .asciiz \"%s\"\n", nb_const++, global_code[i].op2.qval.value);
+            printf("%s\n",global_code[i].op1.qval.value);
         }
         if (global_code[i].res.kind == QO_CST || global_code[i].res.kind == QO_STRING)
         {
             fprintf(output_file, "const_%ld: .asciiz \"%s\"\n", nb_const++, global_code[i].res.qval.value);
+            printf("%s\n",global_code[i].op1.qval.value);
         }
     }
 
@@ -48,6 +54,22 @@ void translator()
     fprintf(output_file, "addi $sp, $sp, -%ld # Empiler contexte global\n", current_frame_list[0].stack_frame_size); // à vérifier
     fprintf(output_file, "la $t0, global_stack\n");
     fprintf(output_file, "sw $sp, 0($t0) # Enregistrer l'adresse du contexte global dans global_stack\n");
+
+    fprintf(output_file,"beq $a0, %ld, fin_check_arg\n",nb_arg_programme);
+    fprintf(output_file,"li $v0, 4\n");
+    fprintf(output_file,"la $a0, err_arg\n");
+    fprintf(output_file,"syscall\n");
+    fprintf(output_file,"li $v0, 10\n");
+    fprintf(output_file,"syscall\n");
+    fprintf(output_file,"fin_check_arg:\n");
+    for(size_t i=0;i<nb_arg_programme;i++)
+    {
+        fprintf(output_file,"lw $t1, %ld($a1)\n",SIZE_MIPS_WORD*i);
+        char tmp[5];
+        snprintf(tmp,4,"%ld",i+1);
+        int offset = isInContext(tmp, current_frame_list[0]);
+        fprintf(output_file,"sw $t1, %d($sp)\n",offset);
+    }
 
     for (size_t i = 0; i < next_quad; i++)
     {

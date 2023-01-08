@@ -1,11 +1,11 @@
 {
     "files.associations": {
+        "*.lex": "lex",
         "*.fs": "c",
         "*.vs": "c",
         "*.mo": "modelica",
         "*.mot": "modelica",
         "*.unt": "modelica",
-        "*.lex": "lex",
         "print_util.C": "cpp",
         "system_error": "c",
         "array": "c",
@@ -16,6 +16,10 @@
         "declaration_fonction_1": "cpp",
         "declaration_fonction_2": "cpp",
         "echo_5": "cpp",
+<<<<<<< HEAD
         "random": "c"
+=======
+        "symbol_table.h": "c"
+>>>>>>> 49ac1e25d454ae26fa1f257027675ff47b811bb2
     }
 }

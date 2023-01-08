@@ -767,6 +767,7 @@ operande
     if(DEBUG)
         printRule("STRING");
     $$.firstquad = next_quad;
+    printf("%s\n",$1);
     $$.result = quadop_string($1);
 }
 | DOLLAR OPAR EXPR somme_entiere CPAR
