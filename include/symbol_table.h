@@ -134,12 +134,31 @@ int checkInsideFunction();
  */
 void createNewStackFrame(char *name, struct stack *stack);
 
+/**
+ * \brief Affiche un contexte
+ * 
+ * \param sf Un contexte
+ */
 void printStackFrame(struct stack_frame sf);
 
+/**
+ * \brief Affiche tous les contextes enregistrés dans stack_frame_list
+ * 
+ */
 void printAllStackFrame();
 
+/**
+ * \brief Affiche un symbole
+ * 
+ * \param s Un symbole
+ */
 void printSymbol(struct symbol s);
 
+/**
+ * \brief Définit le nombre d'arguments d'un pogramme
+ * 
+ * \param nb Nombre d'argument d'un programme
+ */
 void setNbArgProgramme(size_t nb);
 
 /**

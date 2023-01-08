@@ -23,6 +23,8 @@ extern char *name_global;
  */
 void translator();
 
+// Les fonction suivantes servent à écrire le code MIPS correspondant à chaque quadruplet dans le fichier sortie
+
 size_t echo_(int i, size_t nb_used_const, struct stack_frame* current_frame_list, size_t nb_nested_declaration);
 
 size_t echoFunction(int i, size_t nb_used_const, struct stack_frame* current_frame_list, size_t nb_nested_declaration);
