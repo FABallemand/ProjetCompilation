@@ -1,0 +1,3 @@
+a = 99999999999999999999999999999999999;
+b = $(expr ${a} + 1); # Erreur lors de l'exécution
+exit

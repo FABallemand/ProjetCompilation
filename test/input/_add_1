@@ -1,0 +1,2 @@
+tmp = $(expr 1 + "a");
+exit

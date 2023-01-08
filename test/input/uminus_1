@@ -1,0 +1,7 @@
+a = -1;
+if test $(expr ${a} + 1) -eq 0 then
+    echo "OK"
+else
+    echo "NOK"
+fi;
+exit

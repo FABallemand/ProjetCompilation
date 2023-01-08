@@ -1,0 +1,11 @@
+a = $(expr 1 + 2 * 3);
+b = $(expr 1 + (2 * 3));
+c = $(expr (1 + 2) *3);
+if test ${a} -eq ${b} then
+    echo "OK"
+elif test ${a} -eq ${c} then
+    echo "NOK"
+else
+    echo "WTF??!!"
+fi;
+exit

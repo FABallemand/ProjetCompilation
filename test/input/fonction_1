@@ -1,8 +1,11 @@
+a = 3;
+
 fonction()
 {
     local i = 10;
     local tmp0 = "";
     local tmp1 = "";
+    echo "Accès à une variable globale" ${a} "\n";
     echo ${i} "\n";
     while test ${i} -gt 0 do
         read tmp1;

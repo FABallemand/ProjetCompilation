@@ -1,0 +1,10 @@
+fonction()
+{
+    echo "Début de fonction"\n";
+    local a = 2;
+    return
+};
+
+fonction;
+echo "status de fonction :" $? "\n";
+exit

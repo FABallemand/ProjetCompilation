@@ -1,0 +1,8 @@
+declare tab[2];
+
+tab[0] = 65;
+tab[1] = 66;
+i = 42;
+echo ${tab[${i}]};
+
+exit

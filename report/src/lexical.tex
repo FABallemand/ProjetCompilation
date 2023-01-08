@@ -49,5 +49,15 @@ Les unités lexicales ayant une valeur définie par l'utilisateur doivent être 
 Les unités lexicales qui ne sont pas reconnues par l'analyseur lexical sont considérées incorrectes pour un programme SoS et mettent fin à la compilation.
 \end{minipage}
 
+\noindent
+\begin{minipage}[!hc]{0.12\textwidth}
+   \textbf{Remarque}
+\end{minipage}
+\vrule\enskip\vrule\quad\begin{minipage}{\dimexpr 0.87\textwidth-0.8pt-1.5em}
+Le symbole terminal \textbf{mot} mentionné dans la grammaire initiale du langage SoS a été supprimé. Ce symbole était en conflit avec les symboles terminaux \textbf{entier} et \textbf{chaine}.\\
+Ainsi la grammaire modifiée utilisée par le compilateur marque les chaines de caractères avec des simple/double quotes ce qui permet de lever toute ambiguité entre les chaines de caractères, les entiers et les identifiants de variables ou de fonctions lors de l'analyse lexicale.\\
+Cette distinction ne correspond pas à un type mais plutôt à un marquage pour autoriser certaines opérations pour une variable. (Chaque variable correspondant à une chaine de caractères initialement.)
+\end{minipage}
+
 \paragraph{}
 Les valeurs renvoyées par l'analyseur lexical \textsf{Flex} sont transmises à l'analyseur syntaxique.

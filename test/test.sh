@@ -4,6 +4,7 @@ COMPILATION_SUCCESS=0
 COMPILATION_FAIL=1
 ASSEMBLY_ERROR=2
 EXECUTION_ERROR=3
+RES=0
 
 # programme
 PROG=${PROG:=bin/sos}
@@ -31,14 +32,15 @@ i=0
 
 # fichiers corrects
 for f in $(ls ${INPUT} | grep "^[^_-]"); do
-    echo "Test" $i "-" $f ".........."
-    $PROG -i $INPUT/$f -o $OUTPUT/$f -l "../../mips/string.asm"
+    echo "Test" $i "-" $f
+    $PROG -i $INPUT/$f -o $OUTPUT/$f -l $MIPS_LIB
     if [ $? -ne $COMPILATION_SUCCESS ]
     then
         return 1
     fi
     echo "COMPILATION - OK"
-    java -jar ${MARS} $OUTPUT/$f ae2 se3
+    java -jar ${MARS} me ae2 se3 $OUTPUT/$f me
+    echo $?
     if [ $? -eq $ASSEMBLY_ERROR ]
     then
         return 2

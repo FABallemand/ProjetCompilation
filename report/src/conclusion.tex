@@ -2,8 +2,13 @@
 
 \paragraph{}
 Le compilateur que nous avons écrit (bien qu'assez peu performant) permet de compiler correctement des programmes écrits dans le langage SoS.\\
-L'analyseur lexical et l'analyseur syntaxique permettent de générer du code intermédiaire. Nous avons accordé une attention particulière à la table de symboles et à la gestion des contextes.\\
+L'analyseur lexical est sensible à la casse, détecte tous les mots clés et symboles du langage SoS ainsi que les entiers (positifs ou négatifs), les chaines de caractères (contenants d'éventuels espaces) et les identifiants. Les commentaires et les espaces sont ignorés correctement.\\
+L'analyseur syntaxique permet de générer du code intermédiaire. Il vérifie la structure des instructions contenues dans le programme mais aussi la structure générale du programme (instructions séparées par des \textbf{;}, exit à la fin). Nous avons accordé une attention particulière à la table de symboles et à la gestion des contextes.\\
 La traduction en code MIPS est assurée par un programme en C qui traduit le code intermédiaire en MIPS et une bibliotèque de fonctions MIPS.
+
+\paragraph{}
+Cependant, par manque de temps, certaines instructions ne sont pas prises en charge par notre compilateur, à savoir: l'accès à l'ensemble des éléments d'une liste en une instruction, les boucles \textbf{for} et l'instruction \textbf{case}.\\
+De plus, la gestion de la mémoire peut être grandement améliorée: de nombreuses chaines de caractères sont allouées mais rarement \textit{free}.
 
 \paragraph{}
 La compilation est encore de nos jours un domaine de recherche en plein essor. De nouvelles contraintes liées à la performance mais aussi à l'efficacité énergétique du code généré donnent lieu à de nouvelles méthodes d'optimisation parfois très complexes.\\
