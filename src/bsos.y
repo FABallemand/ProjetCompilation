@@ -254,7 +254,6 @@ instruction
     if(DEBUG)
         printRule("READ ID OABRA operande_entier CABRA");
     struct symbol *id = lookUp(S_GLOBAL, $2);
-    printf("ICI %d\n", atoi($4.result.qval.value));
     if(id == NULL) // Variable pas définie
     {
         printError("Variable %s non-définie", $2);

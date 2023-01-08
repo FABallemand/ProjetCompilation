@@ -48,7 +48,7 @@ int main(int argc, char **argv)
         else if (strcmp("-o", argv[i]) == 0)
         {
             printInfo("Output will be saved in %s\n", argv[i + 1]);
-            CHK_NULL(output_file = fopen(argv[i + 1], "w"));
+            CHK_NULL(output_file = fopen(argv[++i], "w"));
         }
         else
         {
@@ -70,11 +70,12 @@ int main(int argc, char **argv)
     yylineno = 1;
     int r = yyparse();
     if(r == 1){
-        printError("echec de la compilation !\n erreur a la ligne %d : symbole \"%s\" non reconnu", yylineno,yytext);
+        printError("Echec de la compilation !\nErreur ligne %d : symbole \"%s\" non reconnu", yylineno,yytext);
         exit(1);
     }
 
-    printAllQuad(); // Afficher le tableau de quadruplets
+    if(DEBUG)
+        printAllQuad(); // Afficher le tableau de quadruplets
 
     if (symbol_table)
     {
@@ -91,7 +92,6 @@ int main(int argc, char **argv)
         fclose(yyin);
     }
     fclose(output_file);
-
 
     return r;
 }
