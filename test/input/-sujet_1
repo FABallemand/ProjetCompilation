@@ -20,8 +20,7 @@ lecture_valeurs() # Saisie des valeurs entières
             return 1
         fi;
         i = $( expr ${i} + 1 )
-    done;
-    return 0
+    done
 };
 
 moyenne() { # Calcul de la moyenne des valeurs
@@ -31,8 +30,7 @@ moyenne() { # Calcul de la moyenne des valeurs
         somme = $( expr ${somme} + ${valeurs[${i}]} );
         i = $( expr ${i} + 1 )
     done;
-    echo $( expr ${somme} / $1 );
-    return
+    echo $( expr ${somme} / $1 )
 };
 
 echo "Nombre de valeurs :";

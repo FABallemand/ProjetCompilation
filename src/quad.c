@@ -29,7 +29,7 @@ void printQuad(struct quad q)
         printf("goto ");
         printQuadop(q.res);
     }
-    if (q.kind == Q_GOTO_FUN)
+    else if (q.kind == Q_GOTO_FUN)
     {
         printf("goto ");
         printQuadop(q.res);
@@ -47,7 +47,7 @@ void printQuad(struct quad q)
         printf(") := ");
         printQuadop(q.op1);
     }
-    else if (q.kind == Q_ECHO || q.kind == Q_ECHO)
+    else if (q.kind == Q_ECHO || q.kind == Q_ECHO_FUNCTION)
     {
         printf("echo : nombre arg(");
         printQuadop(q.op1);

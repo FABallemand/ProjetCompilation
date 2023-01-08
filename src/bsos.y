@@ -1117,7 +1117,10 @@ OPAR CPAR OBRA decl_loc liste_instructions CBRA
     // Gestion des arguments de la fonction
     id->size = countArg();
     removeCallList(id); // Pour les fonctions rec :)
+    complete($7.next, next_quad); // Compléter goto pour sortir de la fonction
     createNewStackFrame($1, popContext());
+    genCode(quad_new(Q_AFFECT, quadop_cst(zero), quadop_empty(), quadop_var(status)));
+    genCode(quad_new(Q_RETURN, quadop_empty(), quadop_empty(), quadop_empty()));
     genCode(quad_new(Q_FUNCTION_END, quadop_empty(), quadop_empty(), quadop_empty()));
     $$.next = $<inst_val>2.next;
 }

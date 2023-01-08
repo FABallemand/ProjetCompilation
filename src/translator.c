@@ -208,7 +208,7 @@ size_t echoFunction(int i, size_t nb_used_const, struct stack_frame *current_fra
 
     fprintf(output_file, "jal string_to_int # Convertir le nombre de chaine en entier\n");
     fprintf(output_file, "move $a0, $v0 # Placer le nombre de chaine en argument de fonction\n");
-    fprintf(output_file, "jal echo_string # Appeler la fonction echo_string\n");
+    fprintf(output_file, "jal echo_string_function # Appeler la fonction echo_string\n");
     fprintf(output_file, "lw $t0, global_stack # \n");
     int offset = 0;
     if ((offset = isInContext("_return_value", current_frame_list[0])) != -1)

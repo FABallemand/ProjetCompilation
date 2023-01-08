@@ -119,7 +119,7 @@ Label11:
 la $a0, const_6
 jal string_to_int # Convertir le nombre de chaine en entier
 move $a0, $v0 # Placer le nombre de chaine en argument de fonction
-jal echo_string # Appeler la fonction echo_string
+jal echo_string_function # Appeler la fonction echo_string
 lw $t0, global_stack # 
 sw $v0, 4($t0) # Sauvegarder le résultat dans la varible globale _return_value
 Label12:
@@ -138,7 +138,7 @@ Label15:
 la $a0, const_8
 jal string_to_int # Convertir le nombre de chaine en entier
 move $a0, $v0 # Placer le nombre de chaine en argument de fonction
-jal echo_string # Appeler la fonction echo_string
+jal echo_string_function # Appeler la fonction echo_string
 lw $t0, global_stack # 
 sw $v0, 4($t0) # Sauvegarder le résultat dans la varible globale _return_value
 Label16:
@@ -157,7 +157,7 @@ Label19:
 la $a0, const_11
 jal string_to_int # Convertir le nombre de chaine en entier
 move $a0, $v0 # Placer le nombre de chaine en argument de fonction
-jal echo_string # Appeler la fonction echo_string
+jal echo_string_function # Appeler la fonction echo_string
 lw $t0, global_stack # 
 sw $v0, 4($t0) # Sauvegarder le résultat dans la varible globale _return_value
 Label20:
@@ -188,7 +188,7 @@ Label25:
 la $a0, const_14
 jal string_to_int # Convertir le nombre de chaine en entier
 move $a0, $v0 # Placer le nombre de chaine en argument de fonction
-jal echo_string # Appeler la fonction echo_string
+jal echo_string_function # Appeler la fonction echo_string
 lw $t0, global_stack # 
 sw $v0, 4($t0) # Sauvegarder le résultat dans la varible globale _return_value
 Label26:
@@ -224,7 +224,7 @@ Label31:
 la $a0, const_18
 jal string_to_int # Convertir le nombre de chaine en entier
 move $a0, $v0 # Placer le nombre de chaine en argument de fonction
-jal echo_string # Appeler la fonction echo_string
+jal echo_string_function # Appeler la fonction echo_string
 lw $t0, global_stack # 
 sw $v0, 4($t0) # Sauvegarder le résultat dans la varible globale _return_value
 Label32:
@@ -269,7 +269,7 @@ Label37:
 la $a0, const_21
 jal string_to_int # Convertir le nombre de chaine en entier
 move $a0, $v0 # Placer le nombre de chaine en argument de fonction
-jal echo_string # Appeler la fonction echo_string
+jal echo_string_function # Appeler la fonction echo_string
 lw $t0, global_stack # 
 sw $v0, 4($t0) # Sauvegarder le résultat dans la varible globale _return_value
 Label38:
@@ -406,7 +406,7 @@ Label61:
 la $a0, const_28
 jal string_to_int # Convertir le nombre de chaine en entier
 move $a0, $v0 # Placer le nombre de chaine en argument de fonction
-jal echo_string # Appeler la fonction echo_string
+jal echo_string_function # Appeler la fonction echo_string
 lw $t0, global_stack # 
 sw $v0, 4($t0) # Sauvegarder le résultat dans la varible globale _return_value
 Label62:
