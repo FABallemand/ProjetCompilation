@@ -1,5 +1,6 @@
 #include "translator.h"
 
+char *MIPS_library = "mips/string.asm";
 FILE *output_file = NULL;
 struct stack_frame calling_func;
 
@@ -146,7 +147,7 @@ void translator()
         }
     }
     // Inclure bibliothèque MIPS
-    fprintf(output_file, "\n.include \"mips/string.asm\"\n");
+    fprintf(output_file, "\n.include \"%s\"\n", MIPS_library);
 }
 
 size_t echo_(int i, size_t nb_used_const, struct stack_frame *current_frame_list, size_t nb_nested_declaration)
@@ -170,12 +171,12 @@ size_t echo_(int i, size_t nb_used_const, struct stack_frame *current_frame_list
     return nb_used_const;
 }
 
-size_t read_(int i, size_t nb_used_const, struct stack_frame* current_frame_list, size_t nb_nested_declaration)
+size_t read_(int i, size_t nb_used_const, struct stack_frame *current_frame_list, size_t nb_nested_declaration)
 {
     if (DEBUG)
         printCall("read_");
-    fprintf(output_file,"jal read_string\n");
-    fprintf(output_file,"move $t0, $v0\n");
+    fprintf(output_file, "jal read_string\n");
+    fprintf(output_file, "move $t0, $v0\n");
     int offset = 0;
     // Recherche de l'offset dans la variable à affecter (à gauche du égal)
     if (global_code[i].op2.kind == QO_EMPTY)
@@ -238,12 +239,12 @@ size_t affect(int i, size_t nb_used_const, struct stack_frame *current_frame_lis
     int offset = 0;
 
     // Recherche constante à affecter (à droite du égal)
-    if (global_code[i].res.kind == QO_VAR && global_code[i].res.qval.value[0] >= 48 && global_code[i].res.qval.value[0] <= 57) //si on affect dans un argument
+    if (global_code[i].res.kind == QO_VAR && global_code[i].res.qval.value[0] >= 48 && global_code[i].res.qval.value[0] <= 57) // si on affect dans un argument
     {
         if (global_code[i].op1.kind == QO_CST || global_code[i].op1.kind == QO_STRING)
         {
             fprintf(output_file, "la $t0, const_%ld\n", nb_used_const++); // Charger l'adresse de la valeur dans $t0
-        }// Recherche variable à affecter (à droite du égal)
+        }                                                                 // Recherche variable à affecter (à droite du égal)
         else
         {
             if ((offset = isInContext(global_code[i].op1.qval.value, calling_func)) != -1) // Variable dans le contexte courant
@@ -275,11 +276,10 @@ size_t affect(int i, size_t nb_used_const, struct stack_frame *current_frame_lis
         return nb_used_const;
     }
 
-
     if (global_code[i].op1.kind == QO_CST || global_code[i].op1.kind == QO_STRING)
     {
         fprintf(output_file, "la $t0, const_%ld\n", nb_used_const++); // Charger l'adresse de la valeur dans $t0
-    }// Recherche variable à affecter (à droite du égal)
+    }                                                                 // Recherche variable à affecter (à droite du égal)
     else
     {
         if ((offset = isInContext(global_code[i].op1.qval.value, current_frame_list[nb_nested_declaration])) != -1) // Variable dans le contexte courant
@@ -694,8 +694,8 @@ size_t functionBegin(int i, size_t nb_used_const, struct stack_frame *current_fr
         printCall("functionBegin");
     fprintf(output_file, "%s:\n", global_code[i].res.qval.value);
     current_frame_list[nb_nested_declaration] = findContext(global_code[i].res.qval.value);
-    fprintf(output_file, "sw $ra, %ld($sp) # Savegarder $ra\n",current_frame_list[nb_nested_declaration].stack_frame_size);
-    
+    fprintf(output_file, "sw $ra, %ld($sp) # Savegarder $ra\n", current_frame_list[nb_nested_declaration].stack_frame_size);
+
     return nb_used_const;
 }
 

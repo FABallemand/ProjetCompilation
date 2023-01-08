@@ -8,6 +8,9 @@ EXECUTION_ERROR=3
 # programme
 PROG=${PROG:=bin/sos}
 
+# bibliotèque MIPS
+MIPS_LIB="../../mips/string.asm"
+
 # fichier d'entrée
 INPUT="test/input"
 
@@ -29,7 +32,7 @@ i=0
 # fichiers corrects
 for f in $(ls ${INPUT} | grep "^[^_-]"); do
     echo "Test" $i "-" $f ".........."
-    $PROG -i $INPUT/$f -o $OUTPUT/$f
+    $PROG -i $INPUT/$f -o $OUTPUT/$f -l "../../mips/string.asm"
     if [ $? -ne $COMPILATION_SUCCESS ]
     then
         return 1

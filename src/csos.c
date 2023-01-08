@@ -16,6 +16,7 @@ extern char *yytext;
 extern int yylex();
 extern int yylineno;
 
+extern char *MIPS_library;
 extern FILE *output_file;
 
 int main(int argc, char **argv)
@@ -50,6 +51,11 @@ int main(int argc, char **argv)
             printInfo("Output will be saved in %s\n", argv[i + 1]);
             CHK_NULL(output_file = fopen(argv[++i], "w"));
         }
+        else if (strcmp("-l", argv[i]) == 0)
+        {
+            printInfo("Linking with MIPS library %s\n", argv[i + 1]);
+            MIPS_library = strdup(argv[++i]);
+        }
         else
         {
             printError("Argument invalide");
@@ -69,19 +75,19 @@ int main(int argc, char **argv)
 
     yylineno = 1;
     int r = yyparse();
-    if(r == 1){
-        printError("Echec de la compilation !\nErreur ligne %d : symbole \"%s\" non reconnu", yylineno,yytext);
+    if (r == 1)
+    {
+        printError("Echec de la compilation !\nErreur ligne %d : symbole \"%s\" non reconnu", yylineno, yytext);
         exit(1);
     }
 
-    if(DEBUG)
+    if (DEBUG)
         printAllQuad(); // Afficher le tableau de quadruplets
 
     if (symbol_table)
     {
         printAllStackFrame();
     }
-
 
     translator(); // Traduction du code intermédiaire en code MIPS
 
