@@ -1,11 +1,11 @@
 {
     "files.associations": {
+        "*.lex": "lex",
         "*.fs": "c",
         "*.vs": "c",
         "*.mo": "modelica",
         "*.mot": "modelica",
         "*.unt": "modelica",
-        "*.lex": "lex",
         "print_util.C": "cpp",
         "system_error": "c",
         "array": "c",
@@ -15,6 +15,7 @@
         "utility": "c",
         "declaration_fonction_1": "cpp",
         "declaration_fonction_2": "cpp",
-        "echo_5": "cpp"
+        "echo_5": "cpp",
+        "symbol_table.h": "c"
     }
 }
