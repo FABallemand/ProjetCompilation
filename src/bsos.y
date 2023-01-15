@@ -220,7 +220,7 @@ instruction
 {
     if(DEBUG)
         printRule("UNTIL test_bloc DO liste_instructions g DONE");
-    $$.firstquad = $2.firstquad; // A FAIRE PARTOUT
+    $$.firstquad = $2.firstquad;
     complete($2.lfalse, $4.firstquad);
     $$.next = $2.ltrue;
     complete($4.next, $2.firstquad);
@@ -230,6 +230,9 @@ instruction
 {
     if(DEBUG)
         printRule("CASE operande IN liste_cas ESAC");
+        $$.firstquad = $2.firstquad;
+        genCode(quad_new(Q_CASE, quadop_empty(), quadop_empty(), quadop_empty()));
+        $$.next = next_quad;
 }
 | ECHO_ liste_operandes_echo
 {

@@ -96,7 +96,7 @@ struct quadop
  */
 struct quad
 {
-    enum // vérifier l'utilité de chacun
+    enum
     {
         Q_CONCAT,
         Q_ADD,
@@ -126,7 +126,8 @@ struct quad
         Q_CALL,
         Q_RETURN,
         Q_EXIT,
-        Q_ARRAY_GET
+        Q_ARRAY_GET,
+        Q_CASE
     } kind; //< Type de quadruplet
 
     struct quadop op1, op2, res; //< Opérandes

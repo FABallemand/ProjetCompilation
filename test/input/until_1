@@ -1,0 +1,8 @@
+i = 10;
+until test ${i} -lt 1 do
+    echo ${i};
+    i = ${i} - 1
+done;
+echo "FINAL:" ${i} "\n";
+echo "OK";
+exit

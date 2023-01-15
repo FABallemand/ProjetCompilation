@@ -1,12 +1,12 @@
 {
     "files.associations": {
+        ".y":"yacc",
         "*.lex": "lex",
         "*.fs": "c",
         "*.vs": "c",
         "*.mo": "modelica",
         "*.mot": "modelica",
         "*.unt": "modelica",
-        "print_util.C": "cpp",
         "system_error": "c",
         "array": "c",
         "functional": "c",

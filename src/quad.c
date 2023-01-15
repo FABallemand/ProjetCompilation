@@ -93,6 +93,10 @@ void printQuad(struct quad q)
             printQuadop(q.op1);
         }
     }
+    else if (q.kind == Q_CASE)
+    {
+        printf("case");
+    }
     else
     {
         printQuadop(q.op1);
