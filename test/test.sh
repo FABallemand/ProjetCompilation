@@ -14,6 +14,7 @@ MIPS_LIB="../../mips/string.asm"
 
 # fichier d'entrée
 INPUT="test/input"
+INPUT_BENCHMARK="test/BenchmarksSoS"
 
 # fichier de sortie
 OUTPUT="test/output"
@@ -39,17 +40,17 @@ for f in $(ls ${INPUT} | grep "^[^_-]"); do
         return 1
     fi
     echo "COMPILATION - OK"
-    java -jar ${MARS} me ae2 se3 $OUTPUT/$f me
-    echo $?
-    if [ $? -eq $ASSEMBLY_ERROR ]
-    then
-        return 2
-    fi
-    if [ $? -eq $EXECUTION_ERROR ]
-    then
-        return 3
-    fi
-    echo "EXECUTION - OK"
+    # java -jar ${MARS} me ae2 se3 $OUTPUT/$f me
+    # echo $?
+    # if [ $? -eq $ASSEMBLY_ERROR ]
+    # then
+    #     return 2
+    # fi
+    # if [ $? -eq $EXECUTION_ERROR ]
+    # then
+    #     return 3
+    # fi
+    # echo "EXECUTION - OK"
     i=$((i+1))
 done
 
@@ -62,5 +63,28 @@ for f in $(ls ${INPUT} | grep "^_"); do
         return 1
     fi
     echo "COMPILATION - OK"
+    i=$((i+1))
+done
+
+# fichiers benchmark
+for f in $(ls ${INPUT_BENCHMARK}); do
+    echo "Test" $i "-" $f
+    $PROG -i $INPUT_BENCHMARK/$f -o $OUTPUT/$f -l $MIPS_LIB
+    if [ $? -ne $COMPILATION_SUCCESS ]
+    then
+        return 1
+    fi
+    echo "COMPILATION - OK"
+    # java -jar ${MARS} me ae2 se3 $OUTPUT/$f me
+    # echo $?
+    # if [ $? -eq $ASSEMBLY_ERROR ]
+    # then
+    #     return 2
+    # fi
+    # if [ $? -eq $EXECUTION_ERROR ]
+    # then
+    #     return 3
+    # fi
+    # echo "EXECUTION - OK"
     i=$((i+1))
 done

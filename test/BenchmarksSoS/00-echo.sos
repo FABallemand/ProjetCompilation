@@ -1,0 +1,7 @@
+
+echo "Hello world!" ;
+echo "Hello" "world!" ;
+greeting = "Hello" ;
+echo ${greeting} "world!";
+exit
+
