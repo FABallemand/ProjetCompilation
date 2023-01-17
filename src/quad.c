@@ -145,7 +145,7 @@ void printQuad(struct quad q)
             printf(" -n ");
             break;
         case Q_EQUAL_STRING:
-            printf(" = ");
+            printf(" == ");
             break;
         case Q_NOT_EQUAL_STRING:
             printf(" != ");

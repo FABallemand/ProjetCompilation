@@ -5,7 +5,6 @@
 #include <stdlib.h>
 
 #include "error_handling.h"
-
 #include "symbol_table.h"
 
 /**
@@ -36,7 +35,7 @@ struct list *createList(size_t a);
 /**
  * \brief Libère la mémoire occupée par une liste chainée
  *
- * \param l Pointeur sur la nouvelle liste chainée
+ * \param l Pointeur sur la liste chainée
  */
 void freeList(struct list *l);
 
@@ -72,7 +71,7 @@ void addCallList(size_t nb_arg, struct symbol *fun);
 
 /**
  * \brief Retire de la liste tous les éléments relatifs à une fonctions dont le nombre d'arguments a été déterminé et déclenche une erreur si une fonction est appelée avec un nombre d'arguments invalide
- * 
+ *
  * \param fun Fonction dont le nombre d'arguments est connu
  */
 void removeCallList(struct symbol *fun);
@@ -80,7 +79,7 @@ void removeCallList(struct symbol *fun);
 /**
  * \brief Libère la mémoire occupée par une liste chainée
  *
- * \param l Pointeur sur la nouvelle liste chainée
+ * \param l Pointeur sur la liste chainée
  */
 void freeCallList(struct call_list *l);
 

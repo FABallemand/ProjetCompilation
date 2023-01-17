@@ -1,0 +1,7 @@
+a = 10;
+case ${a} in
+    "2" ) echo "ketterlin\n" ;;
+    "10" ) echo "clauss\n" ;;
+    * ) echo "COMPILATION\n" ;;
+esac;
+exit

@@ -6,12 +6,8 @@ lecture_valeurs() # Saisie des valeurs entières
 {
     local i = 0;
     local nombre = $1;
-    a = $(expr ${i} + 1);
-    echo "RES" ${a} "\n";
-    echo ${i} ${nombre} "\n";
     echo "Il faut saisir " $1 "valeurs entieres\n";
     while test ${i} -lt ${nombre} do
-        echo "dans le while" ${i} "\n";
         tmp1 = $(expr ${i} + 1);
         echo "Entrez la valeur " ${tmp1} " : \n";
         read valeurs[${i}];
@@ -35,7 +31,6 @@ moyenne() { # Calcul de la moyenne des valeurs
 
 echo "Nombre de valeurs :";
 read nombre;
-echo "Avant appel de lecture_valeur" ${nombre} "\n";
 lecture_valeurs ${nombre};
 if test $? = 0 then
     tmp2 = $(moyenne ${nombre});

@@ -17,6 +17,7 @@ char return_value[14] = "_return_value";
 char status[2] = "?";
 char zero[2] = "0";
 char empty[2] = "\0";
+struct quadop case_value; //< Valeur globale (pour éviter de faire une pile, pas de case imbriqués...)
 %}
 
 %union {
@@ -29,6 +30,7 @@ char empty[2] = "\0";
 
     struct {
         size_t firstquad;
+        struct list* next; // Uniquement utilisée pour les liste_cas
         struct list* ltrue;
         struct list* lfalse;
     } bool_val;
@@ -50,7 +52,7 @@ char empty[2] = "\0";
 
 %type <inst_val> instruction liste_instructions else_part g decl_loc declaration_de_fonction
 
-%type <bool_val> test_bloc test_expr test_expr2 test_expr3 test_instruction
+%type <bool_val> test_bloc test_expr test_expr2 test_expr3 test_instruction filtre liste_cas
 
 %type <expr_val> concatenation operande somme_entiere produit_entier operande_entier appel_de_fonction
 
@@ -226,13 +228,16 @@ instruction
     complete($4.next, $2.firstquad);
     complete($5.next, $2.firstquad);
 }
-| CASE operande IN liste_cas ESAC
+| CASE operande 
+{
+    case_value = $2.result;
+}
+IN liste_cas ESAC
 {
     if(DEBUG)
         printRule("CASE operande IN liste_cas ESAC");
-        $$.firstquad = $2.firstquad;
-        genCode(quad_new(Q_CASE, quadop_empty(), quadop_empty(), quadop_empty()));
-        $$.next = next_quad;
+    $$.firstquad = $5.firstquad;
+    $$.next = concat($5.next, $5.lfalse);
 }
 | ECHO_ liste_operandes_echo
 {
@@ -383,15 +388,37 @@ else_part
 ;
 
 liste_cas
-: liste_cas filtre CPAR liste_instructions SEMI_CO SEMI_CO
+: liste_cas
+{
+    complete($1.lfalse, next_quad); // Pour passer au filtre suivant
+}
+filtre
+{
+    complete($3.ltrue, next_quad);
+}
+CPAR liste_instructions SEMI_CO SEMI_CO
 {
     if(DEBUG)
         printRule("liste_cas filtre CPAR liste_instructions SEMI_CO SEMI_CO");
+    $$.firstquad = $1.firstquad;
+    $$.lfalse = $3.lfalse;
+    $$.next = concat($1.next, $6.next); // Remonter le next de liste_instructions
+    $$.next = concat($$.next, createList(next_quad));
+    genCode(quad_new(Q_GOTO, quadop_empty(), quadop_empty(),  quadop_unknown())); // Break implicite
 }
-| filtre CPAR liste_instructions SEMI_CO SEMI_CO
+| filtre 
+{
+    complete($1.ltrue, next_quad);
+}
+CPAR liste_instructions SEMI_CO SEMI_CO
 {
     if(DEBUG)
         printRule("filtre CPAR liste_instructions SEMI_CO SEMI_CO");
+    $$.firstquad = $1.firstquad;
+    $$.lfalse = $1.lfalse;
+    $$.next = $4.next; // Remonter le next de liste_instructions
+    $$.next = concat($$.next, createList(next_quad));
+    genCode(quad_new(Q_GOTO, quadop_empty(), quadop_empty(),  quadop_unknown())); // Break implicite
 }
 ;
 
@@ -399,17 +426,31 @@ filtre
 : STRING
 {
     if(DEBUG)
-        printRule("STRING");
+        printRule("STRING (filtre)");
+    $$.firstquad = next_quad;
+    $$.ltrue = createList(next_quad);
+    $$.lfalse = createList(next_quad + 1);
+    genCode(quad_new(Q_EQUAL_STRING, case_value, quadop_cst($1), quadop_unknown()));
+    genCode(quad_new(Q_GOTO, quadop_empty(), quadop_empty(), quadop_unknown()));
 }
 | filtre CASE_OR STRING
 {
     if(DEBUG)
         printRule("CASE_OR STRING");
+    complete($1.lfalse, next_quad);
+    $$.firstquad = $1.firstquad;
+    $$.ltrue = concat($1.ltrue, createList(next_quad));
+    $$.lfalse = createList(next_quad + 1);
+    genCode(quad_new(Q_EQUAL_STRING, case_value, quadop_cst($3), quadop_unknown()));
+    genCode(quad_new(Q_GOTO, quadop_empty(), quadop_empty(), quadop_unknown()));
 }
 | STAR
 {
     if(DEBUG)
         printRule("STAR");
+    $$.firstquad = next_quad;
+    $$.ltrue = NULL;
+    $$.lfalse = NULL;
 }
 ;
 

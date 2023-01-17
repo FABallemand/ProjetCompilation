@@ -1,6 +1,0 @@
-a = 10;
-case ${a} in
-    2) echo "ketterlin" ;;
-    10) echo "clauss" ;;
-    *) echo "COMPILATION" ;;
-esac
