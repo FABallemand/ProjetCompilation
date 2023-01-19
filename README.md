@@ -1,9 +1,9 @@
-# Projet Compilation M1 SDSC
+# Projet Compilation - M1 SDSC
 
-## Membres du groupe
+## Synopsis
 
--ALLEMAND Fabien  
--LEBOT Samuel  
+Ce projet consiste à ́ecrire un compilateur pour un langage de programmation impératif simple appelé SoS qui utilise une syntaxe et des fonctionnalités issues d’un sous-ensemble de langage shell unix (Sous-Shell).
+Ecrit en C et en utilisant les outils Flex et Bison, le compilateur est capable de traduire un programme écrit en SoS en une suite d’instructions MIPS pouvant être exécutées à l’aide d’un simulateur.
 
 ## Makefile
 
@@ -39,6 +39,7 @@ SOS
     -i          Permet d'indiquer le fichier à compiler  
     -o          Permet d'indiquer le fichier résultat de la compilation  
 
-## Remarques:
+## Membres du groupe
 
--De nombreux fichiers tests sont disponibles dans le dossier *test*. L'ensemble de ces fichiers ont été testés manuellement à l'aide du simulateur MIPS [Mars](https://www.d.umn.edu/~gshute/mips/Mars/Mars.html)
+- ALLEMAND Fabien  
+- LEBOT Samuel  
