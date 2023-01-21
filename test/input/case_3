@@ -1,14 +1,14 @@
-une_variable = 1;
+une_variable = 0;
 
 while test ${une_variable} -lt 10 do
     case ${une_variable} in
+        "0" ) echo ${une_variable} "= 0\n"; une_variable = $( expr ${une_variable} + 1) ;;
         "1" ) echo ${une_variable} "= 1\n"; une_variable = $( expr ${une_variable} + 1) ;;
-        "2" ) echo ${une_variable} "= 2\n"; une_variable = $( expr ${une_variable} + 100) ;;
-        * ) echo "DEFAULT\n"; une_variable = 0 ;;
+        * ) echo "DEFAULT\n"; une_variable = $( expr ${une_variable} + 100) ;;
     esac
 done;
 
-if test ${une_variable} -eq 0 then
+if test ${une_variable} -eq 102 then
     echo "OK\n"
 else
     echo "NOK\n"
