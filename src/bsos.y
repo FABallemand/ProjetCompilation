@@ -236,7 +236,7 @@ IN liste_cas ESAC
 {
     if(DEBUG)
         printRule("CASE operande IN liste_cas ESAC");
-    $$.firstquad = $5.firstquad;
+    $$.firstquad = $2.firstquad;
     $$.next = concat($5.next, $5.lfalse);
 }
 | ECHO_ liste_operandes_echo

@@ -81,7 +81,7 @@ move $t0, $v0
 move $a0, $t2
 jal string_to_int
 move $t2, $v0
-beq $t0, $t2, Label8
+beq $t0, $t2, Label7
 Label6:
 j Label22
 Label7:
