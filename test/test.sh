@@ -67,7 +67,7 @@ for f in $(ls ${INPUT} | grep "^_"); do
 done
 
 # fichiers benchmark
-for f in $(ls ${INPUT_BENCHMARK}); do
+for f in $(ls ${INPUT_BENCHMARK} | grep "^[^-]"); do
     echo "Test" $i "-" $f
     $PROG -i $INPUT_BENCHMARK/$f -o $OUTPUT/$f -l $MIPS_LIB
     if [ $? -ne $COMPILATION_SUCCESS ]

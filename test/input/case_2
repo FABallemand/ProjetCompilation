@@ -1,0 +1,14 @@
+declare tab[2];
+
+tab[0] = 0;
+tab[1] = 1;
+
+if test ${tab[0]} -eq 0 then
+    case ${tab[1]} in
+        "42" ) echo "NOK\n" ;;
+        "1" ) echo "OK\n" ;;
+        * ) echo "NOK\n" ;;
+    esac
+fi;
+
+exit

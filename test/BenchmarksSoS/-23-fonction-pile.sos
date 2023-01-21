@@ -7,14 +7,17 @@ fact () { # n
         p = $(expr ${p} * ${i}) ;
         i = $(expr ${i} + 1)
     done ;
-    echo ${p}
+    echo ${p};
+    return ${p}
 } ;
 
 choose () { # k n
     local fn = $(fact $2) ;
     local fk = $(fact $1) ;
     local fnk = $(fact $(expr $2 - $1)) ;
-    echo $(expr ${fn} / ${fk} / ${fnk})
+    echo $(expr ${fn} / ${fk} / ${fnk});
+    res = $(expr ${fn} / ${fk} / ${fnk});
+    return ${res}
 } ;
 
 tmp = $(choose 3 5);
